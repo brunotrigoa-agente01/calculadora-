@@ -1,0 +1,213 @@
+:root {
+    color-scheme: dark;
+    font-family: 'DM Sans', sans-serif;
+    background: #10131c;
+    color: #f5f6fa;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background:
+        radial-gradient(ellipse at 50% 12%, rgb(106 92 255 / 16%), transparent 38%),
+        #10131c;
+}
+
+button {
+    font: inherit;
+}
+
+.pagina {
+    display: grid;
+    min-height: 100vh;
+    padding: 32px 20px;
+    place-items: center;
+}
+
+.calculadora {
+    width: min(100%, 380px);
+    padding: 26px;
+    border: 1px solid rgb(255 255 255 / 9%);
+    border-radius: 28px;
+    background: linear-gradient(145deg, #202432, #191c27 72%);
+    box-shadow:
+        0 30px 80px rgb(0 0 0 / 42%),
+        inset 0 1px 0 rgb(255 255 255 / 7%);
+}
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 27px;
+}
+
+.marca {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #7367f0;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 27px;
+    font-weight: 600;
+    place-items: center;
+}
+
+.cabecalho h1,
+.cabecalho p,
+.visor-legenda {
+    margin: 0;
+}
+
+.cabecalho h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.cabecalho p {
+    margin-top: 3px;
+    color: #9298aa;
+    font-size: 12px;
+}
+
+.visor {
+    display: flex;
+    min-height: 126px;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    overflow: hidden;
+    margin-bottom: 19px;
+    padding: 17px 5px 18px;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+    text-align: right;
+}
+
+.visor-legenda {
+    margin-bottom: 9px;
+    color: #9298aa;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.visor-valor {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(38px, 12vw, 54px);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.teclado {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.tecla {
+    min-width: 0;
+    min-height: 62px;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    background: #2a2e3b;
+    color: #f5f6fa;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    font-weight: 500;
+    transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tecla:hover {
+    border-color: rgb(255 255 255 / 10%);
+    background: #363b4b;
+}
+
+.tecla:active {
+    transform: scale(0.96);
+}
+
+.tecla:focus-visible {
+    outline: 3px solid #a69fff;
+    outline-offset: 3px;
+}
+
+.tecla-funcao {
+    background: #373b49;
+    color: #c7c9d3;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.tecla-operacao {
+    background: #343052;
+    color: #aaa3ff;
+    font-size: 25px;
+}
+
+.tecla-operacao:hover {
+    background: #413b6d;
+}
+
+.tecla-zero {
+    grid-column: span 2;
+    text-align: left;
+    padding-left: 25px;
+}
+
+.tecla-igual {
+    background: #7367f0;
+    color: #fff;
+    font-size: 26px;
+}
+
+.tecla-igual:hover {
+    background: #8278ff;
+}
+
+@media (max-width: 380px) {
+    .calculadora {
+        padding: 21px;
+        border-radius: 24px;
+    }
+
+    .teclado {
+        gap: 9px;
+    }
+
+    .tecla {
+        min-height: 57px;
+        border-radius: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
