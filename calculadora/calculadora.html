@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10131c">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="calculadora.css">
+</head>
+<body>
+    <main class="pagina">
+        <section class="calculadora" aria-labelledby="titulo-calculadora">
+            <header class="cabecalho">
+                <div class="marca" aria-hidden="true">+</div>
+                <div>
+                    <h1 id="titulo-calculadora">Calculadora</h1>
+                    <p>Simples e prática</p>
+                </div>
+            </header>
+
+            <div class="visor" aria-label="Visor da calculadora">
+                <p class="visor-legenda" aria-hidden="true">RESULTADO</p>
+                <output class="visor-valor" id="display" aria-live="polite">0</output>
+            </div>
+
+            <div class="teclado" aria-label="Teclado da calculadora">
+                <button class="tecla tecla-funcao" type="button" data-action="clear" aria-label="Limpar">AC</button>
+                <button class="tecla tecla-funcao" type="button" data-action="sign" aria-label="Inverter sinal">+/−</button>
+                <button class="tecla tecla-funcao" type="button" data-action="percent" aria-label="Porcentagem">%</button>
+                <button class="tecla tecla-operacao" type="button" data-operation="divide" aria-label="Dividir">÷</button>
+
+                <button class="tecla" type="button" data-number="7">7</button>
+                <button class="tecla" type="button" data-number="8">8</button>
+                <button class="tecla" type="button" data-number="9">9</button>
+                <button class="tecla tecla-operacao" type="button" data-operation="multiply" aria-label="Multiplicar">×</button>
+
+                <button class="tecla" type="button" data-number="4">4</button>
+                <button class="tecla" type="button" data-number="5">5</button>
+                <button class="tecla" type="button" data-number="6">6</button>
+                <button class="tecla tecla-operacao" type="button" data-operation="subtract" aria-label="Subtrair">−</button>
+
+                <button class="tecla" type="button" data-number="1">1</button>
+                <button class="tecla" type="button" data-number="2">2</button>
+                <button class="tecla" type="button" data-number="3">3</button>
+                <button class="tecla tecla-operacao" type="button" data-operation="add" aria-label="Somar">+</button>
+
+                <button class="tecla tecla-zero" type="button" data-number="0">0</button>
+                <button class="tecla" type="button" data-action="decimal" aria-label="Vírgula decimal">,</button>
+                <button class="tecla tecla-igual" type="button" data-action="equals" aria-label="Igual">=</button>
+            </div>
+        </section>
+    </main>
+    <script src="calculadora.js"></script>
+</body>
+</html>
