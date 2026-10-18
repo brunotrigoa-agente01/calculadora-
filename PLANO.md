@@ -29,7 +29,7 @@ Evoluir a calculadora existente para uma aplicação com front-end no navegador 
 
 ## Etapa atual
 
-Etapa 1 — Primeiro servidor HTTP. Status: **Pendente**; plano aprovado, implementação ainda não iniciada.
+Etapa 3 — API de cálculo. Status: **Pendente**.
 
 ## Etapas
 
@@ -38,14 +38,14 @@ Etapa 1 — Primeiro servidor HTTP. Status: **Pendente**; plano aprovado, implem
 - **Objetivo:** entender como o Node.js cria um servidor usando o módulo nativo `node:http`.
 - **Resultado verificável:** criar `server.js`, iniciar o servidor na porta 3000 e responder com uma mensagem de texto simples.
 - **Teste:** executar `node server.js`, abrir `http://localhost:3000` e conferir a mensagem; encerrar com `Ctrl+C`.
-- **Status:** Pendente.
+- **Status:** Concluída; o usuário confirmou que iniciou o servidor e testou a resposta em `http://localhost:3000`.
 
 ### 2. Requisições e respostas HTTP
 
 - **Objetivo:** compreender o fluxo entre cliente e servidor, incluindo métodos, rotas, status e cabeçalhos.
 - **Resultado verificável:** distinguir requisições por caminho e responder de forma apropriada, incluindo uma resposta JSON.
 - **Teste:** fazer requisições aos caminhos definidos e conferir conteúdo, cabeçalhos e status.
-- **Status:** Pendente.
+- **Status:** Concluída; testes confirmados pelo usuário: `GET /api` retornou 200 com JSON, `POST /api` retornou 405, `/` retornou 200 com texto e um caminho inexistente retornou 404 com JSON.
 
 ### 3. API de cálculo
 
@@ -90,13 +90,17 @@ Etapa 1 — Primeiro servidor HTTP. Status: **Pendente**; plano aprovado, implem
 ## Histórico de mudanças
 
 - **2026-10-15** — Roteiro inicial aprovado: evolução gradual da calculadora existente para uma aplicação com Node.js, começando por `node:http` e mantendo o front-end no navegador. Nenhuma implementação foi iniciada.
+- **2026-10-15** — Etapa 1 concluída após o usuário confirmar que testou o servidor HTTP em `http://localhost:3000`; etapa 2 definida como atual.
+- **2026-10-16** — Etapa 2 concluída após confirmação dos testes das rotas, métodos HTTP, respostas JSON e status 200, 404 e 405; etapa 3 definida como atual.
 
 ## Conceitos
 
 ### Praticados ou presentes no código atual
 
 - JavaScript no navegador: DOM, eventos, funções, estado e lógica de operações.
-- Node.js: o arquivo `node.js.js` usa `require('node:fs')` e `readFileSync()` para ler um arquivo; também processa linhas com `split()`, `filter()` e `forEach()`.
+- Node.js: servidor HTTP básico com `node:http`, `createServer()`, `response.end()` e `listen()` (etapa 1 testada pelo usuário).
+- HTTP: diferença entre caminho (`req.url`) e método (`req.method`), cabeçalho `Content-Type`, serialização JSON e status HTTP 200, 404 e 405 (etapa 2 testada pelo usuário).
+- O plano mencionava o arquivo `node.js.js` como exemplo de uso de `node:fs`, mas ele não está na pasta `calculadora01`; revisar essa referência se o arquivo voltar a fazer parte do projeto.
 - A presença desses conceitos no código não significa que todos estejam consolidados; serão retomados quando necessários.
 
 ### A praticar ou revisar durante o projeto
