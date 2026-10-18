@@ -24,14 +24,57 @@ const servidor = http.createServer((req, res) => {
         req.on('data', (pedaco) =>{
             corpo = corpo + pedaco
         })
-
+ 
         req.on('end', () => {
-            res.statusCode = 200
             const dados = JSON.parse(corpo);
-            console.log(dados.valor1);
-            console.log(dados.valor2);
-            console.log(dados.operacao);
-            res.end('dados recebidos')
+
+            const objetoValido = //true 
+                dados != null && 
+                typeof dados === 'object' &&
+                !Array.isArray(dados);
+
+            const valoresValidos = // true
+                objetoValido &&
+                Number.isFinite(dados.valor1)&&
+                Number.isFinite(dados.valor2);
+
+            
+            const operadoresValidos = [ //true
+                'somar',
+                'multiplicar',
+                'dividir',
+                'subtrair'
+            ];
+
+            const operacaoValida = //true
+            objetoValido &&
+            operadoresValidos.includes(dados.operacao);
+
+            if(!objetoValido || !valoresValidos || !operacaoValida){ //false
+                res.statusCode = 400
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                res.end('digite dados validos e dois numeros')
+                return;
+            }
+            
+            let resultado;
+
+            if(dados.operacao === 'somar') {
+                resultado = dados.valor1 + dados.valor2 
+
+            }else if(dados.operacao === 'subtrair') {
+                resultado = dados.valor1 - dados.valor2 
+            
+            }else if(dados.operacao === 'multiplicar') {
+                resultado = dados.valor1 * dados.valor2 
+            
+            }else if(dados.operacao === 'dividir') {
+                resultado = dados.valor1 / dados.valor2 
+            }
+
+            res.statusCode = 200
+            console.log(`${dados.valor1} ${dados.operacao} ${dados.valor2} = ${resultado}`)
+            res.end(String(resultado) )
         })
 
     }else {res.statusCode = 404;
