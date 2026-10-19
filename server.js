@@ -26,8 +26,16 @@ const servidor = http.createServer((req, res) => {
         })
  
         req.on('end', () => {
-            const dados = JSON.parse(corpo);
-
+            let dados;
+            try{
+                dados = JSON.parse(corpo);
+            
+            }catch (error){
+                res.end(JSON.String({error: 'JSON mal formado'}))
+                return
+            }
+                
+            
             const objetoValido = //true 
                 dados != null && 
                 typeof dados === 'object' &&
@@ -68,7 +76,19 @@ const servidor = http.createServer((req, res) => {
             }else if(dados.operacao === 'multiplicar') {
                 resultado = dados.valor1 * dados.valor2 
             
-            }else if(dados.operacao === 'dividir') {
+            }else if(dados.operacao === 'dividir' ) {
+                try{
+                    if (dados.valor2 === 0) {
+                        res.statusCode = 400;
+                        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                        res.end(JSON.stringify({ erro: 'Divisão por zero' }));
+                        return;
+                    }
+                }catch (error){
+                    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                    res.end(JSON.stringify({error:'numero 0 não é divisivel'}));
+                    return;
+                }
                 resultado = dados.valor1 / dados.valor2 
             }
 

@@ -51,7 +51,23 @@ Etapa 3 — API de cálculo. Status: **Pendente**.
 
 - **Objetivo:** receber operação e operandos, validar os dados e calcular no back-end.
 - **Resultado verificável:** rota de cálculo que retorna o resultado em JSON e trata entradas inválidas e divisão por zero.
-- **Teste:** enviar casos válidos e inválidos e conferir resultados e respostas HTTP.
+- **Pendências, em ordem:**
+  1. **Definir o contrato da rota:** usar `POST /calcular`, receber um corpo JSON com `valor1`, `valor2` e `operacao`; aceitar apenas os nomes de operação já previstos no servidor (`somar`, `subtrair`, `multiplicar`, `dividir`).
+  2. **Ler e interpretar o corpo da requisição:** juntar os trechos recebidos pelo evento `data` e interpretar o JSON ao final. Se o corpo estiver vazio ou não for JSON válido, responder com erro `400` em JSON, sem encerrar o processo do servidor.
+  3. **Validar os dados:** exigir um objeto (não `null` nem array), dois operandos numéricos finitos e uma operação permitida. Para dados ausentes ou inválidos, responder com status `400` e uma mensagem de erro em JSON.
+  4. **Tratar divisão por zero:** se a operação for `dividir` e `valor2` for zero, responder com status `400` e erro em JSON; não retornar `Infinity` nem `NaN` como se fossem resultados válidos.
+  5. **Calcular e responder:** executar a operação validada e retornar status `200` com `Content-Type: application/json; charset=utf-8` e um objeto JSON contendo o resultado. Usar o mesmo formato JSON de resposta de erro nos casos inválidos.
+  6. **Revisar o fluxo HTTP da rota:** confirmar que `POST /calcular` chega ao tratamento de cálculo e que outros métodos nesse caminho não são tratados como sucesso; retornar `405` para método não permitido, se a rota receber um método diferente de `POST`.
+  7. **Testar antes de avançar:** com o servidor ativo, enviar requisições e conferir status, cabeçalho e corpo da resposta em cada caso abaixo.
+- **Casos mínimos de teste:**
+  - `POST /calcular` com `{"valor1":8,"valor2":2,"operacao":"somar"}`: status `200` e resultado numérico `10` em JSON.
+  - Repetir com `subtrair`, `multiplicar` e `dividir`, conferindo respectivamente `6`, `16` e `4`.
+  - Divisão por zero: status `400` e erro em JSON.
+  - Corpo com JSON malformado ou vazio: status `400` e erro em JSON; confirmar que o servidor continua rodando.
+  - Campo ausente, operandos como texto, `null`, array ou número não finito: status `400` e erro em JSON.
+  - Operação desconhecida: status `400` e erro em JSON.
+  - Método diferente de `POST` em `/calcular`: confirmar que não executa o cálculo e retorna `405`.
+- **Critério para concluir a etapa:** todos os casos mínimos passam, respostas de sucesso e erro são JSON, e o servidor permanece ativo diante de entradas inválidas. Depois, atualizar o status desta etapa para concluída e só então iniciar a integração do front-end.
 - **Status:** Pendente.
 
 ### 4. Integração do front-end
