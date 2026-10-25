@@ -1,16 +1,56 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const http = require('node:http');
+const { calcular} = require('./calcular.js');
+
+let arquivosPublicos = {
+
+   '/':{ 
+    nome: 'calculadora.html',
+    tipo: 'text/html; charset=utf-8'},
+
+   '/calculadora.js':{ 
+    nome: 'calculadora.js',
+    tipo: 'text/javascript; charset=utf-8'},
+
+   '/calculadora.css':{ 
+    nome: 'calculadora.css',
+    tipo: 'text/css; charset=utf-8'},
+
+};
+
 
 const servidor = http.createServer((req, res) => {
-    console.log(req.url)
-    if(req.url === '/'){
-        res.statusCode = 200;
-        res.setHeader('content-Type', 'text/plain; charset=utf-8' );
-        res.end('servidor de calculadora funcionando')
+   const arquivoPublico = arquivosPublicos[req.url];
+
+    if (req.method === 'GET' && arquivoPublico) {
+        const caminhoArquivo = path.join(
+            __dirname,
+            arquivoPublico.nome
+        );
+
+        fs.readFile(caminhoArquivo, (erro, conteudo) => {
+            if (erro) {
+                res.statusCode = 500;
+                res.setHeader(
+                    'content-Type',
+                    'text/plain; charset=utf-8'
+                );
+                res.end('Erro ao carregar o arquivo');
+                return;
+            }
+
+            res.statusCode = 200;
+            res.setHeader('content-Type', arquivoPublico.tipo);
+            res.end(conteudo);
+        });
+
+        return;
 
     }else if (req.method === 'GET' && req.url === '/api') {
         res.statusCode = 200;
         res.setHeader('content-Type', 'application/json; charset=utf-8')
-        const resposta = {mensagem: 'apida calculadora funcionado'};
+        const resposta = {mensagem: 'api da calculadora funcionado'};
         res.end(JSON.stringify(resposta))
 
     }else if (req.url === '/api') {
@@ -30,8 +70,10 @@ const servidor = http.createServer((req, res) => {
             try{
                 dados = JSON.parse(corpo);
             
-            }catch (error){
-                res.end(JSON.String({error: 'JSON mal formado'}))
+            }catch (erro){
+                res.statusCode = 400
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({erro: 'JSON mal formado'}))
                 return
             }
                 
@@ -39,7 +81,7 @@ const servidor = http.createServer((req, res) => {
             const objetoValido = //true 
                 dados != null && 
                 typeof dados === 'object' &&
-                !Array.isArray(dados);
+                !Array.isArray(dados); // array.isarray verifica se é false, ou seja, não é um array
 
             const valoresValidos = // true
                 objetoValido &&
@@ -60,49 +102,39 @@ const servidor = http.createServer((req, res) => {
 
             if(!objetoValido || !valoresValidos || !operacaoValida){ //false
                 res.statusCode = 400
-                res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                res.end('digite dados validos e dois numeros')
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({erro:'digite dados validos e dois numeros'}))
                 return;
             }
-            
             let resultado;
+            try {
+                resultado = calcular(dados.valor1, dados.valor2, dados.operacao);
+                
 
-            if(dados.operacao === 'somar') {
-                resultado = dados.valor1 + dados.valor2 
+            } catch (erro) {
+                res.statusCode = 400
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({erro: erro.message}))
+                return;
 
-            }else if(dados.operacao === 'subtrair') {
-                resultado = dados.valor1 - dados.valor2 
-            
-            }else if(dados.operacao === 'multiplicar') {
-                resultado = dados.valor1 * dados.valor2 
-            
-            }else if(dados.operacao === 'dividir' ) {
-                try{
-                    if (dados.valor2 === 0) {
-                        res.statusCode = 400;
-                        res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                        res.end(JSON.stringify({ erro: 'Divisão por zero' }));
-                        return;
-                    }
-                }catch (error){
-                    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                    res.end(JSON.stringify({error:'numero 0 não é divisivel'}));
-                    return;
-                }
-                resultado = dados.valor1 / dados.valor2 
             }
-
             res.statusCode = 200
+            res.setHeader('content-Type', 'application/json; charset=utf-8')
             console.log(`${dados.valor1} ${dados.operacao} ${dados.valor2} = ${resultado}`)
-            res.end(String(resultado) )
-        })
+            res.end(JSON.stringify({resultado:resultado}))
+    });
 
-    }else {res.statusCode = 404;
-        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    }else if(req.url !='/calcular') {
+        res.statusCode = 404;
+        res.setHeader('content-Type', 'application/json; charset=utf-8');
         res.end(JSON.stringify({ erro: 'Caminho não encontrado' }));
+
+
+    }else {res.statusCode = 405;
+        res.setHeader('content-Type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify({ erro: 'método não reconhecido' }));
     }
 
-    
 }) 
     
 

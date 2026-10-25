@@ -29,7 +29,7 @@ Evoluir a calculadora existente para uma aplicação com front-end no navegador 
 
 ## Etapa atual
 
-Etapa 3 — API de cálculo. Status: **Pendente**.
+Etapa 5 — Organização e testes. Status: **Pendente**.
 
 ## Etapas
 
@@ -51,31 +51,19 @@ Etapa 3 — API de cálculo. Status: **Pendente**.
 
 - **Objetivo:** receber operação e operandos, validar os dados e calcular no back-end.
 - **Resultado verificável:** rota de cálculo que retorna o resultado em JSON e trata entradas inválidas e divisão por zero.
-- **Pendências, em ordem:**
-  1. **Definir o contrato da rota:** usar `POST /calcular`, receber um corpo JSON com `valor1`, `valor2` e `operacao`; aceitar apenas os nomes de operação já previstos no servidor (`somar`, `subtrair`, `multiplicar`, `dividir`).
-  2. **Ler e interpretar o corpo da requisição:** juntar os trechos recebidos pelo evento `data` e interpretar o JSON ao final. Se o corpo estiver vazio ou não for JSON válido, responder com erro `400` em JSON, sem encerrar o processo do servidor.
-  3. **Validar os dados:** exigir um objeto (não `null` nem array), dois operandos numéricos finitos e uma operação permitida. Para dados ausentes ou inválidos, responder com status `400` e uma mensagem de erro em JSON.
-  4. **Tratar divisão por zero:** se a operação for `dividir` e `valor2` for zero, responder com status `400` e erro em JSON; não retornar `Infinity` nem `NaN` como se fossem resultados válidos.
-  5. **Calcular e responder:** executar a operação validada e retornar status `200` com `Content-Type: application/json; charset=utf-8` e um objeto JSON contendo o resultado. Usar o mesmo formato JSON de resposta de erro nos casos inválidos.
-  6. **Revisar o fluxo HTTP da rota:** confirmar que `POST /calcular` chega ao tratamento de cálculo e que outros métodos nesse caminho não são tratados como sucesso; retornar `405` para método não permitido, se a rota receber um método diferente de `POST`.
-  7. **Testar antes de avançar:** com o servidor ativo, enviar requisições e conferir status, cabeçalho e corpo da resposta em cada caso abaixo.
-- **Casos mínimos de teste:**
-  - `POST /calcular` com `{"valor1":8,"valor2":2,"operacao":"somar"}`: status `200` e resultado numérico `10` em JSON.
-  - Repetir com `subtrair`, `multiplicar` e `dividir`, conferindo respectivamente `6`, `16` e `4`.
-  - Divisão por zero: status `400` e erro em JSON.
-  - Corpo com JSON malformado ou vazio: status `400` e erro em JSON; confirmar que o servidor continua rodando.
-  - Campo ausente, operandos como texto, `null`, array ou número não finito: status `400` e erro em JSON.
-  - Operação desconhecida: status `400` e erro em JSON.
-  - Método diferente de `POST` em `/calcular`: confirmar que não executa o cálculo e retorna `405`.
-- **Critério para concluir a etapa:** todos os casos mínimos passam, respostas de sucesso e erro são JSON, e o servidor permanece ativo diante de entradas inválidas. Depois, atualizar o status desta etapa para concluída e só então iniciar a integração do front-end.
-- **Status:** Pendente.
+- **Contrato implementado:** `POST /calcular` recebe JSON com `valor1`, `valor2` e `operacao`; aceita `somar`, `subtrair`, `multiplicar` e `dividir`.
+- **Validação implementada:** corpo JSON, objeto, operandos numéricos finitos, operação permitida, divisão por zero e resultado não finito; erros são respondidos em JSON.
+- **Testes realizados:** 17 de 17 cenários passaram, incluindo as quatro operações, entradas ausentes/inválidas, JSON vazio ou malformado, divisão por zero, método não permitido, rota inexistente e confirmação de que o servidor continua respondendo depois de erros.
+- **Status:** Concluída.
 
 ### 4. Integração do front-end
 
 - **Objetivo:** conectar a calculadora ao back-end usando `fetch()` e compreender Promises e `async`/`await` nesse fluxo.
-- **Resultado verificável:** enviar cálculos ao servidor, apresentar o resultado e comunicar estados de carregamento e erros.
-- **Teste:** realizar cálculos pela interface com o servidor ativo e verificar o tratamento quando a requisição falhar.
-- **Status:** Pendente.
+- **Resultado verificável:** enviar cálculos ao servidor, apresentar o resultado e comunicar erros.
+- **Implementado:** o servidor entrega HTML, CSS e JavaScript; o botão `=` envia operandos e operação para `POST /calcular` usando `fetch()` e mostra no visor o resultado recebido ou uma mensagem de erro.
+- **Testes confirmados:** o usuário confirmou o cálculo pela interface, o erro de divisão por zero com status HTTP `400` e o teste de falha de conexão com o servidor indisponível.
+- **Observações:** ainda não há indicador visual de carregamento. Em contas encadeadas, uma operação intermediária pode ser executada no navegador; esse comportamento poderá ser revisado durante a etapa de organização e testes.
+- **Status:** Concluída.
 
 ### 5. Organização e testes
 
@@ -108,6 +96,8 @@ Etapa 3 — API de cálculo. Status: **Pendente**.
 - **2026-10-15** — Roteiro inicial aprovado: evolução gradual da calculadora existente para uma aplicação com Node.js, começando por `node:http` e mantendo o front-end no navegador. Nenhuma implementação foi iniciada.
 - **2026-10-15** — Etapa 1 concluída após o usuário confirmar que testou o servidor HTTP em `http://localhost:3000`; etapa 2 definida como atual.
 - **2026-10-16** — Etapa 2 concluída após confirmação dos testes das rotas, métodos HTTP, respostas JSON e status 200, 404 e 405; etapa 3 definida como atual.
+- **2026-10-23** — Etapa 3 marcada como concluída após aprovação de 17 cenários de teste da API. Etapa 4 definida como atual/em andamento: cálculos pela interface e erro de divisão por zero (HTTP 400) confirmados pelo usuário; teste de falha de conexão e indicador visual de carregamento ainda pendentes.
+- **2026-10-23** — Etapa 4 marcada como concluída após o usuário confirmar o teste de falha de conexão, além dos cálculos pela interface e do erro de divisão por zero (HTTP 400). Etapa 5 definida como próxima; indicador de carregamento e comportamento de contas encadeadas ficam registrados como pontos a avaliar.
 
 ## Conceitos
 

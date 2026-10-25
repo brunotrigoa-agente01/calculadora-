@@ -63,7 +63,38 @@ function adicionarDecimal() {
     }
 
 }
+async function solicitarCalculo(valor1, valor2, operacao) {
 
+    const operacoes = {
+        'add': 'somar',
+        'subtract': 'subtrair',
+        'multiply': 'multiplicar',
+        'divide': 'dividir'
+        }
+
+    const dados = {
+        valor1: Number(String(valor1).replace(',','.')),
+        valor2: Number(String(valor2).replace(',','.')),
+        operacao: operacoes[operacao]
+
+    };
+
+    
+    const resposta = await fetch('/calcular', {
+        method:'post',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(dados) 
+    });
+    const dadosResposta = await resposta.json();
+
+    if (!resposta.ok) {
+        throw new Error(dadosResposta.erro || 'Erro na requisição: ' + resposta.statusText);
+    }
+    return dadosResposta.resultado;
+};
+    
 function digitarNumero(numero) {
     // Depois de uma operacao, o primeiro digito substitui o resultado; os demais sao acrescentados.
     if(precisaLimparDisplay) {
@@ -75,64 +106,31 @@ function digitarNumero(numero) {
     atualizarDisplay(valorAtual)
 }
 
-function escolherOperacao(novaOperacao) {
+async function escolherOperacao(novaOperacao) {
+
+    if(valorAtual === 'Error'){return};
 
     // Resolve a operacao anterior antes de guardar a proxima, permitindo contas encadeadas.
     if(operacaoAtual !== null && valorAnterior !== null && !precisaLimparDisplay ) {
-        executarOperacao()
+        try{
+        const resultado = await solicitarCalculo(valorAnterior, valorAtual, novaOperacao)
+        valorAtual = String(resultado).replace('.',',');
+        atualizarDisplay(valorAtual)
+
+        }catch (erro) {
+            console.error('Erro ao calcular:', erro);
+            valorAtual = "Error";
+            atualizarDisplay(valorAtual);
+            valorAnterior = null;
+            operacaoAtual = null;
+            precisaLimparDisplay = true;
+        }
     }
-    // A leitura ocorre depois do calculo para guardar o subtotal atualizado.
     valorAnterior = String(valorAtual).replace(',','.');
     operacaoAtual = novaOperacao;
     precisaLimparDisplay = true;
 }
 
-function executarOperacao() {
-    // Sem primeiro valor ou operacao selecionada, nao ha conta para executar.
-    if (valorAnterior === null || operacaoAtual === null) {return}
-
-    // O visor usa virgula, mas Number espera ponto como separador decimal.
-    const primeiroValor = Number(valorAnterior);
-    const segundoValor = Number(valorAtual.replace(',','.'));
-    let resultado = 0; 
-
-    // Escolhe o calculo pelo codigo recebido do atributo data-operation do botao.
-    switch (operacaoAtual) {
-        case 'add':
-            resultado = primeiroValor + segundoValor
-            break;
-        case 'subtract':
-            resultado = primeiroValor - segundoValor
-            break;
-        case 'multiply': 
-            resultado = primeiroValor * segundoValor
-            break;
-        case 'divide':
-            // Interrompe a conta antes de dividir por zero e mostra uma mensagem.
-            if (segundoValor === 0) {
-                valorAtual = 'Error';
-                valorAnterior = null;
-                operacaoAtual = null;
-                precisaLimparDisplay = true
-                atualizarDisplay(valorAtual);
-                return
-            }
-            resultado = primeiroValor / segundoValor 
-            break;
-
-        default:
-        break;
-
-    }
-    // Converte o resultado para texto e restaura a virgula usada no visor.
-    valorAtual = String(resultado).replace('.',',')
-    // A conta terminou: limpa os operandos pendentes e prepara o proximo digito.
-    valorAnterior = null;
-    operacaoAtual = null;
-    precisaLimparDisplay = true;
-    atualizarDisplay(valorAtual);
-
-}
 
 // Registra um clique em cada botao numerico; o valor e lido quando ocorre o clique.
 botoesNumeros.forEach((botao) => {
@@ -148,6 +146,32 @@ botoesOperacoes.forEach((botao)=>{
     })
         
 })
+
+async function calcularNoServidor() {
+    // Envia os dados para o servidor e recebe o resultado.
+    if (valorAnterior === null || operacaoAtual === null) {
+        return
+    }
+
+
+    try {
+        const resultado = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
+        valorAtual = String(resultado).replace('.',',');
+        atualizarDisplay(valorAtual);
+
+        valorAnterior = null;
+        operacaoAtual = null;
+        precisaLimparDisplay = true;
+
+    } catch (erro) {
+        console.error('Erro ao calcular:', erro);
+        valorAtual = "Error";
+        atualizarDisplay(valorAtual);
+        valorAnterior = null;
+        operacaoAtual = null;
+        precisaLimparDisplay = true;
+    }
+}
 
 // Registra as acoes AC, sinal, porcentagem, virgula e igual.
 botoesFuncoes.forEach((botao) =>{
@@ -173,7 +197,7 @@ botoesFuncoes.forEach((botao) =>{
             break;
 
             case 'equals':
-                executarOperacao()
+                calcularNoServidor();
             break;
 
             default:
