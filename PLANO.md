@@ -29,7 +29,7 @@ Evoluir a calculadora existente para uma aplicação com front-end no navegador 
 
 ## Etapa atual
 
-Etapa 5 — Organização e testes. Status: **Pendente**.
+Etapa 5 — Organização e testes. Status: **Em andamento**.
 
 ## Etapas
 
@@ -60,17 +60,21 @@ Etapa 5 — Organização e testes. Status: **Pendente**.
 
 - **Objetivo:** conectar a calculadora ao back-end usando `fetch()` e compreender Promises e `async`/`await` nesse fluxo.
 - **Resultado verificável:** enviar cálculos ao servidor, apresentar o resultado e comunicar erros.
-- **Implementado:** o servidor entrega HTML, CSS e JavaScript; o botão `=` envia operandos e operação para `POST /calcular` usando `fetch()` e mostra no visor o resultado recebido ou uma mensagem de erro.
+- **Implementado:** o servidor entrega HTML, CSS e JavaScript; o botão `=` envia operandos e operação para `POST /calcular` usando `fetch()` e mostra no visor o resultado recebido ou uma mensagem de erro. Ao encadear operações, a operação pendente também é enviada à API.
 - **Testes confirmados:** o usuário confirmou o cálculo pela interface, o erro de divisão por zero com status HTTP `400` e o teste de falha de conexão com o servidor indisponível.
-- **Observações:** ainda não há indicador visual de carregamento. Em contas encadeadas, uma operação intermediária pode ser executada no navegador; esse comportamento poderá ser revisado durante a etapa de organização e testes.
+- **Observações:** ainda não há indicador visual de carregamento. Em contas encadeadas, a interface também envia ao servidor a operação pendente antes de guardar a próxima; a regra adotada é sequencial, sem precedência matemática.
 - **Status:** Concluída.
 
 ### 5. Organização e testes
 
 - **Objetivo:** separar responsabilidades e verificar a lógica e a API com testes básicos.
 - **Resultado verificável:** lógica de cálculo independente do DOM, módulos com responsabilidades claras e testes para os casos principais.
-- **Teste:** executar os testes e confirmar operações normais, entradas inválidas e divisão por zero.
-- **Status:** Pendente.
+- **Já implementado:** a lógica aritmética está isolada em `calcular.js`, sem dependência do DOM ou do HTTP; `server.js` valida a requisição e traduz erros em respostas HTTP; `calculadora.js` chama a API. O código atual também usa a operação pendente ao encadear uma nova operação.
+- **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
+- **Testado manualmente:** na interface, `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
+- **Pendente:** criar testes automatizados para `calcular.js` e para a rota `POST /calcular`; testar erros durante o encadeamento e outros fluxos principais após `=`.
+- **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
+- **Status:** Em andamento. A separação do cálculo e o encadeamento sequencial estão implementados e o caso `8 + 2 × 3 =` foi confirmado manualmente; os testes automatizados ainda não existem.
 
 ### 6. Persistência do histórico
 
@@ -98,6 +102,8 @@ Etapa 5 — Organização e testes. Status: **Pendente**.
 - **2026-10-16** — Etapa 2 concluída após confirmação dos testes das rotas, métodos HTTP, respostas JSON e status 200, 404 e 405; etapa 3 definida como atual.
 - **2026-10-23** — Etapa 3 marcada como concluída após aprovação de 17 cenários de teste da API. Etapa 4 definida como atual/em andamento: cálculos pela interface e erro de divisão por zero (HTTP 400) confirmados pelo usuário; teste de falha de conexão e indicador visual de carregamento ainda pendentes.
 - **2026-10-23** — Etapa 4 marcada como concluída após o usuário confirmar o teste de falha de conexão, além dos cálculos pela interface e do erro de divisão por zero (HTTP 400). Etapa 5 definida como próxima; indicador de carregamento e comportamento de contas encadeadas ficam registrados como pontos a avaliar.
+- **2026-10-26** — Revisão do estado do projeto: etapa 5 iniciada, pois a lógica de cálculo já está separada em `calcular.js` e a interface envia operações ao servidor. O código atual resolve a operação pendente ao selecionar outra, adotando execução sequencial; ainda falta confirmar esse fluxo pela interface e criar testes automatizados para a lógica e a API.
+- **2026-10-26** — Encadeamento testado manualmente pela interface: `8 + 2 × 3 =` mostrou o subtotal `10` ao selecionar `×` e o resultado final `30`. Permanecem pendentes os testes automatizados da lógica e da API.
 
 ## Conceitos
 

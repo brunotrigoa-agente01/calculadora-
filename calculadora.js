@@ -104,7 +104,7 @@ function digitarNumero(numero) {
         valorAtual = valorAtual ==='0' ?  numero: valorAtual + numero;
     }
     atualizarDisplay(valorAtual)
-}
+};
 
 async function escolherOperacao(novaOperacao) {
 
@@ -113,7 +113,7 @@ async function escolherOperacao(novaOperacao) {
     // Resolve a operacao anterior antes de guardar a proxima, permitindo contas encadeadas.
     if(operacaoAtual !== null && valorAnterior !== null && !precisaLimparDisplay ) {
         try{
-        const resultado = await solicitarCalculo(valorAnterior, valorAtual, novaOperacao)
+        const resultado = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual)
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual)
 
