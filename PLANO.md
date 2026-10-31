@@ -72,9 +72,10 @@ Etapa 5 — Organização e testes. Status: **Em andamento**.
 - **Já implementado:** a lógica aritmética está isolada em `calcular.js`, sem dependência do DOM ou do HTTP; `server.js` valida a requisição e traduz erros em respostas HTTP; `calculadora.js` chama a API. O código atual também usa a operação pendente ao encadear uma nova operação.
 - **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
 - **Testado manualmente:** na interface, `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
-- **Pendente:** criar testes automatizados para `calcular.js` e para a rota `POST /calcular`; testar erros durante o encadeamento e outros fluxos principais após `=`.
+- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica e `testes/calcular_api.js` cobre a API, incluindo operações, validações, erros e rotas HTTP. Na última execução, os testes apontaram que o `POST /api` devolvia a mensagem de erro no campo `mensagem`, diferente do contrato de erro usado pela API; o servidor foi ajustado para responder no campo `erro`.
+- **Pendente:** testar erros durante o encadeamento e outros fluxos principais após `=`.
 - **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
-- **Status:** Em andamento. A separação do cálculo e o encadeamento sequencial estão implementados e o caso `8 + 2 × 3 =` foi confirmado manualmente; os testes automatizados ainda não existem.
+- **Status:** Em andamento. A separação do cálculo, o encadeamento sequencial e os testes automatizados de lógica/API estão implementados; o caso `8 + 2 × 3 =` foi confirmado manualmente. Ainda falta cobrir automaticamente o encadeamento e os fluxos de erro da interface.
 
 ### 6. Persistência do histórico
 
@@ -104,6 +105,7 @@ Etapa 5 — Organização e testes. Status: **Em andamento**.
 - **2026-10-23** — Etapa 4 marcada como concluída após o usuário confirmar o teste de falha de conexão, além dos cálculos pela interface e do erro de divisão por zero (HTTP 400). Etapa 5 definida como próxima; indicador de carregamento e comportamento de contas encadeadas ficam registrados como pontos a avaliar.
 - **2026-10-26** — Revisão do estado do projeto: etapa 5 iniciada, pois a lógica de cálculo já está separada em `calcular.js` e a interface envia operações ao servidor. O código atual resolve a operação pendente ao selecionar outra, adotando execução sequencial; ainda falta confirmar esse fluxo pela interface e criar testes automatizados para a lógica e a API.
 - **2026-10-26** — Encadeamento testado manualmente pela interface: `8 + 2 × 3 =` mostrou o subtotal `10` ao selecionar `×` e o resultado final `30`. Permanecem pendentes os testes automatizados da lógica e da API.
+- **2026-10-28** — Testes automatizados da lógica e da API executados: 20 de 21 passaram inicialmente. A falha identificou que `POST /api` retornava o erro em `mensagem`, enquanto o teste e o padrão das demais respostas de erro esperavam `erro`; o servidor foi ajustado e os 21 testes passaram. A etapa 5 continua em andamento até cobrir automaticamente os fluxos de erro e o encadeamento da interface.
 
 ## Conceitos
 

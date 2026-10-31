@@ -50,13 +50,13 @@ const servidor = http.createServer((req, res) => {
     }else if (req.method === 'GET' && req.url === '/api') {
         res.statusCode = 200;
         res.setHeader('content-Type', 'application/json; charset=utf-8')
-        const resposta = {mensagem: 'api da calculadora funcionado'};
+        const resposta = {mensagem: 'API da calculadora funcionando'};
         res.end(JSON.stringify(resposta))
 
     }else if (req.url === '/api') {
         res.statusCode = 405;
         res.setHeader('content-Type', 'application/json; charset=utf-8')
-        const resposta = {mensagem: 'metodo não permitido'};
+        const resposta = {erro: 'Método não reconhecido'};
         res.end(JSON.stringify(resposta))
 
     }else if(req.method === 'POST' && req.url === '/calcular') {
@@ -132,7 +132,7 @@ const servidor = http.createServer((req, res) => {
 
     }else {res.statusCode = 405;
         res.setHeader('content-Type', 'application/json; charset=utf-8');
-        res.end(JSON.stringify({ erro: 'método não reconhecido' }));
+        res.end(JSON.stringify({ erro: 'Método não reconhecido'}));
     }
 
 }) 
