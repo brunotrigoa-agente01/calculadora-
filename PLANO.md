@@ -72,10 +72,10 @@ Etapa 5 — Organização e testes. Status: **Em andamento**.
 - **Já implementado:** a lógica aritmética está isolada em `calcular.js`, sem dependência do DOM ou do HTTP; `server.js` valida a requisição e traduz erros em respostas HTTP; `calculadora.js` chama a API. O código atual também usa a operação pendente ao encadear uma nova operação.
 - **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
 - **Testado manualmente:** na interface, `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
-- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica e `testes/calcular_api.js` cobre a API, incluindo operações, validações, erros e rotas HTTP. Na última execução, os testes apontaram que o `POST /api` devolvia a mensagem de erro no campo `mensagem`, diferente do contrato de erro usado pela API; o servidor foi ajustado para responder no campo `erro`.
-- **Pendente:** testar erros durante o encadeamento e outros fluxos principais após `=`.
+- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica e `testes/calcular_api.js` cobre a API, incluindo operações, validações, erros e rotas HTTP. Em 2026-11-02, executei os dois arquivos com o servidor iniciado: **21 testes passaram e nenhum falhou**.
+- **Pendente:** automatizar a validação do encadeamento e dos fluxos de erro da interface. `encadeamento.mjs` contém uma implementação separada de `escolherOperacao`, mas atualmente não está conectado ao front-end nem coberto pelos testes; avaliar se deve ser integrado e testado ou removido quando o fluxo for consolidado.
 - **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
-- **Status:** Em andamento. A separação do cálculo, o encadeamento sequencial e os testes automatizados de lógica/API estão implementados; o caso `8 + 2 × 3 =` foi confirmado manualmente. Ainda falta cobrir automaticamente o encadeamento e os fluxos de erro da interface.
+- **Status:** Em andamento. A separação do cálculo e os testes automatizados de lógica/API estão implementados e passaram; o encadeamento `8 + 2 × 3 = 30` foi confirmado manualmente. A cobertura automatizada do encadeamento e dos erros da interface continua pendente.
 
 ### 6. Persistência do histórico
 
@@ -106,6 +106,7 @@ Etapa 5 — Organização e testes. Status: **Em andamento**.
 - **2026-10-26** — Revisão do estado do projeto: etapa 5 iniciada, pois a lógica de cálculo já está separada em `calcular.js` e a interface envia operações ao servidor. O código atual resolve a operação pendente ao selecionar outra, adotando execução sequencial; ainda falta confirmar esse fluxo pela interface e criar testes automatizados para a lógica e a API.
 - **2026-10-26** — Encadeamento testado manualmente pela interface: `8 + 2 × 3 =` mostrou o subtotal `10` ao selecionar `×` e o resultado final `30`. Permanecem pendentes os testes automatizados da lógica e da API.
 - **2026-10-28** — Testes automatizados da lógica e da API executados: 20 de 21 passaram inicialmente. A falha identificou que `POST /api` retornava o erro em `mensagem`, enquanto o teste e o padrão das demais respostas de erro esperavam `erro`; o servidor foi ajustado e os 21 testes passaram. A etapa 5 continua em andamento até cobrir automaticamente os fluxos de erro e o encadeamento da interface.
+- **2026-11-02** — Revisei o plano e executei novamente os testes da lógica e da API com o servidor ativo: 21 de 21 passaram. A etapa 5 continua em andamento porque ainda não há testes automatizados do encadeamento nem dos fluxos de erro da interface; `encadeamento.mjs` existe como implementação separada, mas não está integrado nem testado.
 
 ## Conceitos
 
