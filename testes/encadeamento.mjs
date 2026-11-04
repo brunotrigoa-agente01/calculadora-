@@ -25,3 +25,26 @@ test('calcula a operação pendente antes de trocar a operação',async () =>{
 
 }) 
 
+
+test('não calcula se a operação inicial não for definida', async () => {
+    let testeDeCalculo = 0
+    const estado = {
+        valorAtual: '8',
+        valorAnterior: null,
+        operacaoAtual: null,
+        precisaLimparDisplay: false
+    }
+
+    const solicitarCalculoFalso = async () => {
+        testeDeCalculo++;
+        return 10;
+    }
+
+    await escolherOperacao(estado, 'multiply', solicitarCalculoFalso);
+    assert.equal(testeDeCalculo, 0);
+    assert.equal(estado.valorAtual, '8');
+    assert.equal(estado.valorAnterior, '8');
+    assert.equal(estado.operacaoAtual, 'multiply');
+    assert.equal(estado.precisaLimparDisplay, true);
+
+});
