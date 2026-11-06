@@ -16,7 +16,7 @@ const calcular = (num1, num2, operacion) => {
         }
 
         resultado = num1 / num2 
-        
+         
     }else {
         throw new Error('Operação inválida');
     }

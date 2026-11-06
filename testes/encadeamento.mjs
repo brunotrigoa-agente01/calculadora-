@@ -48,3 +48,24 @@ test('não calcula se a operação inicial não for definida', async () => {
     assert.equal(estado.precisaLimparDisplay, true);
 
 });
+
+test( 'teste de erro catch ', async () =>{
+    const estado = {
+        valorAtual: '2',
+        valorAnterior: '8',
+        operacaoAtual: 'add',
+        precisaLimparDisplay: false
+
+    };
+    const solicitarCalculoFalso = async (valor1, valor2, operacao) => {
+        assert.equal(valor1, '8');
+        assert.equal(valor2, '2');
+        assert.equal(operacao, 'add');
+        throw new Error('Error ao calcular');
+        
+        
+    }
+    await escolherOperacao(estado, 'multiply', solicitarCalculoFalso);
+    assert.equal(estado.valorAtual, 'Error');
+
+})

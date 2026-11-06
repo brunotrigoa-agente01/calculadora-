@@ -124,6 +124,7 @@ async function escolherOperacao(novaOperacao) {
             valorAnterior = null;
             operacaoAtual = null;
             precisaLimparDisplay = true;
+            return;
         }
     }
     valorAnterior = String(valorAtual).replace(',','.');
