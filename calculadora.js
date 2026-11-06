@@ -39,7 +39,7 @@ function inverterSinal() {
 
 function aplicarPorcentagem() {
     // Troca a virgula do visor por ponto para o JavaScript converter o texto em numero.
-    if(valorAtual === '0' || valorAtual == 'Error') {
+    if(valorAtual === '0' || valorAtual === 'Error') {
         return
 
     }else {
