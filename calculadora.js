@@ -1,3 +1,5 @@
+import {escolherOperacao} from './encadeamento.mjs'
+
 // Captura os elementos do HTML; os seletores data-* identificam cada tipo de botao.
 let display = document.getElementById("display");
 const botoesNumeros = document.querySelectorAll(".tecla[data-number]");
@@ -5,6 +7,12 @@ const botoesOperacoes = document.querySelectorAll(".tecla-operacao");
 const botoesFuncoes = document.querySelectorAll("[data-action]");
 
 // Estado guardado pelo JavaScript, separado do texto que aparece no visor.
+const operador  = {
+            'add': '+',
+            'subtract': '-',
+            'multiply': '*',
+            'divide': '/'
+        }
 let valorAtual = "0";
 let valorAnterior = null; // Armazena o valor anterior para operações
 let operacaoAtual = null; // Armazena a operação atual (+, -, *, /)
@@ -32,7 +40,7 @@ function inverterSinal() {
 
     }else{
          valorAtual = String(Number(valorAtual.replace(',','.')) * -1).replace('.',',');
-         atualizarDisplay(valorAtual)
+         atualizarDisplay(valorAtual )
     }
 
 }
@@ -44,7 +52,7 @@ function aplicarPorcentagem() {
 
     }else {
         valorAtual = String(Number(valorAtual.replace(',','.') / 100 )).replace('.',',');
-        atualizarDisplay(valorAtual)
+        atualizarDisplay(`${valorAtual}%`);
     }
 
 }
@@ -103,36 +111,22 @@ function digitarNumero(numero) {
     }else{
         valorAtual = valorAtual ==='0' ?  numero: valorAtual + numero;
     }
-    atualizarDisplay(valorAtual)
+    atualizarVisor()
 };
-
-async function escolherOperacao(novaOperacao) {
-
-    if(valorAtual === 'Error'){return};
-
-    // Resolve a operacao anterior antes de guardar a proxima, permitindo contas encadeadas.
-    if(operacaoAtual !== null && valorAnterior !== null && !precisaLimparDisplay ) {
-        try{
-        const resultado = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual)
-        valorAtual = String(resultado).replace('.',',');
-        atualizarDisplay(valorAtual)
-
-        }catch (erro) {
-            console.error('Erro ao calcular:', erro);
-            valorAtual = "Error";
-            atualizarDisplay(valorAtual);
-            valorAnterior = null;
-            operacaoAtual = null;
-            precisaLimparDisplay = true;
-            return;
+function atualizarVisor(){
+    
+    if (valorAnterior !== null && operacaoAtual !== null ) {
+        const simbolo = operador[operacaoAtual]
+        if(precisaLimparDisplay){
+            atualizarDisplay(valorAnterior + simbolo );
+        }else{
+            atualizarDisplay(valorAnterior + simbolo + valorAtual);
         }
+        
+    } else {
+        atualizarDisplay(valorAtual);
     }
-    valorAnterior = String(valorAtual).replace(',','.');
-    operacaoAtual = novaOperacao;
-    precisaLimparDisplay = true;
 }
-
-
 // Registra um clique em cada botao numerico; o valor e lido quando ocorre o clique.
 botoesNumeros.forEach((botao) => {
     botao.addEventListener('click' , () => {
@@ -142,8 +136,28 @@ botoesNumeros.forEach((botao) => {
 
 // Cada botao informa sua operacao pelo atributo data-operation.
 botoesOperacoes.forEach((botao)=>{
-    botao.addEventListener('click', () =>{
-        escolherOperacao(botao.dataset.operation)
+    botao.addEventListener('click', async () =>{
+        const estado = {
+            valorAtual,
+            valorAnterior,
+            operacaoAtual,
+            precisaLimparDisplay
+        };
+        
+
+        await escolherOperacao(estado, botao.dataset.operation, solicitarCalculo);
+        if (estado.valorAnterior !== null && estado.operacaoAtual !== null) {
+            const simbolo = operador[estado.operacaoAtual]
+            atualizarDisplay(estado.valorAnterior + simbolo);
+        }
+        
+        valorAtual = estado.valorAtual;
+        valorAnterior = estado.valorAnterior;
+        operacaoAtual = estado.operacaoAtual;
+        precisaLimparDisplay = estado.precisaLimparDisplay;
+
+        atualizarVisor();
+
     })
         
 })
@@ -198,7 +212,9 @@ botoesFuncoes.forEach((botao) =>{
             break;
 
             case 'equals':
-                calcularNoServidor();
+                if(!precisaLimparDisplay) {
+                    calcularNoServidor()
+                };
             break;
 
             default:

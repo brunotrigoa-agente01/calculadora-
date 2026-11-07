@@ -16,6 +16,10 @@ let arquivosPublicos = {
    '/calculadora.css':{ 
     nome: 'calculadora.css',
     tipo: 'text/css; charset=utf-8'},
+    
+    '/encadeamento.mjs':{
+    nome: 'encadeamento.mjs',
+    tipo: 'text/javascript; charset=utf-8'},
 
 };
 

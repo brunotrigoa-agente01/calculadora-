@@ -7,7 +7,7 @@ export async function escolherOperacao(estado, novaoperacao, solicitarCalculo){
         if(estado.valorAnterior != null && estado.operacaoAtual  != null && !estado.precisaLimparDisplay){
 
         const resultado = await solicitarCalculo(estado.valorAnterior, estado.valorAtual, estado.operacaoAtual)
-        estado.valorAtual = Number(resultado);
+        estado.valorAtual = String(resultado).replace('.',',');
 
     }
     }catch (erro) {
@@ -19,9 +19,9 @@ export async function escolherOperacao(estado, novaoperacao, solicitarCalculo){
         return estado;
     }
     
-    estado.valorAnterior = Number(estado.valorAtual);
+    estado.valorAnterior = String(estado.valorAtual).replace(',','.');
     estado.operacaoAtual = novaoperacao
-    estado.precisaLimparDisplay = true
+    estado.precisaLimparDisplay = true // true indica que o display precisa ser limpo antes de digitar o próximo número
     return estado
 }
 
