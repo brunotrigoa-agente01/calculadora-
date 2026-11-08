@@ -97,28 +97,24 @@ Não transforme o resultado da regex em código executável. Regex complexas tam
 
 ### Limite o tamanho do corpo HTTP
 
-No `server.js` atual, os pedaços do corpo são concatenados sem um limite explícito. Mesmo com validação matemática, um corpo enorme pode consumir memória. Aplique um limite enquanto lê a requisição e responda `413 Payload Too Large` quando ele for excedido:
+No `server.js` atual, o limite do corpo de `POST /calcular` é de **10 KB**. O servidor rejeita antecipadamente um `Content-Length` declarado acima desse valor e também conta os bytes recebidos durante a leitura, respondendo `413 Payload Too Large` se o limite for excedido. Assim, a proteção já está implementada no projeto; o teste de API também verifica o corpo grande e uma requisição válida em seguida. Execute os testes para confirmar o comportamento no estado atual.
+
+Exemplo didático simplificado do controle de tamanho durante a leitura (não substitui a implementação completa de rotas e validação do projeto):
 
 ```js
-const LIMITE_CORPO = 1024;
-let corpo = Buffer.alloc(0);
-let excedeuLimite = false;
+const LIMITE_CORPO = 10 * 1024;
+let corpo = '';
+let tamanhoRecebido = 0;
+let limiteExcedido = false;
 
 req.on('data', (pedaco) => {
-    if (excedeuLimite) {
+    if (limiteExcedido) {
         return;
     }
 
-    if (corpo.length + pedaco.length > LIMITE_CORPO) {
-        excedeuLimite = true;
-        return;
-    }
-
-    corpo = Buffer.concat([corpo, pedaco]);
-});
-
-req.on('end', () => {
-    if (excedeuLimite) {
+    tamanhoRecebido += pedaco.length;
+    if (tamanhoRecebido > LIMITE_CORPO) {
+        limiteExcedido = true;
         res.writeHead(413, {
             'Content-Type': 'application/json; charset=utf-8'
         });
@@ -126,7 +122,15 @@ req.on('end', () => {
         return;
     }
 
-    // Só depois do limite, converta corpo para texto e faça JSON.parse().
+    corpo += pedaco;
+});
+
+req.on('end', () => {
+    if (limiteExcedido) {
+        return;
+    }
+
+    // Só depois do limite, faça JSON.parse(corpo) e valide os dados.
 });
 ```
 

@@ -103,14 +103,13 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Resultado verificável:** lógica de cálculo independente do DOM, módulos com responsabilidades claras e testes para os casos principais.
 - **Já implementado:** a lógica aritmética está isolada em `calcular.js`, sem dependência do DOM ou do HTTP; `server.js` valida a requisição e traduz erros em respostas HTTP; `calculadora.js` chama a API. O código atual também usa a operação pendente ao encadear uma nova operação.
 - **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
-- **Testado manualmente:** na interface, `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
-- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica aritmética e `testes/calcular_api.js` cobre operações, validações, erros e rotas HTTP. Em 2026-11-04, executei os testes em separado, com o servidor iniciado para a API: **7 testes de lógica e 14 testes de API passaram**.
-- **Pendente — prioridade alta:** corrigir e testar a recuperação de `escolherOperacao()`. No `catch` atual, a interface limpa o estado pendente e mostra `Error`, mas a função continua depois do bloco e volta a gravar `Error` como operando e a nova operação. Uma falha da API durante o encadeamento pode, assim, deixar estado incoerente. Retornar ou reorganizar o fluxo após a falha e testar a recuperação com `AC` e um cálculo novo.
+- **Segundo operando:** o botão `=` só chama o cálculo quando `precisaLimparDisplay` é falso, pela condição em `calculadora.js` (linha 215). Assim, `8 + =` sem digitar um segundo operando não calcula; o comportamento foi testado manualmente.
+- **Testado manualmente:** na interface, `8 + =` sem segundo operando não iniciou o cálculo; `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
+- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica aritmética, `testes/encadeamento.mjs` cobre a regra compartilhada de encadeamento e `testes/calcular_api.js` cobre operações, validações, erros e rotas HTTP. O histórico registra que, em 2026-11-04, passaram **7 testes de lógica e 14 de API**. Atualmente há 15 testes declarados para a API e 3 para o encadeamento; essa versão mais recente ainda precisa ser executada para confirmar o resultado.
 - **Análise do módulo de encadeamento:** o arquivo `encadeamento.mjs` implementa uma regra separada para `escolherOperacao(estado, novaOperacao, solicitarCalculo)`: quando existe operação anterior pendente, ele resolve a conta anterior antes de registrar a nova operação, atualiza `valorAtual` e mantém `valorAnterior` e `operacaoAtual` no estado; se o estado estiver em erro ou sem operação anterior, ele não dispara cálculo. Esse comportamento corresponde à regra atual da interface: contas encadeadas são resolvidas em sequência e o visor passa a usar a operação nova após o cálculo pendente.
-- **Pendente — consolidação do encadeamento:** `calculadora.js` e `encadeamento.mjs` têm implementações separadas de `escolherOperacao()`. A página carrega `calculadora.js` como script clássico, e o servidor não publica `encadeamento.mjs`; portanto, a implementação em `.mjs` não está integrada nem é a usada pela interface. Escolher uma única implementação que possa ser compartilhada pelo navegador e pelos testes; se usar módulo ES, servir o arquivo pelo servidor e carregar/importar o módulo corretamente na página.
-- **Pendente — cobertura:** criar testes unitários para a lógica compartilhada de encadeamento, incluindo soma encadeada, erro durante a operação pendente e recuperação. Os testes atuais em `testes/encadeamento.mjs` cobrem os cenários de operação pendente e ausência de operação inicial, mas ainda não exercitam falhas de rede, recuperação do estado do visor e a integração com a interface em navegador. Acrescentar testes de integração com a API real se forem úteis, além de verificar fluxos de erro e recuperação da interface; considerar testes E2E com navegador após consolidar os fundamentos.
+- **Possíveis melhorias futuras (não bloqueiam a etapa atual):** adicionar um teste automatizado para `=` sem segundo operando; ampliar o teste de falha do encadeamento para conferir todo o estado após a rejeição e a recuperação pela interface; avaliar testes automatizados da integração visual/E2E.
 - **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
-- **Status:** Em andamento. A lógica de cálculo e os testes automatizados da lógica/API estão implementados e **testados e validados** na execução de 2026-11-04; o encadeamento foi **testado manualmente**. A lógica de encadeamento compartilhada, a recuperação após falha e os testes automatizados correspondentes ainda não estão concluídos.
+- **Status:** Em andamento. O módulo compartilhado de encadeamento já está integrado à interface: `calculadora.html` carrega `calculadora.js` como módulo, `calculadora.js` importa `encadeamento.mjs` e `server.js` serve esse arquivo. O encadeamento foi testado manualmente e há testes unitários presentes; a execução da versão atual e a ampliação da cobertura descrita acima permanecem pendentes.
 
 ### 6. Persistência do histórico
 
@@ -134,10 +133,10 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 
 - **Objetivo:** verificar validação de entradas, evitar injeção de código e fortalecer o processamento das requisições HTTP.
 - **Verificado no código:** não há uso de `eval()` para calcular expressões; `server.js` exige operandos `Number.isFinite`, limita operações a uma lista permitida e responde a JSON malformado; `calculadora.js` usa `textContent` para exibir conteúdo no visor.
-- **Testado:** os 14 testes atuais em `testes/calcular_api.js` cobrem as quatro operações, divisão por zero, operação/operandos/dados inválidos, JSON malformado, resultado não finito, respostas de `/api` e caminho inexistente. A execução de 2026-11-04 passou em 14/14.
-- **Pendente — prioridade alta antes de expor a API fora do ambiente local:** definir e aplicar limite ao corpo HTTP; responder `413 Payload Too Large`; não acumular/processar o restante após ultrapassar o limite; adicionar testes para corpo excessivo e comprovar resposta de erro. Criar uma verificação explícita de que o servidor responde corretamente a uma requisição válida após requisições inválidas.
+- **Implementado no código:** `server.js` define limite de 10 KB, rejeita `Content-Length` declarado acima do limite e verifica o tamanho recebido durante a leitura, respondendo `413` quando excedido. `testes/calcular_api.js` inclui um teste de corpo acima do limite e verifica uma requisição válida em seguida.
+- **Testes:** o histórico de 2026-11-04 registra aprovação de 14 testes de API, antes da inclusão do teste de corpo grande. Atualmente há 15 testes de API declarados; ainda é necessário executar a versão atual para confirmar que o limite e os demais casos passam.
 - **Pendente:** os testes da API dependem de um servidor previamente iniciado em `localhost:3000`; integrar ou documentar de forma robusta esse requisito para a execução de testes, sem mascarar falha de conexão como sucesso.
-- **Status:** Em andamento. Controles de validação básicos estão implementados e os testes atuais de API passaram; limite de corpo, cobertura correspondente e demais itens de robustez permanecem pendentes. Não registrar os controles inspecionados como testes automatizados.
+- **Status:** Em andamento. Validações e limite de corpo estão implementados, e há teste automatizado para corpo grande; a execução do conjunto atualizado ainda não foi confirmada. Não registrar controles inspecionados como testes aprovados.
 
 ### Projeto 2 — Segurança de formulários e XSS
 
@@ -161,8 +160,8 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 
 - Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
 - Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Na etapa 5, decidir a forma de compartilhar a lógica de encadeamento entre navegador e testes (módulo ES ou outra separação compatível com a arquitetura atual).
-- Antes de disponibilizar a API fora do ambiente local, implementar e testar o limite do corpo da requisição.
+- Executar os testes atualizados da lógica, do encadeamento e da API; decidir depois se a cobertura visual/E2E é necessária para concluir a etapa 5.
+- Antes de disponibilizar a API fora do ambiente local, confirmar por teste a resposta `413` para corpos que ultrapassem 10 KB.
 
 ## Histórico de mudanças
 
@@ -177,6 +176,7 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **2026-11-02** — Revisei o plano e executei novamente os testes da lógica e da API com o servidor ativo: 21 de 21 passaram. A etapa 5 continua em andamento porque ainda não há testes automatizados do encadeamento nem dos fluxos de erro da interface; `encadeamento.mjs` existe como implementação separada, mas não está integrado nem testado.
 - **2026-11-04** — Revisão na branch `calculadora-node.js`: mantida a estrutura e o histórico; acrescentados critérios objetivos de conclusão, a Trilha B de AppSec referenciando `GUIA_SEGURANCA_APPSEC.md` e o estado confirmado da calculadora. Os testes executados nesta revisão passaram: 7 de lógica e 14 de API. Registrados como pendências o estado incoerente após erro em `escolherOperacao()`, a duplicação/não integração de `encadeamento.mjs`, os testes de recuperação e o limite HTTP 413. Nenhum arquivo da aplicação foi alterado.
 - **2026-11-04** — Análise do módulo `encadeamento.mjs`: a regra de cálculo pendente e a verificação de estado inicial foram registradas no plano, assim como os testes existentes em `testes/encadeamento.mjs` e a pendência de consolidar essa lógica com o código da interface da calculadora.
+- **2026-11-08** — Atualização documental após inspeção do estado atual: corrigidas as pendências já resolvidas de integração do módulo de encadeamento e limite HTTP de 10 KB/413; registrados o teste de corpo grande existente e as lacunas de cobertura restantes. Os testes não foram executados nesta atualização.
 
 ## Conceitos
 

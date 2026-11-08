@@ -67,5 +67,10 @@ test( 'teste de erro catch ', async () =>{
     }
     await escolherOperacao(estado, 'multiply', solicitarCalculoFalso);
     assert.equal(estado.valorAtual, 'Error');
+    assert.equal(estado.valorAnterior, null);
+    assert.equal(estado.operacaoAtual, null);
+    assert.equal(estado.precisaLimparDisplay, true);
 
 })
+
+

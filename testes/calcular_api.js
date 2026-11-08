@@ -4,6 +4,41 @@ const assert = require('node:assert/strict');
 
 const URL = 'http://localhost:3000';
 
+// Envia uma requisição sem Content-Length, usando transferência chunked.
+function postCalcularSemContentLength(dados) {
+    return new Promise((resolve, reject) => {
+        const requisicao = require('node:http').request({
+            hostname: 'localhost',
+            port: 3000,
+            path: '/calcular',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Transfer-Encoding': 'chunked'
+            }
+        }, 
+        
+        (resposta) => {
+            let corpo = '';
+
+            resposta.on('data', (pedaco) => {
+                corpo += pedaco;
+            });
+
+            resposta.on('end', () => {
+                resolve({
+                    status: resposta.statusCode,
+                    dados: JSON.parse(corpo)
+                });
+            });
+        });
+
+        requisicao.on('error', reject);
+        requisicao.write(JSON.stringify(dados));
+        requisicao.end();
+    });
+}
+       
 // Função auxiliar para enviar requisições POST para a API
 async function postCalcular(dados) {
     return fetch(`${URL}/calcular`, {
@@ -220,4 +255,43 @@ test('POST /calcular deve rejeitar corpos grandes e continuar funcionando ', asy
 
     assert.equal(resultado.status, 200);
     assert.equal(dados.resultado, 15);
+});
+
+test('POST /calcular deve somar 10 e 5', async () => {
+    const resposta = await postCalcular({
+        valor1: 10,
+        valor2: 5,
+        operacao: 'somar'
+    });
+
+    const dados = await resposta.json();
+
+    assert.equal(resposta.status, 200);
+    assert.equal(dados.resultado, 15);
+});
+
+
+
+// 16. Testar requisição sem o cabeçalho Content-Length
+test('POST /calcular deve funcionar sem Content-Length', async () => {
+    const resposta = await postCalcularSemContentLength({
+        valor1: 10,
+        valor2: 5,
+        operacao: 'somar'
+    });
+
+    assert.equal(resposta.status, 200);
+    assert.equal(resposta.dados.resultado, 15);
+});
+
+test('POST /calcular deve rejeitar corpos grandes sem Content-Length', async () => {
+    const resposta = await postCalcularSemContentLength({
+        valor1: 10,
+        valor2: 5,
+        operacao: 'somar',
+        textoExtra: 'a'.repeat(12 * 1024) // 12 KB de texto extra para exceder o limite
+    });
+
+    assert.equal(resposta.status, 413);
+    assert.equal(resposta.dados.erro, 'Limite de tamanho do corpo excedido');
 });
