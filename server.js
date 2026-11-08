@@ -23,9 +23,14 @@ let arquivosPublicos = {
 
 };
 
+const limite_corpo = 10 * 1024; // 10 KB
 
-const servidor = http.createServer((req, res) => {
+const servidor = http.createServer(
+    {maxHeaderSize: 16 *1024},
+    (req, res) => {
+        
    const arquivoPublico = arquivosPublicos[req.url];
+   
 
     if (req.method === 'GET' && arquivoPublico) {
         const caminhoArquivo = path.join(
@@ -65,12 +70,49 @@ const servidor = http.createServer((req, res) => {
 
     }else if(req.method === 'POST' && req.url === '/calcular') {
         let corpo = '';
+        let limiteExcedido = false;
+        let tamanhoRecebido = 0;
+        const tamanhodeclarado = req.headers['content-length'];
+
+            if (tamanhodeclarado !== undefined ) {
+                const tamanho = Number(tamanhodeclarado);
+                if (!Number.isFinite(tamanho)){ 
+                    res.statusCode = 400
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({erro: 'Tamanho do corpo inválido'}))
+                    return;
+                }
+                if(tamanho > limite_corpo){
+                    res.statusCode = 413
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
+                    return;
+                }
+            }
+
         req.on('data', (pedaco) =>{
+            if (limiteExcedido) {
+                return;
+            }
+            
+            tamanhoRecebido = tamanhoRecebido + pedaco.length;
+            
+            if (tamanhoRecebido > limite_corpo) {
+                limiteExcedido = true;
+                res.statusCode = 413
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
+                return;
+            }
+            
             corpo = corpo + pedaco
         })
  
         req.on('end', () => {
             let dados;
+            if (limiteExcedido) {
+                return;
+            }
             try{
                 dados = JSON.parse(corpo);
             

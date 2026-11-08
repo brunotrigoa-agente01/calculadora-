@@ -194,3 +194,30 @@ test('rota inexistente deve retornar 404', async () => {
 
     assert.equal(resposta.status, 404);
 });
+
+test('POST /calcular deve rejeitar corpos grandes e continuar funcionando ', async () => {
+
+    const respostaGrande = await postCalcular({
+        valor1: 10,
+        valor2: 5,
+        operacao: 'somar',
+        textoExtra: 'a'.repeat(11 * 1024) // 11 KB de texto extra para exceder o limite
+    });
+    const dadosCorpoGrande = await respostaGrande.json();
+    assert.equal(respostaGrande.status, 413);
+    assert.equal(dadosCorpoGrande.erro, 'Limite de tamanho do corpo excedido');
+
+
+    const resultado = await postCalcular({
+        valor1: 10,
+        valor2: 5,
+        operacao: 'somar',
+        
+    });
+    
+
+    const dados = await resultado.json();
+
+    assert.equal(resultado.status, 200);
+    assert.equal(dados.resultado, 15);
+});

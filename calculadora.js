@@ -146,6 +146,7 @@ botoesOperacoes.forEach((botao)=>{
         
 
         await escolherOperacao(estado, botao.dataset.operation, solicitarCalculo);
+        
         if (estado.valorAnterior !== null && estado.operacaoAtual !== null) {
             const simbolo = operador[estado.operacaoAtual]
             atualizarDisplay(estado.valorAnterior + simbolo);
