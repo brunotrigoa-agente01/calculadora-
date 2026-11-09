@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "valor1": 8,
+    "valor2": 2,
+    "operacao": "somar",
+    "resultado": 10,
+    "dataHora": "2026-11-09T00:44:01.546Z"
+  },
+  {
+    "valor1": 10,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 20,
+    "dataHora": "2026-11-09T00:44:05.025Z"
+  }
+]

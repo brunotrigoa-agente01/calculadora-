@@ -15,8 +15,7 @@ async function salvarHistorico(operacao, valor1, valor2, resultado, dataHora) {
 
     await fs.writeFile('historico.json', JSON.stringify(historico, null, 2), 'utf-8');  
 
-    module.exports = { salvarHistorico };
 
     
 }
-
+module.exports = { salvarHistorico };
