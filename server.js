@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
+const { salvarHistorico } = require('./historico.js');
 
 let arquivosPublicos = {
 
@@ -28,7 +29,7 @@ const limite_corpo = 10 * 1024; // 10 KB
 const servidor = http.createServer(
     {maxHeaderSize: 16 *1024},
     (req, res) => {
-        
+
    const arquivoPublico = arquivosPublicos[req.url];
    
 
@@ -108,7 +109,7 @@ const servidor = http.createServer(
             corpo = corpo + pedaco
         })
  
-        req.on('end', () => {
+        req.on('end', async() => {
             let dados;
             if (limiteExcedido) {
                 return;
@@ -163,6 +164,17 @@ const servidor = http.createServer(
                 res.end(JSON.stringify({erro: erro.message}))
                 return;
 
+            }
+
+            try {
+                await salvarHistorico(dados.operacao, dados.valor1, dados.valor2, resultado, new Date().toISOString());
+                
+            } catch (erro) {
+                console.error('Erro ao salvar histórico:', erro);
+                res.statusCode = 500;
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({ erro: 'Erro ao salvar histórico' }));
+                return;
             }
             res.statusCode = 200
             res.setHeader('content-Type', 'application/json; charset=utf-8')

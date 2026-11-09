@@ -59,7 +59,7 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 5 — Organização e testes. Status: **Em andamento**.
+Trilha A: Etapa 6 — Persistência do histórico. Status: **Pendente** (próxima etapa).
 
 Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamento**.
 
@@ -105,18 +105,18 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
 - **Segundo operando:** o botão `=` só chama o cálculo quando `precisaLimparDisplay` é falso, pela condição em `calculadora.js` (linha 215). Assim, `8 + =` sem digitar um segundo operando não calcula; o comportamento foi testado manualmente.
 - **Testado manualmente:** na interface, `8 + =` sem segundo operando não iniciou o cálculo; `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
-- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica aritmética, `testes/encadeamento.mjs` cobre a regra compartilhada de encadeamento e `testes/calcular_api.js` cobre operações, validações, erros e rotas HTTP. O histórico registra que, em 2026-11-04, passaram **7 testes de lógica e 14 de API**. Atualmente há 15 testes declarados para a API e 3 para o encadeamento; essa versão mais recente ainda precisa ser executada para confirmar o resultado.
+- **Testes automatizados:** `testes/calcular_logica.js` cobre a lógica aritmética, `testes/encadeamento.mjs` cobre a regra compartilhada de encadeamento e `testes/calcular_api.js` cobre operações, validações, erros e rotas HTTP. O usuário confirmou que os **28 testes atuais passaram** (7 de lógica, 3 de encadeamento e 18 de API).
 - **Análise do módulo de encadeamento:** o arquivo `encadeamento.mjs` implementa uma regra separada para `escolherOperacao(estado, novaOperacao, solicitarCalculo)`: quando existe operação anterior pendente, ele resolve a conta anterior antes de registrar a nova operação, atualiza `valorAtual` e mantém `valorAnterior` e `operacaoAtual` no estado; se o estado estiver em erro ou sem operação anterior, ele não dispara cálculo. Esse comportamento corresponde à regra atual da interface: contas encadeadas são resolvidas em sequência e o visor passa a usar a operação nova após o cálculo pendente.
 - **Possíveis melhorias futuras (não bloqueiam a etapa atual):** adicionar um teste automatizado para `=` sem segundo operando; ampliar o teste de falha do encadeamento para conferir todo o estado após a rejeição e a recuperação pela interface; avaliar testes automatizados da integração visual/E2E.
 - **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
-- **Status:** Em andamento. O módulo compartilhado de encadeamento já está integrado à interface: `calculadora.html` carrega `calculadora.js` como módulo, `calculadora.js` importa `encadeamento.mjs` e `server.js` serve esse arquivo. O encadeamento foi testado manualmente e há testes unitários presentes; a execução da versão atual e a ampliação da cobertura descrita acima permanecem pendentes.
+- **Status:** Testado e validado conforme a confirmação do usuário de que os 28 testes passaram e os fluxos de interface descritos foram testados manualmente. As melhorias de cobertura listadas acima são futuras e não bloqueiam o avanço.
 
 ### 6. Persistência do histórico
 
 - **Objetivo:** salvar e recuperar cálculos, praticando operações assíncronas de arquivo e tratamento de erros.
 - **Resultado verificável:** histórico persistido em arquivo, se essa solução continuar adequada.
 - **Teste:** registrar cálculos, reiniciar o servidor e confirmar que o histórico permanece disponível.
-- **Status:** Não iniciado.
+- **Status:** Pendente; próxima etapa a iniciar após a Etapa 5 validada.
 
 ### 7. Evolução e publicação
 
@@ -134,9 +134,9 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **Objetivo:** verificar validação de entradas, evitar injeção de código e fortalecer o processamento das requisições HTTP.
 - **Verificado no código:** não há uso de `eval()` para calcular expressões; `server.js` exige operandos `Number.isFinite`, limita operações a uma lista permitida e responde a JSON malformado; `calculadora.js` usa `textContent` para exibir conteúdo no visor.
 - **Implementado no código:** `server.js` define limite de 10 KB, rejeita `Content-Length` declarado acima do limite e verifica o tamanho recebido durante a leitura, respondendo `413` quando excedido. `testes/calcular_api.js` inclui um teste de corpo acima do limite e verifica uma requisição válida em seguida.
-- **Testes:** o histórico de 2026-11-04 registra aprovação de 14 testes de API, antes da inclusão do teste de corpo grande. Atualmente há 15 testes de API declarados; ainda é necessário executar a versão atual para confirmar que o limite e os demais casos passam.
+- **Testes:** o usuário confirmou que os 28 testes atuais passaram, incluindo os 18 testes de API, com casos para corpo acima do limite e requisição válida após a rejeição.
 - **Pendente:** os testes da API dependem de um servidor previamente iniciado em `localhost:3000`; integrar ou documentar de forma robusta esse requisito para a execução de testes, sem mascarar falha de conexão como sucesso.
-- **Status:** Em andamento. Validações e limite de corpo estão implementados, e há teste automatizado para corpo grande; a execução do conjunto atualizado ainda não foi confirmada. Não registrar controles inspecionados como testes aprovados.
+- **Status:** Em andamento. Os controles e testes atuais foram confirmados pelo usuário; permanece pendente tornar a execução dos testes da API independente de um servidor iniciado manualmente.
 
 ### Projeto 2 — Segurança de formulários e XSS
 
@@ -160,8 +160,8 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 
 - Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
 - Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Executar os testes atualizados da lógica, do encadeamento e da API; decidir depois se a cobertura visual/E2E é necessária para concluir a etapa 5.
-- Antes de disponibilizar a API fora do ambiente local, confirmar por teste a resposta `413` para corpos que ultrapassem 10 KB.
+- Na Etapa 6, decidir se a persistência em arquivo continua adequada antes de implementar o histórico.
+- Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
 
 ## Histórico de mudanças
 
@@ -177,6 +177,7 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **2026-11-04** — Revisão na branch `calculadora-node.js`: mantida a estrutura e o histórico; acrescentados critérios objetivos de conclusão, a Trilha B de AppSec referenciando `GUIA_SEGURANCA_APPSEC.md` e o estado confirmado da calculadora. Os testes executados nesta revisão passaram: 7 de lógica e 14 de API. Registrados como pendências o estado incoerente após erro em `escolherOperacao()`, a duplicação/não integração de `encadeamento.mjs`, os testes de recuperação e o limite HTTP 413. Nenhum arquivo da aplicação foi alterado.
 - **2026-11-04** — Análise do módulo `encadeamento.mjs`: a regra de cálculo pendente e a verificação de estado inicial foram registradas no plano, assim como os testes existentes em `testes/encadeamento.mjs` e a pendência de consolidar essa lógica com o código da interface da calculadora.
 - **2026-11-08** — Atualização documental após inspeção do estado atual: corrigidas as pendências já resolvidas de integração do módulo de encadeamento e limite HTTP de 10 KB/413; registrados o teste de corpo grande existente e as lacunas de cobertura restantes. Os testes não foram executados nesta atualização.
+- **2026-11-08** — O usuário confirmou que os 28 testes atuais passaram. A Etapa 5 foi marcada como testada e validada, as melhorias de cobertura permaneceram como futuras/não bloqueantes e a Etapa 6 — Persistência do histórico — foi definida como próxima, pendente de início.
 
 ## Conceitos
 
