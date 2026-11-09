@@ -59,7 +59,7 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 6 — Persistência do histórico. Status: **Pendente** (próxima etapa).
+Trilha A: Etapa 6 — Persistência do histórico. Status: **Em andamento**.
 
 Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamento**.
 
@@ -114,9 +114,14 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 ### 6. Persistência do histórico
 
 - **Objetivo:** salvar e recuperar cálculos, praticando operações assíncronas de arquivo e tratamento de erros.
-- **Resultado verificável:** histórico persistido em arquivo, se essa solução continuar adequada.
-- **Teste:** registrar cálculos, reiniciar o servidor e confirmar que o histórico permanece disponível.
-- **Status:** Pendente; próxima etapa a iniciar após a Etapa 5 validada.
+- **Implementado:** `historico.js` lê `historico.json`, acrescenta o cálculo e grava o arquivo usando `node:fs/promises`. A rota `POST /calcular` aguarda a gravação antes de responder sucesso; se a gravação falha, retorna HTTP 500.
+- **Evidência observada:** `historico.json` contém dois registros de cálculo. Isso confirma que há dados persistidos no arquivo, mas não confirma a origem de cada registro nem comprova a recuperação após reiniciar o servidor.
+- **Ainda não implementado/verificado:** não há rota para consultar o histórico nem interface que o exiba. O objetivo inclui recuperar cálculos; definir e validar como essa consulta será feita antes de considerar a etapa concluída.
+- **Pendências para concluir:** confirmar que os registros continuam disponíveis após reiniciar o servidor; verificar o fluxo de erro de leitura/gravação; validar a recuperação pela forma de consulta escolhida.
+- **Riscos encontrados na implementação atual:** `historico.js` usa o caminho relativo `historico.json`, que depende da pasta de trabalho ao iniciar o servidor. Além disso, gravações simultâneas podem ler a mesma versão do arquivo e uma sobrescrever a atualização da outra. Avaliar uma solução para esses casos antes de declarar a persistência confiável.
+- **Teste:** registrar cálculos, reiniciar o servidor e confirmar que o histórico persiste e pode ser consultado. Os testes de API existentes não cobrem persistência/reinício. Não executei a suíte durante esta auditoria: os testes de API enviam cálculos ao servidor e a rota os grava no mesmo `historico.json`.
+- **Possível melhoria futura, deixada para depois por decisão do usuário:** isolar operações dos testes automatizados para que não sejam confundidas com o histórico real da calculadora. Até essa melhoria ser feita, evitar usar o arquivo de histórico real como destino de dados de teste.
+- **Status:** Em andamento. A gravação assíncrona está implementada e há registros no arquivo; a leitura/consulta para o usuário e a validação de persistência após reinício continuam pendentes.
 
 ### 7. Evolução e publicação
 
@@ -134,6 +139,8 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **Objetivo:** verificar validação de entradas, evitar injeção de código e fortalecer o processamento das requisições HTTP.
 - **Verificado no código:** não há uso de `eval()` para calcular expressões; `server.js` exige operandos `Number.isFinite`, limita operações a uma lista permitida e responde a JSON malformado; `calculadora.js` usa `textContent` para exibir conteúdo no visor.
 - **Implementado no código:** `server.js` define limite de 10 KB, rejeita `Content-Length` declarado acima do limite e verifica o tamanho recebido durante a leitura, respondendo `413` quando excedido. `testes/calcular_api.js` inclui um teste de corpo acima do limite e verifica uma requisição válida em seguida.
+- **Cabeçalhos:** o servidor define `maxHeaderSize` em 16 KB. Não encontrei teste específico que verifique a rejeição de cabeçalhos acima desse limite.
+- **Leitura do corpo:** o tamanho dos pedaços recebidos é contado, mas o corpo é acumulado em uma string (`corpo = corpo + pedaco`), não em `Buffer`. Compreender e avaliar a leitura em bytes com `Buffer` permanece um tópico de estudo/possível melhoria, não uma pendência da Etapa 6.
 - **Testes:** o usuário confirmou que os 28 testes atuais passaram, incluindo os 18 testes de API, com casos para corpo acima do limite e requisição válida após a rejeição.
 - **Pendente:** os testes da API dependem de um servidor previamente iniciado em `localhost:3000`; integrar ou documentar de forma robusta esse requisito para a execução de testes, sem mascarar falha de conexão como sucesso.
 - **Status:** Em andamento. Os controles e testes atuais foram confirmados pelo usuário; permanece pendente tornar a execução dos testes da API independente de um servidor iniciado manualmente.
@@ -160,7 +167,8 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 
 - Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
 - Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Na Etapa 6, decidir se a persistência em arquivo continua adequada antes de implementar o histórico.
+- Na Etapa 6, definir como o usuário consultará o histórico persistido e confirmar a recuperação após reiniciar o servidor.
+- Na Etapa 6, avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
 - Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
 
 ## Histórico de mudanças
@@ -178,6 +186,7 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **2026-11-04** — Análise do módulo `encadeamento.mjs`: a regra de cálculo pendente e a verificação de estado inicial foram registradas no plano, assim como os testes existentes em `testes/encadeamento.mjs` e a pendência de consolidar essa lógica com o código da interface da calculadora.
 - **2026-11-08** — Atualização documental após inspeção do estado atual: corrigidas as pendências já resolvidas de integração do módulo de encadeamento e limite HTTP de 10 KB/413; registrados o teste de corpo grande existente e as lacunas de cobertura restantes. Os testes não foram executados nesta atualização.
 - **2026-11-08** — O usuário confirmou que os 28 testes atuais passaram. A Etapa 5 foi marcada como testada e validada, as melhorias de cobertura permaneceram como futuras/não bloqueantes e a Etapa 6 — Persistência do histórico — foi definida como próxima, pendente de início.
+- **2026-11-09** — Auditoria do estado atual: a Etapa 6 já tem gravação assíncrona de cálculos em `historico.json`, chamada pela API, e o arquivo contém dois registros. A etapa foi atualizada para em andamento; não foi possível confirmar por evidência existente a recuperação após reiniciar, nem há rota/interface para consultar os registros. Registrados os riscos do caminho relativo e de gravações simultâneas. A suíte da API não foi executada para evitar gravar dados de teste no histórico usado pela calculadora; o isolamento dos dados de teste permanece uma melhoria futura, conforme decisão do usuário.
 
 ## Conceitos
 
