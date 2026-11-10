@@ -12,5 +12,19 @@
     "operacao": "multiplicar",
     "resultado": 20,
     "dataHora": "2026-11-09T00:44:05.025Z"
+  },
+  {
+    "valor1": 20,
+    "valor2": 10,
+    "operacao": "somar",
+    "resultado": 30,
+    "dataHora": "2026-11-09T14:34:22.471Z"
+  },
+  {
+    "valor1": 10,
+    "valor2": 10,
+    "operacao": "somar",
+    "resultado": 20,
+    "dataHora": "2026-11-09T14:35:42.331Z"
   }
 ]

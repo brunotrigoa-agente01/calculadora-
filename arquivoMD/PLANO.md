@@ -1,8 +1,16 @@
-# Plano de aprendizagem: calculadora com Node.js
+# Plano de aprendizagem e portfólio profissional: calculadora com Node.js
+
+## Objetivo profissional
+
+O objetivo de longo prazo é desenvolver conhecimentos e habilidades para disputar oportunidades como desenvolvedor web júnior. A calculadora continua sendo o projeto principal de aprendizagem; os demais projetos são uma sequência futura, não tarefas para implementação imediata.
+
+O progresso será avaliado por evidências práticas de que o estudante consegue compreender e explicar o código, investigar e resolver problemas, desenvolver aplicações completas, criar e consumir APIs, trabalhar com bancos de dados, aplicar segurança, escrever e executar testes, usar Git e GitHub, publicar e manter aplicações e justificar decisões técnicas. Concluir um projeto, por si só, não comprova um nível profissional. A avaliação deve considerar compreensão, autonomia e capacidade de resolver problemas na prática; a evolução para pleno é um objetivo futuro, não uma classificação antecipada.
 
 ## Objetivo do projeto
 
 Evoluir a calculadora existente para uma aplicação com front-end no navegador e back-end em Node.js. Preservar a interface atual e construir a comunicação entre as partes gradualmente, compreendendo arquitetura, implementação, testes e segurança para poder aplicar os conceitos em outros projetos.
+
+Este projeto também integra uma trilha de formação profissional progressiva. A aprendizagem de bancos de dados, publicação e outras tecnologias deve acontecer quando houver uma necessidade concreta ou uma oportunidade de estudo justificada, sem transformar esses tópicos em requisitos artificiais para concluir a calculadora.
 
 ## Requisitos aprovados
 
@@ -32,8 +40,9 @@ Evoluir a calculadora existente para uma aplicação com front-end no navegador 
 
 O plano acompanha duas trilhas relacionadas, mas não exige implementar funcionalidades futuras na calculadora apenas para estudar segurança:
 
-- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A etapa atual é a 5.
+- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A etapa atual é a 6.
 - **Trilha B — AppSec:** projetos vinculados às funcionalidades. O Projeto 1 avalia e protege a calculadora/API atual; os demais começam quando o projeto tiver formulários, persistência de banco de dados ou contas de usuário que os justifiquem.
+- **Visão de portfólio:** organiza os projetos futuros descritos adiante, sem alterar a sequência nem o estado das etapas atuais da calculadora.
 
 O [Guia prático de segurança Web](./GUIA_SEGURANCA_APPSEC.md) contém explicações, exemplos de código vulnerável e mitigado e laboratórios. Este plano registra dependências, estado real, critérios e próximas tarefas.
 
@@ -54,6 +63,10 @@ Use os estados com este significado:
 - **Implementado, mas ainda não testado:** código presente, sem evidência suficiente de execução.
 - **Testado e validado:** testes ou verificações definidos foram executados com sucesso; pode haver outros critérios de aprendizagem/documentação pendentes.
 - **Concluído:** critérios de implementação, compreensão, teste, segurança pertinente e documentação foram satisfeitos.
+
+### Evidências de aprendizagem e autonomia
+
+A presença de um conceito no código ou a aprovação de um teste demonstra apenas parte do progresso. Para registrar compreensão consolidada, usar evidências como explicar o fluxo e as decisões com as próprias palavras, investigar uma falha, propor e implementar uma correção e validar o resultado. No início, oferecer orientação e exemplos; com a prática, reduzir gradualmente as dicas e pedir que o estudante analise o problema, proponha uma solução e justifique suas escolhas. Não atribuir nível profissional sem evidências práticas.
 
 As etapas 1 a 4 foram registradas anteriormente como concluídas com base em testes confirmados. Como não há registro suficiente de que o estudante já explicou os conceitos de cada uma, seus estados atuais abaixo são **Testado e validado** até essa compreensão ser demonstrada; o histórico original foi mantido. Essa pendência é de aprendizagem e não reabre a implementação dessas etapas.
 
@@ -115,24 +128,85 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 
 - **Objetivo:** salvar e recuperar cálculos, praticando operações assíncronas de arquivo e tratamento de erros.
 - **Implementado:** `historico.js` lê `historico.json`, acrescenta o cálculo e grava o arquivo usando `node:fs/promises`. A rota `POST /calcular` aguarda a gravação antes de responder sucesso; se a gravação falha, retorna HTTP 500.
-- **Evidência observada:** `historico.json` contém dois registros de cálculo. Isso confirma que há dados persistidos no arquivo, mas não confirma a origem de cada registro nem comprova a recuperação após reiniciar o servidor.
-- **Ainda não implementado/verificado:** não há rota para consultar o histórico nem interface que o exiba. O objetivo inclui recuperar cálculos; definir e validar como essa consulta será feita antes de considerar a etapa concluída.
-- **Pendências para concluir:** confirmar que os registros continuam disponíveis após reiniciar o servidor; verificar o fluxo de erro de leitura/gravação; validar a recuperação pela forma de consulta escolhida.
-- **Riscos encontrados na implementação atual:** `historico.js` usa o caminho relativo `historico.json`, que depende da pasta de trabalho ao iniciar o servidor. Além disso, gravações simultâneas podem ler a mesma versão do arquivo e uma sobrescrever a atualização da outra. Avaliar uma solução para esses casos antes de declarar a persistência confiável.
-- **Teste:** registrar cálculos, reiniciar o servidor e confirmar que o histórico persiste e pode ser consultado. Os testes de API existentes não cobrem persistência/reinício. Não executei a suíte durante esta auditoria: os testes de API enviam cálculos ao servidor e a rota os grava no mesmo `historico.json`.
+- **Testado manualmente pelo usuário:** após reiniciar o servidor, o histórico permaneceu disponível; um novo cálculo acrescentou outro registro. Isso valida a persistência entre reinícios e a inclusão de novos cálculos.
+- **Tratamento de erros:** o código responde com HTTP 500 quando a gravação falha, mas esse fluxo ainda precisa ser verificado. O tratamento de falha de leitura/gravação faz parte do objetivo de aprendizagem desta etapa.
+- **Consulta do histórico:** não há rota ou interface para exibir registros. Isso não é requisito do resultado verificável atual (persistir e recuperar após reiniciar); implementar uma consulta visível pode ser considerado se passar a fazer parte do escopo desejado.
+- **Riscos a avaliar:** `historico.js` usa o caminho relativo `historico.json`, que depende da pasta de trabalho ao iniciar o servidor. Gravações simultâneas também podem ler a mesma versão do arquivo e uma sobrescrever a atualização da outra. Avaliar a relevância desses casos para o uso previsto.
+- **Teste automatizado:** os testes de API existentes enviam cálculos que são gravados no mesmo `historico.json`. Não executei a suíte durante esta auditoria para evitar misturar dados de teste com o histórico real.
 - **Possível melhoria futura, deixada para depois por decisão do usuário:** isolar operações dos testes automatizados para que não sejam confundidas com o histórico real da calculadora. Até essa melhoria ser feita, evitar usar o arquivo de histórico real como destino de dados de teste.
-- **Status:** Em andamento. A gravação assíncrona está implementada e há registros no arquivo; a leitura/consulta para o usuário e a validação de persistência após reinício continuam pendentes.
+- **Status:** Em andamento. A persistência após reinício e a inclusão de um novo registro foram testadas manualmente pelo usuário; falta verificar o tratamento de erros de arquivo e atender aos demais critérios de aprendizagem.
 
 ### 7. Evolução e publicação
 
 - **Objetivo:** avaliar ferramentas, segurança básica e hospedagem com base nas necessidades da aplicação.
-- **Resultado verificável:** decisões justificadas sobre Express, variáveis de ambiente, banco de dados e hospedagem, implementando apenas o que fizer sentido.
+- **Resultado verificável:** decisões justificadas sobre Express, variáveis de ambiente, banco de dados e hospedagem, implementando apenas o que fizer sentido e depois de conhecer as necessidades de publicação.
+- **Limite atual:** não contratar hospedagem nem alterar configurações de publicação antes de desenvolver e testar os projetos.
 - **Teste:** definido quando as necessidades e o ambiente de publicação forem conhecidos.
 - **Status:** Não iniciado.
+
+## Projetos futuros para o portfólio
+
+Esta é uma visão de longo prazo, não uma lista de tarefas para iniciar agora. A calculadora permanece prioritária. Cada projeto futuro deverá ter planejamento e etapas próprias; definir um MVP, critérios de conclusão, testes e decisões técnicas antes de implementar. Distinguir requisitos essenciais do projeto, funcionalidades opcionais e oportunidades de aprendizagem.
+
+### Projeto de portfólio 1 — Calculadora com API (projeto atual)
+
+Continuar o trabalho descrito nas etapas acima. A trilha inclui JavaScript, Node.js, HTTP, APIs REST, JSON, `fetch()`, Promises, `async`/`await`, módulos, testes, segurança e persistência. PostgreSQL pode ser estudado como oportunidade relevante, mas não é requisito automático para concluir a calculadora nem substitui a avaliação de necessidade.
+
+### Projeto de portfólio 2 — Sistema de cadastro
+
+Proposta futura para clientes ou usuários: criar, listar, editar, excluir e pesquisar registros, com validação e persistência. Conhecimentos a estudar: CRUD, Express quando justificado, PostgreSQL, SQL, modelagem, validação no front-end e back-end e testes automatizados. O escopo e a escolha de tecnologias serão definidos no planejamento próprio do projeto.
+
+### Projeto de portfólio 3 — Sistema de estoque
+
+Proposta futura para cadastro de produtos, entradas e saídas, quantidades, histórico de movimentações, relatórios e pesquisa/filtros. Conhecimentos a estudar: relacionamentos entre tabelas, consultas SQL, regras de negócio, integridade de dados, transações e organização de APIs. Funcionalidades e ordem serão divididas em etapas no planejamento próprio.
+
+### Projeto de portfólio 4 — Sistema de gerenciamento
+
+Proposta futura com login, usuários, painel administrativo, permissões e dados privados, quando esse escopo se justificar. Conhecimentos a estudar: hash de senhas, sessões e cookies, JWT quando apropriado, controle de acesso, proteção de rotas e segurança de aplicações. Não adicionar autenticação sem necessidade concreta; detalhar escopo, segurança e testes antes da implementação.
+
+Novos projetos poderão ser acrescentados conforme os conhecimentos adquiridos e as necessidades identificadas. As relações com os módulos AppSec são orientativas e seguem as funcionalidades, não uma correspondência numérica obrigatória.
+
+## Portfólio profissional
+
+O portfólio será o site principal de apresentação da trajetória profissional e poderá ter seções de apresentação pessoal, sobre, conhecimentos e tecnologias, projetos e contato.
+
+Cada projeto apresentado deverá informar nome e descrição, problema que resolve, funcionalidades, tecnologias, imagens ou demonstrações, link para a aplicação e link para o código-fonte quando disponível. Ao selecionar um projeto, o visitante deverá conseguir acessar sua aplicação quando ela estiver publicada. A página de apresentação pode ficar no portfólio enquanto cada aplicação continua independente, com ciclo próprio de desenvolvimento e manutenção.
+
+## Decisões técnicas e hospedagem futura
+
+Antes de adotar uma tecnologia ou funcionalidade, avaliar:
+
+1. Qual problema resolve?
+2. O que permite aprender?
+3. Qual sua relevância profissional?
+4. É compatível com a arquitetura atual?
+5. Quais são seus requisitos de segurança?
+6. Como será testada?
+7. Qual seu custo?
+8. Como afetará a hospedagem?
+9. Facilita ou dificulta a manutenção?
+10. Quais possibilidades de evolução oferece?
+
+Uma tecnologia não precisa ser obrigatória para o funcionamento do projeto para justificar seu estudo; a decisão deve esclarecer a oportunidade de aprendizagem e o trade-off, sem adotar ferramentas apenas por popularidade.
+
+A contratação de hospedagem fica para depois que os projetos estiverem desenvolvidos e testados. Avaliar se uma única contratação atende ao portfólio estático e às aplicações Node.js independentes, comparando também com serviços separados quando isso for técnica ou financeiramente melhor. Considerar suporte a HTML/CSS/JavaScript estáticos e Node.js, execução de aplicações independentes, domínios e subdomínios, variáveis de ambiente, integração com PostgreSQL, armazenamento persistente, HTTPS, backups, limites de processamento/armazenamento, custo e expansão. Nenhum provedor será presumido nem contratado nesta fase.
+
+## Metodologia e acompanhamento de conhecimentos
+
+- Aprender com projetos reais, uma funcionalidade por vez, com explicações simples e progressivas.
+- Testar cada implementação antes de avançar; priorizar o raciocínio do estudante e oferecer dicas antes da solução completa.
+- Explicar causas e correções possíveis para erros; não mudar decisões aprovadas sem conversar.
+- Reduzir gradualmente a orientação para desenvolver autonomia de análise, implementação, investigação e justificativa técnica.
+- Registrar conhecimentos praticados, evidências de compreensão e tópicos a revisar. Não presumir que um assunto foi compreendido porque o código funcionou ou os testes passaram.
+- No início de cada projeto futuro, estabelecer escopo, etapas, critérios de validação e decisões técnicas em um planejamento próprio.
+
+O registro deve diferenciar assunto ainda não estudado, praticado que precisa de revisão e compreensão demonstrada com evidência. No estado atual, as etapas 1 a 4 já registram a necessidade de explicar os conceitos; essa pendência pedagógica permanece sem reabrir suas implementações validadas.
 
 ## Trilha B — Cibersegurança Web (AppSec)
 
 Esta trilha complementa a Trilha A conforme as funcionalidades forem implementadas. Usar o [Guia prático de segurança Web](./GUIA_SEGURANCA_APPSEC.md) para os exemplos e laboratórios. Os estados abaixo descrevem somente o que foi confirmado no código ou executado; não indicam que uma aplicação futura já foi criada.
+
+Como referência de sequência, os módulos sobre formulários e XSS podem ser retomados no sistema de cadastro; banco de dados e SQL Injection, quando cadastro ou estoque adotarem persistência SQL; autenticação, sessões e autorização, quando o sistema de gerenciamento tiver usuários e recursos privados. Essa associação não altera os estados dos projetos AppSec nem duplica o conteúdo do guia.
 
 ### Projeto 1 — Segurança da calculadora e da API
 
@@ -167,9 +241,12 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 
 - Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
 - Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Na Etapa 6, definir como o usuário consultará o histórico persistido e confirmar a recuperação após reiniciar o servidor.
+- Na Etapa 6, verificar o comportamento quando a leitura ou gravação do arquivo falha.
 - Na Etapa 6, avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
 - Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
+- Planejar cada projeto futuro separadamente quando a calculadora e os conhecimentos necessários justificarem avançar para ele.
+- Comparar hospedagem do portfólio e das aplicações somente quando os requisitos de publicação forem conhecidos; não contratar agora.
+- Definir como registrar evidências de conhecimentos consolidados e tópicos a revisar conforme forem demonstrados durante os projetos.
 
 ## Histórico de mudanças
 
@@ -187,8 +264,12 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - **2026-11-08** — Atualização documental após inspeção do estado atual: corrigidas as pendências já resolvidas de integração do módulo de encadeamento e limite HTTP de 10 KB/413; registrados o teste de corpo grande existente e as lacunas de cobertura restantes. Os testes não foram executados nesta atualização.
 - **2026-11-08** — O usuário confirmou que os 28 testes atuais passaram. A Etapa 5 foi marcada como testada e validada, as melhorias de cobertura permaneceram como futuras/não bloqueantes e a Etapa 6 — Persistência do histórico — foi definida como próxima, pendente de início.
 - **2026-11-09** — Auditoria do estado atual: a Etapa 6 já tem gravação assíncrona de cálculos em `historico.json`, chamada pela API, e o arquivo contém dois registros. A etapa foi atualizada para em andamento; não foi possível confirmar por evidência existente a recuperação após reiniciar, nem há rota/interface para consultar os registros. Registrados os riscos do caminho relativo e de gravações simultâneas. A suíte da API não foi executada para evitar gravar dados de teste no histórico usado pela calculadora; o isolamento dos dados de teste permanece uma melhoria futura, conforme decisão do usuário.
+- **2026-11-09** — O usuário confirmou o teste manual de persistência: após reiniciar o servidor, o histórico continuou disponível e um novo cálculo acrescentou um registro. Atualizado o status da validação de persistência; permanece pendente verificar o tratamento de falhas de arquivo. A ausência de rota/interface para consulta foi retirada como requisito, pois não consta do escopo aprovado da etapa.
+- **2026-11-10** — Ampliação estratégica do plano para incluir objetivo profissional, evidências de aprendizagem e autonomia, sequência futura de projetos, portfólio e critérios de decisão/hospedagem. Preservados os estados, decisões, testes confirmados, pendências e registros históricos anteriores; a etapa 6 permanece em andamento. Os projetos futuros continuam como planejamento, sem implementação imediata.
 
 ## Conceitos
+
+O registro abaixo diferencia conceitos presentes no código daqueles cuja compreensão já foi demonstrada. Atualizar essa distinção somente com evidência de prática, explicação ou revisão; não inferir consolidação a partir da conclusão de uma funcionalidade.
 
 ### Praticados ou presentes no código atual
 
@@ -207,3 +288,5 @@ Esta trilha complementa a Trilha A conforme as funcionalidades forem implementad
 - Promises, `async`/`await` e operações assíncronas de arquivo.
 - `fetch()`, estados de carregamento e tratamento de falhas HTTP.
 - Separação de responsabilidades e testes de back-end.
+- Criar e consumir APIs, modelar e consultar bancos de dados, aplicar validação e segurança e investigar erros de forma progressivamente mais autônoma.
+- Testes automatizados, Git/GitHub, publicação e manutenção de aplicações, conforme cada projeto avançar e houver evidências de prática.
