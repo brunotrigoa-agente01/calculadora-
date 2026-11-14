@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const { calcular } = require('../calcular.js');
 const { salvarHistorico, gravarHistorico } = require('../historico.js');
+const { error } = require('node:console');
 
 test( 'teste da soma de 10 e 5', () => {
     assert.equal(calcular(10, 5, 'somar'), 15);
@@ -96,6 +97,74 @@ test('gravarHistorico persiste o cálculo no JSON', async () => {
     assert.equal(registro.operacao, 'somar');
     assert.equal(registro.resultado, 15);
 });
+
+test('criar historico quando o arquivo não existir', async(t)=>{
+    const dataHora = new Date().toISOString();
+    const escrita = [];
+
+    t.mock.method(fs, 'readFile', async, () =>{
+        const erro = new Error('Arquivo não encontrado')
+        error.code = 'ENOET';
+        throw error; 
+    })
+
+    t.mock.method(fs, 'writeFile', async, (argumento) =>{
+        escrita.push(argumento);
+    })
+    
+    
+    await gravarHistorico('dividir', 10, 2, 5, dataHora);
+    
+    assert.ok(escrita)
+    assert.equal(escrita.length, 2);
+    assert.equal(escrita[0,0], 'historico.json')
+    assert.equal(escrita[0,1], '[]')
+
+    historico = escrita.JSON.parse(escrita[1][1])
+
+    assert.equal(historico.length, 1);
+    assert.equal(historico[0].resultado, 5);
+    assert.equal(historico[0].operacao, 'dividir');
+    assert.equal(historico[0].dataHora, dataHora);
+
+   
+   
+})
+
+
+test('teste de falha na leitura do historico.json', async(t)=>{
+    const dataHora = new Date().toISOString();
+
+    await fs.readFile('historico.json' , 'utf-8');
+
+    t.mock.method(fs,'readFile', async()=>{
+        throw new Error('falha na leitura!')
+    })
+
+    await assert.rejects(
+        gravarHistorico('dividir', 10, 2, 5, dataHora),
+        /falha na leitura!/
+    ) 
+
+    
+
+})
+
+test('teste de falha na gravação do historico.json', async(t)=>{
+    const dataHora = new Date().toISOString();
+
+    await fs.writeFile('historico.json' ,'[]', 'utf-8');
+
+    t.mock.method(fs,'writeFile', async()=>{
+        throw new Error('falha na gravação!')
+    })
+
+    await assert.rejects(
+         gravarHistorico('dividir', 10, 2, 5, dataHora),
+         /falha na gravação!/
+    )
+   
+})
 
 //node --test testes/calcular_logica.js - codigo para o teste
 
