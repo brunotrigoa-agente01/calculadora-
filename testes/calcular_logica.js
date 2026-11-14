@@ -98,38 +98,32 @@ test('gravarHistorico persiste o cálculo no JSON', async () => {
     assert.equal(registro.resultado, 15);
 });
 
-test('criar historico quando o arquivo não existir', async(t)=>{
+test('cria o histórico quando o arquivo não existe', async (t) => {
     const dataHora = new Date().toISOString();
-    const escrita = [];
+    const escritas = [];
 
-    t.mock.method(fs, 'readFile', async, () =>{
-        const erro = new Error('Arquivo não encontrado')
-        error.code = 'ENOET';
-        throw error; 
-    })
+    t.mock.method(fs, 'readFile', async () => {
+        const erro = new Error('Arquivo não encontrado');
+        erro.code = 'ENOENT';
+        throw erro;
+    });
 
-    t.mock.method(fs, 'writeFile', async, (argumento) =>{
-        escrita.push(argumento);
-    })
-    
-    
+    t.mock.method(fs, 'writeFile', async (...argumentos) => {
+        escritas.push(argumentos);
+    });
+
     await gravarHistorico('dividir', 10, 2, 5, dataHora);
-    
-    assert.ok(escrita)
-    assert.equal(escrita.length, 2);
-    assert.equal(escrita[0,0], 'historico.json')
-    assert.equal(escrita[0,1], '[]')
 
-    historico = escrita.JSON.parse(escrita[1][1])
+    assert.equal(escritas.length, 2);
+    assert.equal(escritas[0][0], 'historico.json');
+    assert.equal(escritas[0][1], '[]');
 
-    assert.equal(historico.length, 1);
-    assert.equal(historico[0].resultado, 5);
-    assert.equal(historico[0].operacao, 'dividir');
-    assert.equal(historico[0].dataHora, dataHora);
-
-   
-   
-})
+    const historicoGravado = JSON.parse(escritas[1][1]);
+    assert.equal(historicoGravado.length, 1);
+    assert.equal(historicoGravado[0].operacao, 'dividir');
+    assert.equal(historicoGravado[0].resultado, 5);
+    assert.equal(historicoGravado[0].dataHora, dataHora);
+});
 
 
 test('teste de falha na leitura do historico.json', async(t)=>{

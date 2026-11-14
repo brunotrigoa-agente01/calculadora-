@@ -34,13 +34,13 @@ Este projeto também integra uma trilha de formação profissional progressiva. 
 5. Integrar o front-end progressivamente e tratar explicitamente falhas de requisição.
 6. Organizar e testar o código antes de avançar para persistência.
 7. Começar sem frameworks. Avaliar Express, banco de dados e outras ferramentas apenas diante de uma necessidade concreta.
-8. Não implementar etapas futuras sem concluir e testar a etapa atual.
+8. Não avançar para etapas futuras sem concluir e testar a etapa atual, salvo adiamento explicitamente aprovado pelo usuário; um adiamento mantém a etapa incompleta e suas pendências registradas.
 
 ## Como acompanhar as duas trilhas
 
 O plano acompanha duas trilhas relacionadas, mas não exige implementar funcionalidades futuras na calculadora apenas para estudar segurança:
 
-- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A etapa atual é a 6.
+- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A Etapa 6 está adiada e pendente; a etapa atual é a 7 por decisão do usuário.
 - **Trilha B — AppSec:** projetos vinculados às funcionalidades. O Projeto 1 avalia e protege a calculadora/API atual; os demais começam quando o projeto tiver formulários, persistência de banco de dados ou contas de usuário que os justifiquem.
 - **Visão de portfólio:** organiza os projetos futuros descritos adiante, sem alterar a sequência nem o estado das etapas atuais da calculadora.
 
@@ -60,6 +60,7 @@ Use os estados com este significado:
 
 - **Não iniciado:** trabalho ainda não começou.
 - **Em andamento:** há trabalho ou validação pendente.
+- **Adiada (pendente):** etapa interrompida por decisão explícita; continua incompleta e suas tarefas permanecem pendentes para retomada.
 - **Implementado, mas ainda não testado:** código presente, sem evidência suficiente de execução.
 - **Testado e validado:** testes ou verificações definidos foram executados com sucesso; pode haver outros critérios de aprendizagem/documentação pendentes.
 - **Concluído:** critérios de implementação, compreensão, teste, segurança pertinente e documentação foram satisfeitos.
@@ -72,7 +73,9 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 6 — Persistência do histórico. Status: **Em andamento**.
+Trilha A: Etapa 7 — Evolução e publicação. Status: **Em andamento**.
+
+Etapa 6 — Persistência do histórico. Status: **Adiada (pendente)**; suas tarefas incompletas permanecem registradas para retomada.
 
 Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamento**.
 
@@ -136,7 +139,7 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Riscos a avaliar:** `historico.js` usa o caminho relativo `historico.json`, que depende da pasta de trabalho ao iniciar o servidor. Gravações simultâneas também podem ler a mesma versão do arquivo e uma sobrescrever a atualização da outra. Avaliar a relevância desses casos para o uso previsto.
 - **Isolamento dos testes:** os testes da API enviam cálculos que são gravados no `historico.json` relativo ao diretório de execução, e esperam um servidor em `localhost:3000`. Na execução de 2026-11-13, a suíte foi rodada numa cópia temporária do projeto, com servidor e histórico isolados; isso não adiciona isolamento automático aos testes do repositório.
 - **Possível melhoria futura, deixada para depois por decisão do usuário:** tornar o isolamento dos dados dos testes uma característica reproduzível da configuração de testes, sem gravar no histórico real da calculadora.
-- **Status:** Em andamento. A persistência após reinício e a inclusão de um novo registro foram testadas manualmente pelo usuário; falta verificar o tratamento de erros de arquivo e atender aos demais critérios de aprendizagem.
+- **Status:** Adiada (pendente) por decisão do usuário em 2026-11-14. A persistência após reinício e a inclusão de um novo registro foram testadas manualmente, e o teste automatizado de persistência passou; permanecem pendentes verificar falhas de leitura/gravação, avaliar os riscos do caminho relativo e de gravações simultâneas e atender aos critérios de aprendizagem. A etapa não está concluída e deverá ser retomada posteriormente.
 
 ### 7. Evolução e publicação
 
@@ -144,7 +147,7 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Resultado verificável:** decisões justificadas sobre Express, variáveis de ambiente, banco de dados e hospedagem, implementando apenas o que fizer sentido e depois de conhecer as necessidades de publicação.
 - **Limite atual:** não contratar hospedagem nem alterar configurações de publicação antes de desenvolver e testar os projetos.
 - **Teste:** definido quando as necessidades e o ambiente de publicação forem conhecidos.
-- **Status:** Não iniciado.
+- **Status:** Em andamento; definida como etapa atual por decisão explícita do usuário em 2026-11-14, com a Etapa 6 adiada e pendente. Avaliar ferramentas e necessidades sem contratar hospedagem nem alterar configurações de publicação nesta fase.
 
 ## Projetos futuros para o portfólio
 
@@ -243,8 +246,8 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 
 - Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
 - Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Na Etapa 6, verificar o comportamento quando a leitura ou gravação do arquivo falha.
-- Na Etapa 6, avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
+- Retomar a Etapa 6, atualmente adiada e pendente: verificar o comportamento quando a leitura ou gravação do arquivo falha.
+- Retomar a Etapa 6, atualmente adiada e pendente: avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
 - Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
 - Planejar cada projeto futuro separadamente quando a calculadora e os conhecimentos necessários justificarem avançar para ele.
 - Comparar hospedagem do portfólio e das aplicações somente quando os requisitos de publicação forem conhecidos; não contratar agora.
@@ -269,6 +272,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-09** — O usuário confirmou o teste manual de persistência: após reiniciar o servidor, o histórico continuou disponível e um novo cálculo acrescentou um registro. Atualizado o status da validação de persistência; permanece pendente verificar o tratamento de falhas de arquivo. A ausência de rota/interface para consulta foi retirada como requisito, pois não consta do escopo aprovado da etapa.
 - **2026-11-10** — Ampliação estratégica do plano para incluir objetivo profissional, evidências de aprendizagem e autonomia, sequência futura de projetos, portfólio e critérios de decisão/hospedagem. Preservados os estados, decisões, testes confirmados, pendências e registros históricos anteriores; a etapa 6 permanece em andamento. Os projetos futuros continuam como planejamento, sem implementação imediata.
 - **2026-11-13** — O teste de persistência em `testes/calcular_logica.js` foi ajustado para aguardar diretamente `gravarHistorico()` antes de ler o JSON e verificar o registro gravado. A suíte completa passou numa cópia temporária do projeto: 30 testes (9 de lógica/histórico, 3 de encadeamento e 18 de API). A execução usou servidor e histórico temporários; o `historico.json` real não foi alterado. A Etapa 6 continua em andamento: falta verificar falhas de leitura/gravação e cumprir os critérios de aprendizagem; o isolamento automático no próprio projeto permanece uma melhoria futura.
+- **2026-11-14** — Por decisão explícita do usuário, a Etapa 6 — Persistência do histórico — foi adiada, mas permanece pendente e incompleta, com suas tarefas preservadas para retomada. A Etapa 7 — Evolução e publicação — passou a ser a etapa atual, em andamento; não foram contratados serviços nem alteradas configurações de publicação.
 
 ## Conceitos
 

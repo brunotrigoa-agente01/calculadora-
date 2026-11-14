@@ -4,48 +4,48 @@
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-14T13:03:01.781Z"
+    "dataHora": "2026-11-14T18:06:41.988Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "subtrair",
     "resultado": 5,
-    "dataHora": "2026-11-14T13:03:01.796Z"
+    "dataHora": "2026-11-14T18:06:42.016Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "multiplicar",
     "resultado": 50,
-    "dataHora": "2026-11-14T13:03:01.803Z"
+    "dataHora": "2026-11-14T18:06:42.026Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "dividir",
     "resultado": 2,
-    "dataHora": "2026-11-14T13:03:01.810Z"
+    "dataHora": "2026-11-14T18:06:42.039Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-14T13:03:01.869Z"
+    "dataHora": "2026-11-14T18:06:42.109Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-14T13:03:01.898Z"
+    "dataHora": "2026-11-14T18:06:42.118Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-14T13:03:01.914Z"
+    "dataHora": "2026-11-14T18:06:42.138Z"
   }
 ]
