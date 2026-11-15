@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const { calcular } = require('../calcular.js');
 const { salvarHistorico, gravarHistorico } = require('../historico.js');
 const { error } = require('node:console');
+const {criarServidor} = require('./server')
 
 test( 'teste da soma de 10 e 5', () => {
     assert.equal(calcular(10, 5, 'somar'), 15);
@@ -160,6 +161,10 @@ test('teste de falha na gravação do historico.json', async(t)=>{
    
 })
 
+
+test('testar criação de função falsa do salvarHistorico', () => {
+
+})
 //node --test testes/calcular_logica.js - codigo para o teste
 
 // node --test testes/calcular_logica.js testes/calcular_api.js - esse comando vai rodar todos os testes que estiverem na pasta testes

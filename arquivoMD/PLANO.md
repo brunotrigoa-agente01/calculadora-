@@ -147,6 +147,11 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Resultado verificável:** decisões justificadas sobre Express, variáveis de ambiente, banco de dados e hospedagem, implementando apenas o que fizer sentido e depois de conhecer as necessidades de publicação.
 - **Limite atual:** não contratar hospedagem nem alterar configurações de publicação antes de desenvolver e testar os projetos.
 - **Teste:** definido quando as necessidades e o ambiente de publicação forem conhecidos.
+- **Implementado no servidor:** a porta usa `process.env.PORT || 3000`; `servidor.listen()` escuta em `0.0.0.0`; e a comparação `process.env.NODE_ENV === 'production'` seleciona mensagem genérica para erros HTTP 500 em produção e mensagem detalhada nos demais ambientes. O código não define `NODE_ENV` nem possui tratamento separado para `development` e `test`: ambos seguem o ramo diferente de produção.
+- **Aprendizados estudados:** o usuário relata ter estudado `process.env`, variáveis de ambiente, `NODE_ENV`, os ambientes `development`, `production` e `test`, comparação estrita com `===`, mensagens genéricas em produção e o fato de `node --test` não definir automaticamente `NODE_ENV=test`. Esses itens são conhecimentos estudados, não novas implementações.
+- **Testes manuais relatados pelo usuário:** configuração de `PORT` e escuta em `0.0.0.0` foram testadas; a calculadora abriu com sucesso no celular usando o IPv4 do computador na mesma rede Wi-Fi.
+- **Testes automatizados:** não foi confirmado teste automatizado específico para `PORT`, `NODE_ENV` ou respostas de erro conforme o ambiente. O resultado de 30 testes registrado em 2026-11-13 é evidência anterior às mudanças de configuração de ambiente no servidor; não há contagem ou resultado de uma nova execução da suíte após essas mudanças.
+- **Próximos passos sugeridos (não executados):** criar testes reproduzíveis para a porta configurada e para as respostas de erro em produção versus outros ambientes; verificar explicitamente como o processo recebe cada valor de `NODE_ENV`; continuar a avaliar requisitos de publicação sem contratar hospedagem nem alterar configurações de deploy.
 - **Status:** Em andamento; definida como etapa atual por decisão explícita do usuário em 2026-11-14, com a Etapa 6 adiada e pendente. Avaliar ferramentas e necessidades sem contratar hospedagem nem alterar configurações de publicação nesta fase.
 
 ## Projetos futuros para o portfólio
@@ -273,6 +278,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-10** — Ampliação estratégica do plano para incluir objetivo profissional, evidências de aprendizagem e autonomia, sequência futura de projetos, portfólio e critérios de decisão/hospedagem. Preservados os estados, decisões, testes confirmados, pendências e registros históricos anteriores; a etapa 6 permanece em andamento. Os projetos futuros continuam como planejamento, sem implementação imediata.
 - **2026-11-13** — O teste de persistência em `testes/calcular_logica.js` foi ajustado para aguardar diretamente `gravarHistorico()` antes de ler o JSON e verificar o registro gravado. A suíte completa passou numa cópia temporária do projeto: 30 testes (9 de lógica/histórico, 3 de encadeamento e 18 de API). A execução usou servidor e histórico temporários; o `historico.json` real não foi alterado. A Etapa 6 continua em andamento: falta verificar falhas de leitura/gravação e cumprir os critérios de aprendizagem; o isolamento automático no próprio projeto permanece uma melhoria futura.
 - **2026-11-14** — Por decisão explícita do usuário, a Etapa 6 — Persistência do histórico — foi adiada, mas permanece pendente e incompleta, com suas tarefas preservadas para retomada. A Etapa 7 — Evolução e publicação — passou a ser a etapa atual, em andamento; não foram contratados serviços nem alteradas configurações de publicação.
+- **2026-11-15** — Registrado o progresso da Etapa 7: `server.js` configura a porta via `PORT` com fallback para 3000, escuta em `0.0.0.0` e usa `NODE_ENV === 'production'` para retornar mensagem genérica de erro em produção. O usuário relata ter estudado variáveis de ambiente, `NODE_ENV`, comparação `===` e que `node --test` não define automaticamente `NODE_ENV=test`; relata também teste manual de `PORT`/`0.0.0.0` e acesso bem-sucedido pelo celular via IPv4 na rede Wi-Fi. Não foi confirmado teste automatizado específico para ambiente; os 30 testes de 2026-11-13 antecedem as alterações de ambiente. A Etapa 7 permanece em andamento e a Etapa 6 continua adiada e pendente.
 
 ## Conceitos
 
@@ -282,9 +288,18 @@ O registro abaixo diferencia conceitos presentes no código daqueles cuja compre
 
 - JavaScript no navegador: DOM, eventos, funções, estado e lógica de operações.
 - Node.js: servidor HTTP básico com `node:http`, `createServer()`, `response.end()` e `listen()` (etapa 1 testada pelo usuário).
+- Configuração do servidor presente em `server.js`: porta por `process.env.PORT || 3000`, escuta em `0.0.0.0` e seleção da mensagem de erro de produção com `process.env.NODE_ENV === 'production'`.
 - HTTP: diferença entre caminho (`req.url`) e método (`req.method`), cabeçalho `Content-Type`, serialização JSON e status HTTP 200, 404 e 405 (etapa 2 testada pelo usuário).
 - O arquivo `node.js.js` não faz parte da estrutura atual; não é uma dependência das etapas presentes.
 - A presença desses conceitos no código não significa que todos estejam consolidados; serão retomados quando necessários.
+
+### Estudados pelo usuário (relato; não significam implementação adicional)
+
+- Variáveis de ambiente e acesso por `process.env`.
+- `NODE_ENV` e os nomes de ambiente `development`, `production` e `test`.
+- Comparação estrita com `===` para identificar o valor do ambiente.
+- Diferença entre mensagens detalhadas fora de produção e mensagens genéricas em produção para não expor detalhes internos.
+- `node --test` não define automaticamente `NODE_ENV=test`; esse valor precisa ser configurado explicitamente quando desejado.
 
 ### A praticar ou revisar durante o projeto
 

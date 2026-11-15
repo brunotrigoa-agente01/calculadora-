@@ -2,202 +2,207 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
-const { salvarHistorico } = require('./historico.js');
 
-let arquivosPublicos = {
-
-   '/':{ 
-    nome: 'calculadora.html',
-    tipo: 'text/html; charset=utf-8'},
-
-   '/calculadora.js':{ 
-    nome: 'calculadora.js',
-    tipo: 'text/javascript; charset=utf-8'},
-
-   '/calculadora.css':{ 
-    nome: 'calculadora.css',
-    tipo: 'text/css; charset=utf-8'},
+function criaServidor(salvarHistorico){
     
-    '/encadeamento.mjs':{
-    nome: 'encadeamento.mjs',
-    tipo: 'text/javascript; charset=utf-8'},
+    const producao = process.env.NODE_ENV === 'production';
+    let arquivosPublicos = {
 
-};
+    '/':{ 
+        nome: 'calculadora.html',
+        tipo: 'text/html; charset=utf-8'},
 
-const limite_corpo = 10 * 1024; // 10 KB
+    '/calculadora.js':{ 
+        nome: 'calculadora.js',
+        tipo: 'text/javascript; charset=utf-8'},
 
-const servidor = http.createServer(
-    {maxHeaderSize: 16 *1024},
-    (req, res) => {
+    '/calculadora.css':{ 
+        nome: 'calculadora.css',
+        tipo: 'text/css; charset=utf-8'},
+        
+        '/encadeamento.mjs':{
+        nome: 'encadeamento.mjs',
+        tipo: 'text/javascript; charset=utf-8'},
 
-   const arquivoPublico = arquivosPublicos[req.url];
-   
+    };
 
-    if (req.method === 'GET' && arquivoPublico) {
-        const caminhoArquivo = path.join(
-            __dirname,
-            arquivoPublico.nome
-        );
+    const limite_corpo = 10 * 1024; // 10 KB
 
-        fs.readFile(caminhoArquivo, (erro, conteudo) => {
-            if (erro) {
-                res.statusCode = 500;
-                res.setHeader(
-                    'content-Type',
-                    'text/plain; charset=utf-8'
-                );
-                res.end('Erro ao carregar o arquivo');
-                return;
-            }
+    const servidor = http.createServer(
+        {maxHeaderSize: 16 *1024},
+        (req, res) => {
 
-            res.statusCode = 200;
-            res.setHeader('content-Type', arquivoPublico.tipo);
-            res.end(conteudo);
-        });
+    const arquivoPublico = arquivosPublicos[req.url];
+    
 
-        return;
+        if (req.method === 'GET' && arquivoPublico) {
+            const caminhoArquivo = path.join(
+                __dirname,
+                arquivoPublico.nome
+            );
 
-    }else if (req.method === 'GET' && req.url === '/api') {
-        res.statusCode = 200;
-        res.setHeader('content-Type', 'application/json; charset=utf-8')
-        const resposta = {mensagem: 'API da calculadora funcionando'};
-        res.end(JSON.stringify(resposta))
-
-    }else if (req.url === '/api') {
-        res.statusCode = 405;
-        res.setHeader('content-Type', 'application/json; charset=utf-8')
-        const resposta = {erro: 'Método não reconhecido'};
-        res.end(JSON.stringify(resposta))
-
-    }else if(req.method === 'POST' && req.url === '/calcular') {
-        let corpo = '';
-        let limiteExcedido = false;
-        let tamanhoRecebido = 0;
-        const tamanhodeclarado = req.headers['content-length'];
-
-            if (tamanhodeclarado !== undefined ) {
-                const tamanho = Number(tamanhodeclarado);
-                if (!Number.isFinite(tamanho)){ 
-                    res.statusCode = 400
-                    res.setHeader('content-Type', 'application/json; charset=utf-8')
-                    res.end(JSON.stringify({erro: 'Tamanho do corpo inválido'}))
+            fs.readFile(caminhoArquivo, (erro, conteudo) => {
+                if (erro) {
+                    res.statusCode = 500;
+                    res.setHeader(
+                        'content-Type',
+                        'text/plain; charset=utf-8'
+                    );
+                    res.end('Erro ao carregar o arquivo');
                     return;
                 }
-                if(tamanho > limite_corpo){
+
+                res.statusCode = 200;
+                res.setHeader('content-Type', arquivoPublico.tipo);
+                res.end(conteudo);
+            });
+
+            return;
+
+        }else if (req.method === 'GET' && req.url === '/api') {
+            res.statusCode = 200;
+            res.setHeader('content-Type', 'application/json; charset=utf-8')
+            const resposta = {mensagem: 'API da calculadora funcionando'};
+            res.end(JSON.stringify(resposta))
+
+        }else if (req.url === '/api') {
+            res.statusCode = 405;
+            res.setHeader('content-Type', 'application/json; charset=utf-8')
+            const resposta = {erro: 'Método não reconhecido'};
+            res.end(JSON.stringify(resposta))
+
+        }else if(req.method === 'POST' && req.url === '/calcular') {
+            let corpo = '';
+            let limiteExcedido = false;
+            let tamanhoRecebido = 0;
+            const tamanhodeclarado = req.headers['content-length'];
+
+                if (tamanhodeclarado !== undefined ) {
+                    const tamanho = Number(tamanhodeclarado);
+                    if (!Number.isFinite(tamanho)){ 
+                        res.statusCode = 400
+                        res.setHeader('content-Type', 'application/json; charset=utf-8')
+                        res.end(JSON.stringify({erro: 'Tamanho do corpo inválido'}))
+                        return;
+                    }
+                    if(tamanho > limite_corpo){
+                        res.statusCode = 413
+                        res.setHeader('content-Type', 'application/json; charset=utf-8')
+                        res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
+                        return;
+                    }
+                }
+
+            req.on('data', (pedaco) =>{
+                if (limiteExcedido) {
+                    return;
+                }
+                
+                tamanhoRecebido = tamanhoRecebido + pedaco.length;
+                
+                if (tamanhoRecebido > limite_corpo) {
+                    limiteExcedido = true;
                     res.statusCode = 413
                     res.setHeader('content-Type', 'application/json; charset=utf-8')
                     res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
                     return;
                 }
-            }
-
-        req.on('data', (pedaco) =>{
-            if (limiteExcedido) {
-                return;
-            }
-            
-            tamanhoRecebido = tamanhoRecebido + pedaco.length;
-            
-            if (tamanhoRecebido > limite_corpo) {
-                limiteExcedido = true;
-                res.statusCode = 413
-                res.setHeader('content-Type', 'application/json; charset=utf-8')
-                res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
-                return;
-            }
-            
-            corpo = corpo + pedaco
-        })
- 
-        req.on('end', async() => {
-            let dados;
-            if (limiteExcedido) {
-                return;
-            }
-            try{
-                dados = JSON.parse(corpo);
-            
-            }catch (erro){
-                res.statusCode = 400
-                res.setHeader('content-Type', 'application/json; charset=utf-8')
-                res.end(JSON.stringify({erro: 'JSON mal formado'}))
-                return
-            }
                 
-            
-            const objetoValido = //true 
-                dados != null && 
-                typeof dados === 'object' &&
-                !Array.isArray(dados); // array.isarray verifica se é false, ou seja, não é um array
-
-            const valoresValidos = // true
-                objetoValido &&
-                Number.isFinite(dados.valor1)&&
-                Number.isFinite(dados.valor2);
-
-            
-            const operadoresValidos = [ //true
-                'somar',
-                'multiplicar',
-                'dividir',
-                'subtrair'
-            ];
-
-            const operacaoValida = //true
-            objetoValido &&
-            operadoresValidos.includes(dados.operacao);
-
-            if(!objetoValido || !valoresValidos || !operacaoValida){ //false
-                res.statusCode = 400
-                res.setHeader('content-Type', 'application/json; charset=utf-8')
-                res.end(JSON.stringify({erro:'digite dados validos e dois numeros'}))
-                return;
-            }
-            let resultado;
-            try {
-                resultado = calcular(dados.valor1, dados.valor2, dados.operacao);
-                
-
-            } catch (erro) {
-                res.statusCode = 400
-                res.setHeader('content-Type', 'application/json; charset=utf-8')
-                res.end(JSON.stringify({erro: erro.message}))
-                return;
-
-            }
-
-            try {
-                await salvarHistorico(dados.operacao, dados.valor1, dados.valor2, resultado, new Date().toISOString());
-                
-            } catch (erro) {
-                console.error('Erro ao salvar histórico:', erro);
-                res.statusCode = 500;
-                res.setHeader('content-Type', 'application/json; charset=utf-8')
-                res.end(JSON.stringify({ erro: 'Erro ao salvar histórico' }));
-                return;
-            }
-            res.statusCode = 200
-            res.setHeader('content-Type', 'application/json; charset=utf-8')
-            console.log(`${dados.valor1} ${dados.operacao} ${dados.valor2} = ${resultado}`)
-            res.end(JSON.stringify({resultado:resultado}))
-    });
-
-    }else if(req.url !='/calcular') {
-        res.statusCode = 404;
-        res.setHeader('content-Type', 'application/json; charset=utf-8');
-        res.end(JSON.stringify({ erro: 'Caminho não encontrado' }));
-
-
-    }else {res.statusCode = 405;
-        res.setHeader('content-Type', 'application/json; charset=utf-8');
-        res.end(JSON.stringify({ erro: 'Método não reconhecido'}));
-    }
-
-}) 
+                corpo = corpo + pedaco
+            })
     
+            req.on('end', async() => {
+                let dados;
+                if (limiteExcedido) {
+                    return;
+                }
+                try{
+                    dados = JSON.parse(corpo);
+                
+                }catch (erro){
+                    res.statusCode = 400
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({erro: 'JSON mal formado'}))
+                    return
+                }
+                    
+                
+                const objetoValido = //true 
+                    dados != null && 
+                    typeof dados === 'object' &&
+                    !Array.isArray(dados); // array.isarray verifica se é false, ou seja, não é um array
+
+                const valoresValidos = // true
+                    objetoValido &&
+                    Number.isFinite(dados.valor1)&&
+                    Number.isFinite(dados.valor2);
+
+                
+                const operadoresValidos = [ //true
+                    'somar',
+                    'multiplicar',
+                    'dividir',
+                    'subtrair'
+                ];
+
+                const operacaoValida = //true
+                objetoValido &&
+                operadoresValidos.includes(dados.operacao);
+
+                if(!objetoValido || !valoresValidos || !operacaoValida){ //false
+                    res.statusCode = 400
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({erro:'digite dados validos e dois numeros'}))
+                    return;
+                }
+                let resultado;
+                try {
+                    resultado = calcular(dados.valor1, dados.valor2, dados.operacao);
+                    
+
+                } catch (erro) {
+                    res.statusCode = 400
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({erro: erro.message}))
+                    return;
+
+                }
+
+                try {
+                    await salvarHistorico(dados.operacao, dados.valor1, dados.valor2, resultado, new Date().toISOString());
+                    
+                } catch (erro) {
+                    console.error('Erro ao salvar histórico:', erro);
+
+                    const mensagem = producao ? 
+                        'erro interno do Servidor':
+                        'erro ao gravar historico: '+ erro.message;
+
+                    res.statusCode = 500;
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({ erro: mensagem }));
+                    return;
+                }
+                res.statusCode = 200
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                console.log(`${dados.valor1} ${dados.operacao} ${dados.valor2} = ${resultado}`)
+                res.end(JSON.stringify({resultado:resultado}))
+        });
+
+        }else if(req.url !='/calcular') {
+            res.statusCode = 404;
+            res.setHeader('content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify({ erro: 'Caminho não encontrado' }));
 
 
+        }else {res.statusCode = 405;
+            res.setHeader('content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify({ erro: 'Método não reconhecido'}));
+        }
 
-servidor.listen(3000, () => {
-    console.log("servidor rodando na porta 3000");
-})
+    }) 
+
+    return servidor
+    
+}
+module.exports = {criaServidor}
