@@ -188,8 +188,8 @@ test('testar criação de função falsa do salvarHistorico',async (t)  => {
     });
 
     const dadosRespostas = await resposta.json();
-    assert.equal(dadosRespostas.erro, 'erro ao gravar historico: erro ao salvar arquivo')
-    assert.equal(resposta.status, 500)
+    assert.equal(dadosRespostas.resultado, 10)
+    assert.equal(resposta.status, 200)
 })
 //node --test testes/calcular_logica.js - codigo para o teste
 

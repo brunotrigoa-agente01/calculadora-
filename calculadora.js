@@ -24,6 +24,10 @@ botaoHistorico.addEventListener("click", () => {
     const aberto = !popoverHistorico.hidden;
     popoverHistorico.hidden = aberto;
     botaoHistorico.setAttribute("aria-expanded", String(!aberto));
+
+    if(!aberto){
+        mostrarHistorico()
+    }
 });
 
 function atualizarDisplay(valor) {
@@ -170,6 +174,23 @@ botoesOperacoes.forEach((botao)=>{
         
 })
 
+function mostrarHistorico() {
+    const registro = localStorage.getItem('historico');
+    const historico = registro ? JSON.parse(registro): [];
+    console.log(historico)
+        if(historico.length === 0 )  {
+            popoverHistorico.innerText = 'nenhum calculo realizado ainda'
+        } else{
+            popoverHistorico.innerText = ''
+            historico.forEach((calculo) =>{
+                popoverHistorico.innerText += 
+                `${calculo.valorAnterior} ${operador[calculo.operacaoAtual]} ${calculo.valorAtual} = ${calculo.resultado}\n`
+            })
+        }
+}
+
+
+
 async function calcularNoServidor() {
     // Envia os dados para o servidor e recebe o resultado.
     if (valorAnterior === null || operacaoAtual === null) {
@@ -179,6 +200,26 @@ async function calcularNoServidor() {
 
     try {
         const resultado = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
+        try {
+            const resultadojson = {
+            valorAtual:valorAtual,
+            valorAnterior:valorAnterior,
+            operacaoAtual:operacaoAtual,
+            resultado:resultado,
+            dataHora: new Date().toISOString()
+        }
+            const conteudo = localStorage.getItem('historico')
+            const registro = conteudo ? JSON.parse(conteudo): []
+            registro.push(resultadojson)
+            const historico = JSON.stringify(registro)
+            localStorage.setItem('historico', historico)
+            
+        }catch(erro){
+            console.log('erro ao salvar no local storage:', erro)
+            
+        }
+        
+
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual);
 
@@ -193,6 +234,7 @@ async function calcularNoServidor() {
         valorAnterior = null;
         operacaoAtual = null;
         precisaLimparDisplay = true;
+
     }
 }
 

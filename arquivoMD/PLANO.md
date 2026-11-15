@@ -33,14 +33,14 @@ Este projeto também integra uma trilha de formação profissional progressiva. 
 4. Implementar e testar a lógica e a validação da API antes de conectar o navegador.
 5. Integrar o front-end progressivamente e tratar explicitamente falhas de requisição.
 6. Organizar e testar o código antes de avançar para persistência.
-7. Começar sem frameworks. Avaliar Express, banco de dados e outras ferramentas apenas diante de uma necessidade concreta.
+7. Começar e permanecer com o servidor HTTP nativo enquanto não houver necessidade concreta de framework. O MySQL foi definido como próxima ferramenta de estudo na Etapa 7; Express continua futuro e não exige migração imediata.
 8. Não avançar para etapas futuras sem concluir e testar a etapa atual, salvo adiamento explicitamente aprovado pelo usuário; um adiamento mantém a etapa incompleta e suas pendências registradas.
 
 ## Como acompanhar as duas trilhas
 
 O plano acompanha duas trilhas relacionadas, mas não exige implementar funcionalidades futuras na calculadora apenas para estudar segurança:
 
-- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A Etapa 6 está adiada e pendente; a etapa atual é a 7 por decisão do usuário.
+- **Trilha A — Desenvolvimento Web:** etapas 1 a 7 abaixo. A Etapa 6 está adiada temporariamente e permanece pendente; a Etapa 7 está em andamento, com estudos de banco de dados priorizados antes da hospedagem.
 - **Trilha B — AppSec:** projetos vinculados às funcionalidades. O Projeto 1 avalia e protege a calculadora/API atual; os demais começam quando o projeto tiver formulários, persistência de banco de dados ou contas de usuário que os justifiquem.
 - **Visão de portfólio:** organiza os projetos futuros descritos adiante, sem alterar a sequência nem o estado das etapas atuais da calculadora.
 
@@ -60,7 +60,7 @@ Use os estados com este significado:
 
 - **Não iniciado:** trabalho ainda não começou.
 - **Em andamento:** há trabalho ou validação pendente.
-- **Adiada (pendente):** etapa interrompida por decisão explícita; continua incompleta e suas tarefas permanecem pendentes para retomada.
+- **Adiada temporariamente:** etapa pausada por decisão explícita; continua incompleta e suas tarefas permanecem pendentes para retomada, se necessário.
 - **Implementado, mas ainda não testado:** código presente, sem evidência suficiente de execução.
 - **Testado e validado:** testes ou verificações definidos foram executados com sucesso; pode haver outros critérios de aprendizagem/documentação pendentes.
 - **Concluído:** critérios de implementação, compreensão, teste, segurança pertinente e documentação foram satisfeitos.
@@ -73,9 +73,9 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 7 — Evolução e publicação. Status: **Em andamento**.
+Trilha A: Etapa 7 — Evolução do projeto. Status: **Em andamento**; próximo foco: Fase 1 — Introdução a banco de dados.
 
-Etapa 6 — Persistência do histórico. Status: **Adiada (pendente)**; suas tarefas incompletas permanecem registradas para retomada.
+Etapa 6 — Persistência do histórico em arquivo JSON. Status: **Adiada temporariamente**; permanece incompleta e suas tarefas continuam pendentes para possível retomada.
 
 Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamento**.
 
@@ -139,20 +139,65 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Riscos a avaliar:** `historico.js` usa o caminho relativo `historico.json`, que depende da pasta de trabalho ao iniciar o servidor. Gravações simultâneas também podem ler a mesma versão do arquivo e uma sobrescrever a atualização da outra. Avaliar a relevância desses casos para o uso previsto.
 - **Isolamento dos testes:** os testes da API enviam cálculos que são gravados no `historico.json` relativo ao diretório de execução, e esperam um servidor em `localhost:3000`. Na execução de 2026-11-13, a suíte foi rodada numa cópia temporária do projeto, com servidor e histórico isolados; isso não adiciona isolamento automático aos testes do repositório.
 - **Possível melhoria futura, deixada para depois por decisão do usuário:** tornar o isolamento dos dados dos testes uma característica reproduzível da configuração de testes, sem gravar no histórico real da calculadora.
-- **Status:** Adiada (pendente) por decisão do usuário em 2026-11-14. A persistência após reinício e a inclusão de um novo registro foram testadas manualmente, e o teste automatizado de persistência passou; permanecem pendentes verificar falhas de leitura/gravação, avaliar os riscos do caminho relativo e de gravações simultâneas e atender aos critérios de aprendizagem. A etapa não está concluída e deverá ser retomada posteriormente.
+- **Status:** Adiada temporariamente por decisão do usuário. A etapa não está concluída. A persistência após reinício e a inclusão de um novo registro foram testadas manualmente, e o teste automatizado de persistência passou; permanecem pendentes verificar falhas de leitura/gravação, avaliar os riscos do caminho relativo e de gravações simultâneas e atender aos critérios de aprendizagem. `historico.js` e `historico.json` permanecem preservados; a etapa poderá ser retomada futuramente se necessário.
 
-### 7. Evolução e publicação
+### 7. Evolução do projeto
 
-- **Objetivo:** avaliar ferramentas, segurança básica e hospedagem com base nas necessidades da aplicação.
-- **Resultado verificável:** decisões justificadas sobre Express, variáveis de ambiente, banco de dados e hospedagem, implementando apenas o que fizer sentido e depois de conhecer as necessidades de publicação.
-- **Limite atual:** não contratar hospedagem nem alterar configurações de publicação antes de desenvolver e testar os projetos.
-- **Teste:** definido quando as necessidades e o ambiente de publicação forem conhecidos.
-- **Implementado no servidor:** a porta usa `process.env.PORT || 3000`; `servidor.listen()` escuta em `0.0.0.0`; e a comparação `process.env.NODE_ENV === 'production'` seleciona mensagem genérica para erros HTTP 500 em produção e mensagem detalhada nos demais ambientes. O código não define `NODE_ENV` nem possui tratamento separado para `development` e `test`: ambos seguem o ramo diferente de produção.
-- **Aprendizados estudados:** o usuário relata ter estudado `process.env`, variáveis de ambiente, `NODE_ENV`, os ambientes `development`, `production` e `test`, comparação estrita com `===`, mensagens genéricas em produção e o fato de `node --test` não definir automaticamente `NODE_ENV=test`. Esses itens são conhecimentos estudados, não novas implementações.
+- **Objetivo:** avançar progressivamente em banco de dados, integração com Node.js e, depois de validar a aplicação localmente, hospedagem e publicação.
+- **Sequência aprovada:** estudar fundamentos relacionais; adotar MySQL como primeiro banco de dados do projeto; integrar MySQL ao Node.js e avaliar a substituição gradual da persistência JSON; preparar a estrutura de dados para uma evolução futura; somente então estudar hospedagem e publicação.
+- **Tecnologias:** manter o servidor HTTP nativo por enquanto. Express permanece uma atividade futura e não é requisito para esta etapa. PostgreSQL poderá ser estudado depois de adquirir uma boa base com MySQL.
+- **Critério geral:** dividir cada fase em tarefas menores e exigir prática, testes e compreensão demonstrada para registrá-la como concluída. Estudo teórico, isoladamente, não conclui uma atividade.
+- **Status da etapa:** Em andamento. Nenhuma fase de banco de dados foi confirmada como concluída ou implementada. O próximo foco é a Fase 1; não iniciar agora a instalação ou integração do MySQL nem a publicação.
+
+#### Fase 1 — Introdução a banco de dados
+
+- Estudar o que é um banco de dados relacional e praticar a diferença entre tabelas, registros, colunas e tipos de dados.
+- Compreender chaves primárias e estrangeiras, relacionamentos entre tabelas e normalização de dados.
+- Produzir exercícios ou modelos simples e explicar as relações com as próprias palavras; a leitura teórica, sozinha, não basta para concluir esta fase.
+- **Dependência:** nenhuma fase anterior da Etapa 7.
+- **Status:** Não iniciada.
+
+#### Fase 2 — MySQL e SQL
+
+- Adotar MySQL como o primeiro banco de dados a estudar e usar neste projeto.
+- Estudar instalação e configuração local, criação de banco e tabelas.
+- Praticar `CREATE`, `INSERT`, `SELECT`, `UPDATE`, `DELETE`, `WHERE`, `ORDER BY` e `LIMIT`.
+- Praticar `JOIN`, relacionamentos, chaves primárias e estrangeiras, índices e transações.
+- Validar os exercícios com consultas executadas e explicar o resultado e o papel de cada comando.
+- **Dependência:** fundamentos da Fase 1 praticados e compreendidos.
+- **Status:** Não iniciada; nenhuma instalação ou configuração de MySQL foi realizada nesta atualização do plano.
+
+#### Fase 3 — Integração com Node.js
+
+- Conectar o Node.js ao MySQL e executar consultas pelo back-end.
+- Aprender consultas parametrizadas e tratar erros de conexão e de consulta.
+- Criar testes que verifiquem gravação, leitura e atualização dos dados com uma base isolada para testes.
+- Somente depois de compreender e testar a integração, planejar a substituição gradual da persistência em arquivo JSON pelo MySQL.
+- Preservar `historico.js` e `historico.json`; não remover a implementação nem os dados existentes. Definir e testar a migração de dados antes de mudar a persistência utilizada pela aplicação.
+- A eventual migração para MySQL não conclui retroativamente a Etapa 6 nem altera suas pendências ou seu status adiado.
+- **Dependência:** Fases 1 e 2 praticadas, com consultas SQL executadas e compreendidas.
+- **Status:** Não iniciada.
+
+#### Fase 4 — Preparação para a futura evolução
+
+- Planejar como o banco poderá comportar cadastro de usuários, login/autenticação futuros, histórico individual de cálculos, relacionamento entre usuários e seus cálculos e permissões administrativas.
+- Estudar tabelas e relacionamentos necessários, sem implementar agora cadastro, login, autenticação, histórico individual ou painel administrativo.
+- Usar o [Guia prático de segurança Web](./GUIA_SEGURANCA_APPSEC.md) quando esses recursos forem planejados; segurança e controle de acesso deverão ser avaliados antes de implementar dados privados.
+- **Dependência:** modelagem e integração de banco das Fases 1 a 3 compreendidas e testadas.
+- **Status:** Não iniciada; permanece uma preparação de planejamento, não autorização para desenvolver o sistema de usuários.
+
+#### Fase 5 — Hospedagem e publicação
+
+- Começar a avaliar hospedagem somente depois de validar localmente a integração Node.js/MySQL e os testes pertinentes.
+- Escolher uma hospedagem com base nos requisitos observados, configurar variáveis de ambiente e a conexão ao banco em produção e publicar a aplicação.
+- Testar frontend, backend e banco de dados online; revisar segurança e configuração antes da publicação definitiva.
+- **Preparação já implementada no servidor:** a porta usa `process.env.PORT || 3000`; `servidor.listen()` escuta em `0.0.0.0`; e a comparação `process.env.NODE_ENV === 'production'` seleciona mensagem genérica para erros HTTP 500 em produção e mensagem detalhada nos demais ambientes. O código não define `NODE_ENV` nem possui tratamento separado para `development` e `test`: ambos seguem o ramo diferente de produção.
+- **Aprendizados relatados pelo usuário:** `process.env`, variáveis de ambiente, `NODE_ENV`, os ambientes `development`, `production` e `test`, comparação estrita com `===`, mensagens genéricas em produção e o fato de `node --test` não definir automaticamente `NODE_ENV=test`. São conhecimentos estudados, não novas implementações.
 - **Testes manuais relatados pelo usuário:** configuração de `PORT` e escuta em `0.0.0.0` foram testadas; a calculadora abriu com sucesso no celular usando o IPv4 do computador na mesma rede Wi-Fi.
-- **Testes automatizados:** não foi confirmado teste automatizado específico para `PORT`, `NODE_ENV` ou respostas de erro conforme o ambiente. O resultado de 30 testes registrado em 2026-11-13 é evidência anterior às mudanças de configuração de ambiente no servidor; não há contagem ou resultado de uma nova execução da suíte após essas mudanças.
-- **Próximos passos sugeridos (não executados):** criar testes reproduzíveis para a porta configurada e para as respostas de erro em produção versus outros ambientes; verificar explicitamente como o processo recebe cada valor de `NODE_ENV`; continuar a avaliar requisitos de publicação sem contratar hospedagem nem alterar configurações de deploy.
-- **Status:** Em andamento; definida como etapa atual por decisão explícita do usuário em 2026-11-14, com a Etapa 6 adiada e pendente. Avaliar ferramentas e necessidades sem contratar hospedagem nem alterar configurações de publicação nesta fase.
+- **Testes automatizados pendentes:** não foi confirmado teste automatizado específico para `PORT`, `NODE_ENV` ou respostas de erro conforme o ambiente. Os 30 testes registrados em 2026-11-13 antecedem as mudanças de ambiente no servidor; não há contagem ou resultado de nova execução após essas mudanças.
+- **Próximos passos sugeridos (não executados):** criar testes reproduzíveis para a porta configurada e para as respostas de erro em produção e nos demais ambientes; verificar explicitamente como o processo recebe cada valor de `NODE_ENV`; avaliar a publicação somente após a validação local de MySQL.
+- **Dependência:** Fases 1 a 3 concluídas com implementação e testes locais; a Fase 4 deve estar planejada antes de publicar uma estrutura que pretenda suportar usuários no futuro.
+- **Status:** Não iniciada quanto à contratação/configuração de hospedagem e publicação. A preparação de variáveis de ambiente e o teste de acesso pela rede local são evidências parciais, mas não concluem esta fase.
 
 ## Melhoria futura do front-end — Histórico local com LocalStorage
 
@@ -184,6 +229,7 @@ Proposta de melhoria para consultar os cálculos anteriores na própria interfac
    - Exibir operação, resultado e data/hora disponível; mostrar uma mensagem clara quando não houver registros.
    - Manter a interface organizada e responsiva.
    - **Dependência:** leitura dos registros da etapa 2 e dados da etapa 3 disponíveis para exibição.
+   - **Estado parcial atual:** o botão “Histórico” e um painel vazio que abre e fecha foram adicionados à interface e testados no navegador. Ainda não há exibição de cálculos nem integração com LocalStorage; esta implementação parcial não conclui a melhoria.
 
 5. **Permitir limpar o histórico local**
    - Solicitar confirmação antes de apagar todos os registros do LocalStorage.
@@ -293,11 +339,11 @@ Esta é uma visão de longo prazo, não uma lista de tarefas para iniciar agora.
 
 ### Projeto de portfólio 1 — Calculadora com API (projeto atual)
 
-Continuar o trabalho descrito nas etapas acima. A trilha inclui JavaScript, Node.js, HTTP, APIs REST, JSON, `fetch()`, Promises, `async`/`await`, módulos, testes, segurança e persistência. PostgreSQL pode ser estudado como oportunidade relevante, mas não é requisito automático para concluir a calculadora nem substitui a avaliação de necessidade.
+Continuar o trabalho descrito nas etapas acima. A trilha inclui JavaScript, Node.js, HTTP, APIs REST, JSON, `fetch()`, Promises, `async`/`await`, módulos, testes, segurança e persistência. MySQL será o primeiro banco de dados estudado para este projeto; PostgreSQL poderá ser estudado depois de adquirida uma boa base com MySQL e não é requisito automático para concluir a calculadora.
 
 ### Projeto de portfólio 2 — Sistema de cadastro
 
-Proposta futura para clientes ou usuários: criar, listar, editar, excluir e pesquisar registros, com validação e persistência. Conhecimentos a estudar: CRUD, Express quando justificado, PostgreSQL, SQL, modelagem, validação no front-end e back-end e testes automatizados. O escopo e a escolha de tecnologias serão definidos no planejamento próprio do projeto.
+Proposta futura para clientes ou usuários: criar, listar, editar, excluir e pesquisar registros, com validação e persistência. Conhecimentos a estudar: CRUD, Express quando justificado, SQL, modelagem, validação no front-end e back-end e testes automatizados. O MySQL será a primeira base do projeto atual; PostgreSQL poderá ser estudado depois de adquirida uma boa base com MySQL. O escopo e a escolha de tecnologias serão definidos no planejamento próprio do projeto.
 
 ### Projeto de portfólio 3 — Sistema de estoque
 
@@ -332,7 +378,7 @@ Antes de adotar uma tecnologia ou funcionalidade, avaliar:
 
 Uma tecnologia não precisa ser obrigatória para o funcionamento do projeto para justificar seu estudo; a decisão deve esclarecer a oportunidade de aprendizagem e o trade-off, sem adotar ferramentas apenas por popularidade.
 
-A contratação de hospedagem fica para depois que os projetos estiverem desenvolvidos e testados. Avaliar se uma única contratação atende ao portfólio estático e às aplicações Node.js independentes, comparando também com serviços separados quando isso for técnica ou financeiramente melhor. Considerar suporte a HTML/CSS/JavaScript estáticos e Node.js, execução de aplicações independentes, domínios e subdomínios, variáveis de ambiente, integração com PostgreSQL, armazenamento persistente, HTTPS, backups, limites de processamento/armazenamento, custo e expansão. Nenhum provedor será presumido nem contratado nesta fase.
+A contratação de hospedagem fica para depois que os projetos estiverem desenvolvidos e testados. Avaliar se uma única contratação atende ao portfólio estático e às aplicações Node.js independentes, comparando também com serviços separados quando isso for técnica ou financeiramente melhor. Considerar suporte a HTML/CSS/JavaScript estáticos e Node.js, execução de aplicações independentes, domínios e subdomínios, variáveis de ambiente, integração com MySQL, armazenamento persistente, HTTPS, backups, limites de processamento/armazenamento, custo e expansão. PostgreSQL poderá entrar em avaliações futuras depois de adquirida uma boa base com MySQL. Nenhum provedor será presumido nem contratado nesta fase.
 
 ## Metodologia e acompanhamento de conhecimentos
 
@@ -349,7 +395,9 @@ O registro deve diferenciar assunto ainda não estudado, praticado que precisa d
 
 Esta trilha complementa a Trilha A conforme as funcionalidades forem implementadas. Usar o [Guia prático de segurança Web](./GUIA_SEGURANCA_APPSEC.md) para os exemplos e laboratórios. Os estados abaixo descrevem somente o que foi confirmado no código ou executado; não indicam que uma aplicação futura já foi criada.
 
-Como referência de sequência, os módulos sobre formulários e XSS podem ser retomados no sistema de cadastro; banco de dados e SQL Injection, quando cadastro ou estoque adotarem persistência SQL; autenticação, sessões e autorização, quando o sistema de gerenciamento tiver usuários e recursos privados. Essa associação não altera os estados dos projetos AppSec nem duplica o conteúdo do guia.
+**Pausa temporária:** por decisão do estudante, os estudos de validação/AppSec estão pausados temporariamente para variar os assuntos e evitar desgaste. Não estão concluídos nem abandonados. Preservar as pendências e retomar os conteúdos em momento oportuno, especialmente antes de implementar autenticação ou publicar definitivamente a aplicação.
+
+Como referência de sequência, os módulos sobre formulários e XSS podem ser retomados no sistema de cadastro; banco de dados e SQL Injection, quando a integração MySQL da Etapa 7 ou outros projetos adotarem persistência SQL; autenticação, sessões e autorização, quando o sistema de gerenciamento tiver usuários e recursos privados. Essa associação não altera os estados dos projetos AppSec nem duplica o conteúdo do guia.
 
 ### Projeto 1 — Segurança da calculadora e da API
 
@@ -371,7 +419,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 ### Projeto 3 — Banco de dados e SQL Injection
 
 - **Objetivo:** praticar consultas SQL seguras, consultas parametrizadas, validação e controle de acesso a dados.
-- **Dependência:** escolher e implementar persistência em banco de dados por necessidade concreta. A etapa 6 atual trata primeiro de avaliar persistência em arquivo; banco de dados não é requisito para concluir a calculadora.
+- **Dependência:** a Etapa 7 agora prevê MySQL como primeiro banco do projeto, nas Fases 2 e 3. O estudo AppSec de SQL Injection permanece não iniciado e temporariamente pausado; a escolha de MySQL não significa que esses estudos ou controles já foram concluídos.
 - **Status:** Não iniciado; material de referência disponível no guia.
 
 ### Projeto 4 — Autenticação, sessões e autorização
@@ -382,13 +430,14 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 
 ## Dúvidas e decisões pendentes
 
-- Definir, na etapa de persistência, se um arquivo continua suficiente ou se há uma necessidade concreta de banco de dados.
-- Definir, na etapa de evolução, se alguma biblioteca, configuração adicional ou hospedagem é necessária.
-- Retomar a Etapa 6, atualmente adiada e pendente: verificar o comportamento quando a leitura ou gravação do arquivo falha.
-- Retomar a Etapa 6, atualmente adiada e pendente: avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
+- MySQL foi definido como o primeiro banco de dados do projeto; ainda é necessário estudar e testar sua modelagem e integração nas Fases 1 a 3 da Etapa 7.
+- Definir durante a Fase 3 da Etapa 7 a biblioteca de conexão Node.js/MySQL e a configuração de testes, sem migrar a persistência antes de compreender e validar a integração.
+- Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: verificar o comportamento quando a leitura ou gravação do arquivo falha.
+- Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
+- Express continua como atividade futura; não é necessário migrar imediatamente do servidor HTTP nativo.
 - Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
 - Planejar cada projeto futuro separadamente quando a calculadora e os conhecimentos necessários justificarem avançar para ele.
-- Comparar hospedagem do portfólio e das aplicações somente quando os requisitos de publicação forem conhecidos; não contratar agora.
+- Comparar hospedagem do portfólio e das aplicações somente depois de validar a integração local com MySQL e conhecer os requisitos de publicação; não contratar agora.
 - Definir como registrar evidências de conhecimentos consolidados e tópicos a revisar conforme forem demonstrados durante os projetos.
 
 ## Histórico de mudanças
@@ -414,6 +463,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-15** — Registrado o progresso da Etapa 7: `server.js` configura a porta via `PORT` com fallback para 3000, escuta em `0.0.0.0` e usa `NODE_ENV === 'production'` para retornar mensagem genérica de erro em produção. O usuário relata ter estudado variáveis de ambiente, `NODE_ENV`, comparação `===` e que `node --test` não define automaticamente `NODE_ENV=test`; relata também teste manual de `PORT`/`0.0.0.0` e acesso bem-sucedido pelo celular via IPv4 na rede Wi-Fi. Não foi confirmado teste automatizado específico para ambiente; os 30 testes de 2026-11-13 antecedem as alterações de ambiente. A Etapa 7 permanece em andamento e a Etapa 6 continua adiada e pendente.
 - **2026-11-15** — Acrescentada como planejamento futuro, sem implementação, uma fase para evoluir a calculadora com persistência relacional a avaliar, cadastro e autenticação, histórico individual, área privada, painel administrativo e validação AppSec. Foram descritas etapas pequenas, dependências e critérios de conclusão; a fase depende da conclusão das Etapas 6 e 7 e não altera seus escopos ou status.
 - **2026-11-15** — Acrescentada, sem implementação, uma melhoria futura do front-end para consultar e gerenciar no LocalStorage um histórico local de cálculos. Foram registrados os dados, etapas, dependências e testes previstos, com separação explícita do histórico do servidor e prioridade sugerida após estabilizar a Etapa 6; os escopos e status das Etapas 6 e 7 foram preservados.
+- **2026-11-15** — Por decisão do estudante, a Etapa 6 permanece adiada temporariamente, incompleta e preservada para possível retomada, sem excluir `historico.js` ou `historico.json`. A Etapa 7 foi reorganizada para estudar fundamentos relacionais, MySQL/SQL e integração Node.js/MySQL antes da preparação de hospedagem; PostgreSQL fica como estudo posterior e Express continua futuro. Os estudos de validação/AppSec foram pausados temporariamente, sem serem considerados concluídos ou abandonados. Nenhum código foi alterado nesta atualização.
 
 ## Conceitos
 

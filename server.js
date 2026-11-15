@@ -174,13 +174,9 @@ function criaServidor(salvarHistorico){
                 } catch (erro) {
                     console.error('Erro ao salvar histórico:', erro);
 
-                    const mensagem = producao ? 
-                        'erro interno do Servidor':
-                        'erro ao gravar historico: '+ erro.message;
-
-                    res.statusCode = 500;
+                    res.statusCode = 200;
                     res.setHeader('content-Type', 'application/json; charset=utf-8')
-                    res.end(JSON.stringify({ erro: mensagem }));
+                    res.end(JSON.stringify({ resultado }));
                     return;
                 }
                 res.statusCode = 200
