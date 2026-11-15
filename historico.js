@@ -1,5 +1,8 @@
+const path = require('node:path');
 
+const caminhoHistorico = path.join(__dirname, 'historico.json');
 const fs = require('node:fs/promises');
+
 
 // Fila que controla a ordem das gravações.
     // Começa com uma Promise já resolvida.
@@ -9,7 +12,7 @@ const fs = require('node:fs/promises');
 async function gravarHistorico(operacao, valor1, valor2, resultado, dataHora) { 
     let conteudo;
     try {
-        conteudo = await fs.readFile('historico.json', 'utf-8');
+        conteudo = await fs.readFile(caminhoHistorico, 'utf-8');
         if (!conteudo) {
             conteudo = '[]'; // Inicializa como um array vazio se o arquivo estiver vazio.
         }
@@ -17,7 +20,7 @@ async function gravarHistorico(operacao, valor1, valor2, resultado, dataHora) {
         if (erro.code === 'ENOENT') {
             // Se o arquivo não existir, inicializa como um array vazio.
             conteudo = '[]';
-            await fs.writeFile('historico.json', conteudo, 'utf-8'); // Cria o arquivo com conteúdo inicial.
+            await fs.writeFile(caminhoHistorico, conteudo, 'utf-8'); // Cria o arquivo com conteúdo inicial.
         }else{
             throw erro; // retorna o erro para ser tratado na função salvarHistorico
         }
@@ -34,7 +37,7 @@ async function gravarHistorico(operacao, valor1, valor2, resultado, dataHora) {
         dataHora: dataHora});
 
     await fs.writeFile(
-        'historico.json',
+        caminhoHistorico,
         JSON.stringify(historico, null, 2),
         'utf-8'
     );

@@ -5,6 +5,8 @@ let display = document.getElementById("display");
 const botoesNumeros = document.querySelectorAll(".tecla[data-number]");
 const botoesOperacoes = document.querySelectorAll(".tecla-operacao");
 const botoesFuncoes = document.querySelectorAll("[data-action]");
+const botaoHistorico = document.getElementById("botao-historico");
+const popoverHistorico = document.getElementById("historico-popover");
 
 // Estado guardado pelo JavaScript, separado do texto que aparece no visor.
 const operador  = {
@@ -18,6 +20,11 @@ let valorAnterior = null; // Armazena o valor anterior para operações
 let operacaoAtual = null; // Armazena a operação atual (+, -, *, /)
 let precisaLimparDisplay = false; // Indica se o display precisa ser limpo antes de digitar um novo número
 
+botaoHistorico.addEventListener("click", () => {
+    const aberto = !popoverHistorico.hidden;
+    popoverHistorico.hidden = aberto;
+    botaoHistorico.setAttribute("aria-expanded", String(!aberto));
+});
 
 function atualizarDisplay(valor) {
     // Atualiza a tela a partir do estado atual da calculadora.

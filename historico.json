@@ -4,97 +4,48 @@
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-15T11:00:29.062Z"
+    "dataHora": "2026-11-15T19:00:51.249Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "subtrair",
     "resultado": 5,
-    "dataHora": "2026-11-15T11:00:29.079Z"
+    "dataHora": "2026-11-15T19:00:51.267Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "multiplicar",
     "resultado": 50,
-    "dataHora": "2026-11-15T11:00:29.085Z"
+    "dataHora": "2026-11-15T19:00:51.278Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "dividir",
     "resultado": 2,
-    "dataHora": "2026-11-15T11:00:29.093Z"
+    "dataHora": "2026-11-15T19:00:51.287Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-15T11:00:29.152Z"
+    "dataHora": "2026-11-15T19:00:51.348Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-15T11:00:29.158Z"
+    "dataHora": "2026-11-15T19:00:51.355Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-15T11:00:29.174Z"
-  },
-  {
-    "valor1": 5,
-    "valor2": 2,
-    "operacao": "somar",
-    "resultado": 7,
-    "dataHora": "2026-11-15T11:00:48.938Z"
-  },
-  {
-    "valor1": 7,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 14,
-    "dataHora": "2026-11-15T11:01:29.959Z"
-  },
-  {
-    "valor1": 5,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 10,
-    "dataHora": "2026-11-15T11:37:04.096Z"
-  },
-  {
-    "valor1": 70,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 140,
-    "dataHora": "2026-11-15T11:37:21.831Z"
-  },
-  {
-    "valor1": 0.8,
-    "valor2": 100,
-    "operacao": "multiplicar",
-    "resultado": 80,
-    "dataHora": "2026-11-15T11:46:32.929Z"
-  },
-  {
-    "valor1": 7,
-    "valor2": 4,
-    "operacao": "dividir",
-    "resultado": 1.75,
-    "dataHora": "2026-11-15T12:03:30.978Z"
-  },
-  {
-    "valor1": 75,
-    "valor2": 3,
-    "operacao": "multiplicar",
-    "resultado": 225,
-    "dataHora": "2026-11-15T16:13:17.370Z"
+    "dataHora": "2026-11-15T19:00:51.372Z"
   }
 ]

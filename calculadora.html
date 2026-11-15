@@ -19,7 +19,17 @@
             </header>
 
             <div class="visor" aria-label="Visor da calculadora">
-                <p class="visor-legenda" aria-hidden="true">RESULTADO</p>
+                <div class="visor-cabecalho">
+                    <p class="visor-legenda" aria-hidden="true">RESULTADO</p>
+                    <button
+                        class="botao-historico"
+                        id="botao-historico"
+                        type="button"
+                        aria-controls="historico-popover"
+                        aria-expanded="false"
+                    >Histórico</button>
+                </div>
+                <div class="historico-popover" id="historico-popover" hidden></div>
                 <output class="visor-valor" id="display" aria-live="polite">0</output>
             </div>
 

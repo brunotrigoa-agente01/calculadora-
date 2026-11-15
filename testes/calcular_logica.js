@@ -3,8 +3,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const { calcular } = require('../calcular.js');
 const { salvarHistorico, gravarHistorico } = require('../historico.js');
-const { error } = require('node:console');
-const {criarServidor} = require('./server')
+const {criaServidor} = require('../server')
+const path = require('node:path');
+const caminhoEsperado = path.join(__dirname, '..', 'historico.json');
 
 test( 'teste da soma de 10 e 5', () => {
     assert.equal(calcular(10, 5, 'somar'), 15);
@@ -116,7 +117,7 @@ test('cria o histórico quando o arquivo não existe', async (t) => {
     await gravarHistorico('dividir', 10, 2, 5, dataHora);
 
     assert.equal(escritas.length, 2);
-    assert.equal(escritas[0][0], 'historico.json');
+    assert.equal(escritas[0][0], caminhoEsperado);
     assert.equal(escritas[0][1], '[]');
 
     const historicoGravado = JSON.parse(escritas[1][1]);
@@ -162,8 +163,33 @@ test('teste de falha na gravação do historico.json', async(t)=>{
 })
 
 
-test('testar criação de função falsa do salvarHistorico', () => {
+test('testar criação de função falsa do salvarHistorico',async (t)  => {
+    const funcaoFalsa = async () => {
+        throw new Error('erro ao salvar arquivo');
+    };
+    const servidor  = criaServidor(funcaoFalsa);
+    t.after(() =>{
+        servidor.close();
+    })
+    await new Promise((resolve)=>{
+        servidor.listen(0, '127.0.0.1',resolve);
+    })
+    
+    const porta = servidor.address().port
+    const resposta = await fetch(`http://127.0.0.1:${porta}/calcular`,{
+        method: 'POST',
+        headers:{'Content-Type': 'application/json'},
+        body: JSON.stringify( 
+            {operacao: 'somar',
+            valor1: 8,
+            valor2: 2}
+        )
+    
+    });
 
+    const dadosRespostas = await resposta.json();
+    assert.equal(dadosRespostas.erro, 'erro ao gravar historico: erro ao salvar arquivo')
+    assert.equal(resposta.status, 500)
 })
 //node --test testes/calcular_logica.js - codigo para o teste
 

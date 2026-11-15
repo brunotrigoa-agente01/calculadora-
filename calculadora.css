@@ -96,12 +96,49 @@ button {
     text-align: right;
 }
 
-.visor-legenda {
+.visor-cabecalho {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 9px;
+}
+
+.visor-legenda {
     color: #9298aa;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.16em;
+}
+
+.botao-historico {
+    padding: 6px 10px;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 999px;
+    background: #2a2e3b;
+    color: #c7c9d3;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.botao-historico:hover {
+    background: #363b4b;
+}
+
+.botao-historico:focus-visible {
+    outline: 3px solid #a69fff;
+    outline-offset: 3px;
+}
+
+.historico-popover {
+    width: min(100%, 240px);
+    min-height: 64px;
+    margin-bottom: 9px;
+    padding: 12px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 14px;
+    background: #2a2e3b;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 35%);
 }
 
 .visor-valor {

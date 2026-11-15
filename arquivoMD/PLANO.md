@@ -154,6 +154,139 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Próximos passos sugeridos (não executados):** criar testes reproduzíveis para a porta configurada e para as respostas de erro em produção versus outros ambientes; verificar explicitamente como o processo recebe cada valor de `NODE_ENV`; continuar a avaliar requisitos de publicação sem contratar hospedagem nem alterar configurações de deploy.
 - **Status:** Em andamento; definida como etapa atual por decisão explícita do usuário em 2026-11-14, com a Etapa 6 adiada e pendente. Avaliar ferramentas e necessidades sem contratar hospedagem nem alterar configurações de publicação nesta fase.
 
+## Melhoria futura do front-end — Histórico local com LocalStorage
+
+Proposta de melhoria para consultar os cálculos anteriores na própria interface, usando o armazenamento do navegador. Esta melhoria é independente da persistência atual do servidor em `historico.json`: **não sincronizar os dois históricos**, não substituir a gravação no servidor e não considerar esta melhoria parte do escopo ou dos critérios das Etapas 6 e 7.
+
+**Prioridade sugerida:** planejar a implementação depois de retomar e estabilizar a persistência da Etapa 6, sem reabrir nem ampliar seu escopo. Como a Etapa 7 permanece em andamento, definir no planejamento próprio quando encaixar esta melhoria, sem alterar o status ou o escopo dela. A melhoria permanece futura e não é trabalho atual.
+
+### Etapas propostas e dependências
+
+1. **Definir os dados e o comportamento do armazenamento**
+   - Definir os campos de cada registro: operação, operandos, resultado e data/hora.
+   - Planejar o uso de JSON para converter os registros ao salvar e recuperar.
+   - Definir como informar e tratar armazenamento vazio, dados inválidos ou JSON corrompido, sem alegar que um registro foi salvo quando ocorreu uma falha.
+   - **Dependência:** planejamento próprio da melhoria; preferencialmente após estabilizar a Etapa 6.
+
+2. **Criar a lógica isolada do histórico local**
+   - Organizar leitura, gravação e limpeza do LocalStorage separadamente das operações matemáticas, seguindo a arquitetura existente.
+   - Recuperar uma lista vazia quando ainda não houver registros salvos e tratar erros de leitura ou gravação sem interromper indevidamente a calculadora.
+   - **Dependência:** formato dos registros e comportamentos da etapa 1 definidos.
+
+3. **Salvar cálculos no navegador**
+   - Registrar os cálculos realizados na interface, incluindo operação, operandos, resultado e data/hora.
+   - Recuperar os registros quando a página for aberta novamente.
+   - Manter esse fluxo separado da chamada e da persistência do servidor; não implementar sincronização.
+   - **Dependência:** lógica de armazenamento da etapa 2 testada isoladamente.
+
+4. **Adicionar o painel de histórico à calculadora**
+   - Incluir botão ou ícone próximo ao visor para abrir e fechar a área de histórico na própria interface.
+   - Exibir operação, resultado e data/hora disponível; mostrar uma mensagem clara quando não houver registros.
+   - Manter a interface organizada e responsiva.
+   - **Dependência:** leitura dos registros da etapa 2 e dados da etapa 3 disponíveis para exibição.
+
+5. **Permitir limpar o histórico local**
+   - Solicitar confirmação antes de apagar todos os registros do LocalStorage.
+   - Atualizar a interface após a limpeza e representar corretamente o estado vazio.
+   - **Dependência:** painel da etapa 4 funcionando.
+
+6. **Validar os fluxos e registrar a aprendizagem**
+   - Testar salvamento, recuperação após recarregar a página, armazenamento vazio, dados inválidos/JSON corrompido, limpeza e abertura/fechamento do painel.
+   - Testar cada parte durante sua implementação e executar novamente os cenários integrados ao final.
+   - Registrar limitações e evidências de que o estudante consegue explicar o LocalStorage e a manipulação dos dados.
+   - **Dependência:** etapas 2 a 5 implementadas e testadas progressivamente.
+
+### Critérios de conclusão da melhoria
+
+Considerar a melhoria concluída somente quando:
+
+1. O botão de histórico estiver integrado à interface.
+2. A área de histórico abrir e fechar corretamente.
+3. Os cálculos forem salvos no LocalStorage com os dados definidos.
+4. Os registros forem recuperados após atualizar ou reabrir a página.
+5. A limpeza pedir confirmação e atualizar a interface corretamente.
+6. Os testes de salvamento, recuperação, armazenamento vazio, JSON inválido, limpeza e interface tiverem sido realizados.
+7. O estudante conseguir explicar como o LocalStorage funciona e como os dados são convertidos e manipulados.
+
+O LocalStorage é armazenamento local do navegador e este histórico não substitui `historico.json`, não é compartilhado automaticamente com outros navegadores ou dispositivos e não será sincronizado com o servidor nesta melhoria.
+
+## Fase futura — Evolução da calculadora com usuários e painel administrativo
+
+Esta fase é uma proposta de longo prazo para transformar a calculadora em uma aplicação com contas de usuário, histórico individual e área administrativa. **Não iniciar antes de concluir as etapas planejadas atuais**, incluindo a retomada e conclusão da Etapa 6 e a conclusão da Etapa 7. A inclusão desta fase não altera o escopo, o status ou as pendências dessas etapas.
+
+O desenvolvimento deverá ser gradual, com uma funcionalidade por vez, testes antes de avançar e orientação adequada ao nível atual do estudante. As tecnologias de banco de dados e autenticação serão escolhidas somente após avaliar necessidades, alternativas, segurança, testes, custo e hospedagem. O [Guia prático de segurança Web](./GUIA_SEGURANCA_APPSEC.md), especialmente seus módulos sobre banco de dados e autenticação, será a referência AppSec, sem duplicar seus exemplos.
+
+### Etapas propostas e dependências
+
+1. **Definir requisitos, arquitetura e permissões**
+   - Delimitar as ações de usuário comum e administrador e quais dados cada perfil pode acessar.
+   - Planejar as rotas, as fronteiras entre front-end e back-end e os requisitos de segurança.
+   - Avaliar a migração do histórico JSON e as opções de persistência; não escolher banco ou estratégia de autenticação antecipadamente.
+   - **Dependência:** conclusão das Etapas 6 e 7 e aprovação do escopo desta fase.
+
+2. **Modelar e migrar os dados**
+   - Estudar banco relacional, tabelas, chaves primárias, chaves estrangeiras, relacionamentos, integridade e transações.
+   - Modelar usuários e cálculos, relacionando cada registro de histórico ao identificador do usuário.
+   - Planejar migração dos registros existentes no JSON e validar que os dados não sejam perdidos nem atribuídos incorretamente.
+   - **Dependência:** etapa 1 concluída e escolha justificada de persistência.
+
+3. **Implementar cadastro e validação**
+   - Criar cadastro com validação no servidor, tratamento de erros e testes de sucesso e falha.
+   - Armazenar senhas usando uma função de hash apropriada; nunca guardar nem retornar a senha em texto puro.
+   - **Dependência:** modelo de dados da etapa 2 definido.
+
+4. **Implementar autenticação, sessão e logout**
+   - Implementar login e logout e proteger as rotas privadas no back-end.
+   - Comparar sessões/cookies com outras estratégias, incluindo tokens somente se houver justificativa; decidir considerando arquitetura, segurança e hospedagem.
+   - Testar credenciais inválidas, ausência de autenticação e encerramento de sessão.
+   - **Dependência:** cadastro da etapa 3 funcionando e estratégia de autenticação justificada.
+
+5. **Associar e proteger o histórico individual**
+   - Associar novos cálculos à identidade autenticada no servidor.
+   - Permitir que cada usuário consulte e gerencie apenas os próprios registros.
+   - Não confiar em identificadores de usuário enviados pelo cliente para decidir autorização.
+   - Testar tentativas de consultar, alterar ou excluir o histórico de outra conta e confirmar a negação.
+   - **Dependência:** persistência da etapa 2 e autenticação da etapa 4.
+
+6. **Criar a área privada do usuário**
+   - Permitir consultar o próprio histórico e informações da própria conta.
+   - Implementar apenas ações de gerenciamento permitidas para o usuário.
+   - Validar as permissões no back-end, mesmo quando a interface ocultar ações indisponíveis.
+   - **Dependência:** autenticação da etapa 4 e histórico individual protegido da etapa 5.
+
+7. **Criar o painel administrativo**
+   - Definir e verificar uma permissão administrativa distinta da conta comum.
+   - Permitir ao administrador consultar usuários, históricos e informações de cadastro apenas conforme as permissões aprovadas.
+   - Proteger cada rota administrativa no back-end e impedir que usuários comuns acessem ou elevem os próprios privilégios.
+   - **Dependência:** autenticação da etapa 4, regras de autorização definidas na etapa 1 e dados individualizados da etapa 5.
+
+8. **Integrar, testar e revisar segurança**
+   - Testar os fluxos completos e principais falhas de cadastro, login, sessão, autorização, acesso entre contas e administração.
+   - Avaliar controle de acesso às rotas, validação, armazenamento de senhas e riscos AppSec pertinentes; incluir SQL Injection se for escolhido banco relacional.
+   - Registrar resultados, limitações e decisões técnicas e explicar a arquitetura com as próprias palavras.
+   - **Dependência:** etapas 2 a 7 implementadas e testadas progressivamente.
+
+### Critérios de conclusão da fase
+
+Considerar a fase concluída somente quando:
+
+1. Cadastro, login e logout funcionarem com tratamento de erros.
+2. Cada usuário conseguir acessar somente os próprios dados.
+3. O administrador acessar somente os recursos administrativos autorizados.
+4. O back-end aplicar as permissões independentemente da interface.
+5. Os principais cenários de sucesso, falha e acesso indevido tiverem testes executados.
+6. Os riscos de segurança e as decisões de arquitetura tiverem sido avaliados e documentados.
+7. O estudante conseguir explicar a arquitetura, o fluxo de autenticação e os motivos das decisões técnicas.
+
+### Decisões reservadas para o planejamento próprio
+
+- Banco de dados e processo de migração do JSON, incluindo como tratar registros antigos sem usuário associado.
+- Estratégia de autenticação e gerenciamento de sessões.
+- Forma segura de criar e manter a primeira conta administrativa.
+- Relação de escopo com o Projeto de portfólio 4 — Sistema de gerenciamento; decidir no planejamento próprio se haverá reaproveitamento, integração ou desenvolvimento separado.
+
+Todas as etapas desta fase começam como **Não iniciado**. Não considerar uma etapa concluída sem evidências de implementação, testes e compreensão; esta fase permanece futura e não é trabalho atual.
+
 ## Projetos futuros para o portfólio
 
 Esta é uma visão de longo prazo, não uma lista de tarefas para iniciar agora. A calculadora permanece prioritária. Cada projeto futuro deverá ter planejamento e etapas próprias; definir um MVP, critérios de conclusão, testes e decisões técnicas antes de implementar. Distinguir requisitos essenciais do projeto, funcionalidades opcionais e oportunidades de aprendizagem.
@@ -279,6 +412,8 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-13** — O teste de persistência em `testes/calcular_logica.js` foi ajustado para aguardar diretamente `gravarHistorico()` antes de ler o JSON e verificar o registro gravado. A suíte completa passou numa cópia temporária do projeto: 30 testes (9 de lógica/histórico, 3 de encadeamento e 18 de API). A execução usou servidor e histórico temporários; o `historico.json` real não foi alterado. A Etapa 6 continua em andamento: falta verificar falhas de leitura/gravação e cumprir os critérios de aprendizagem; o isolamento automático no próprio projeto permanece uma melhoria futura.
 - **2026-11-14** — Por decisão explícita do usuário, a Etapa 6 — Persistência do histórico — foi adiada, mas permanece pendente e incompleta, com suas tarefas preservadas para retomada. A Etapa 7 — Evolução e publicação — passou a ser a etapa atual, em andamento; não foram contratados serviços nem alteradas configurações de publicação.
 - **2026-11-15** — Registrado o progresso da Etapa 7: `server.js` configura a porta via `PORT` com fallback para 3000, escuta em `0.0.0.0` e usa `NODE_ENV === 'production'` para retornar mensagem genérica de erro em produção. O usuário relata ter estudado variáveis de ambiente, `NODE_ENV`, comparação `===` e que `node --test` não define automaticamente `NODE_ENV=test`; relata também teste manual de `PORT`/`0.0.0.0` e acesso bem-sucedido pelo celular via IPv4 na rede Wi-Fi. Não foi confirmado teste automatizado específico para ambiente; os 30 testes de 2026-11-13 antecedem as alterações de ambiente. A Etapa 7 permanece em andamento e a Etapa 6 continua adiada e pendente.
+- **2026-11-15** — Acrescentada como planejamento futuro, sem implementação, uma fase para evoluir a calculadora com persistência relacional a avaliar, cadastro e autenticação, histórico individual, área privada, painel administrativo e validação AppSec. Foram descritas etapas pequenas, dependências e critérios de conclusão; a fase depende da conclusão das Etapas 6 e 7 e não altera seus escopos ou status.
+- **2026-11-15** — Acrescentada, sem implementação, uma melhoria futura do front-end para consultar e gerenciar no LocalStorage um histórico local de cálculos. Foram registrados os dados, etapas, dependências e testes previstos, com separação explícita do histórico do servidor e prioridade sugerida após estabilizar a Etapa 6; os escopos e status das Etapas 6 e 7 foram preservados.
 
 ## Conceitos
 
