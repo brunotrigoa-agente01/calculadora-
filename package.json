@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/brunotrigoa-agente01/calculadora-/issues"
   },
-  "homepage": "https://github.com/brunotrigoa-agente01/calculadora-#readme"
+  "homepage": "https://github.com/brunotrigoa-agente01/calculadora-#readme",
+  "dependencies": {
+    "mysql2": "^3.24.6"
+  }
 }
