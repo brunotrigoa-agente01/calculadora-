@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
-
+const { salvarCalculo } = require('./calculos.js');
 function criaServidor(salvarHistorico){
     
     const producao = process.env.NODE_ENV === 'production';
@@ -177,6 +177,16 @@ function criaServidor(salvarHistorico){
                     res.statusCode = 200;
                     res.setHeader('content-Type', 'application/json; charset=utf-8')
                     res.end(JSON.stringify({ resultado }));
+                    return;
+                }
+                try {
+                    await salvarCalculo(dados.usuario_id, dados.valor1, dados.valor2, dados.operacao, resultado);
+                } catch (erro) {
+                    console.error('Erro ao salvar cálculo:', erro);
+
+                    res.statusCode = 500;
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.end(JSON.stringify({ resultado, erro: 'Erro ao salvar cálculo no banco de dados' }));
                     return;
                 }
                 res.statusCode = 200
