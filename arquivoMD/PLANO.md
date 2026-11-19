@@ -144,6 +144,7 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 ### 7. Evolução do projeto
 
 - **Objetivo:** avançar progressivamente em banco de dados, integração com Node.js e, depois de validar a aplicação localmente, hospedagem e publicação.
+- **Plano detalhado:** [PLANO_BANCO_DE_DADOS.md](../PLANO_BANCO_DE_DADOS.md) é o planejamento oficial das aulas de banco de dados, MySQL e integração com Node.js. Atualizar o resumo desta etapa neste plano principal quando o andamento geral mudar.
 - **Sequência aprovada:** estudar fundamentos relacionais; adotar MySQL como primeiro banco de dados do projeto; integrar MySQL ao Node.js e avaliar a substituição gradual da persistência JSON; preparar a estrutura de dados para uma evolução futura; somente então estudar hospedagem e publicação.
 - **Tecnologias:** manter o servidor HTTP nativo por enquanto. Express permanece uma atividade futura e não é requisito para esta etapa. PostgreSQL poderá ser estudado depois de adquirir uma boa base com MySQL.
 - **Critério geral:** dividir cada fase em tarefas menores e exigir prática, testes e compreensão demonstrada para registrá-la como concluída. Estudo teórico, isoladamente, não conclui uma atividade.
