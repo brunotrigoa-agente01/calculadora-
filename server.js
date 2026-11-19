@@ -177,7 +177,7 @@ function criaServidor(salvarHistorico, salvarCalculo) {
                     res.statusCode = 200;
                     res.setHeader('content-Type', 'application/json; charset=utf-8')
                     res.end(JSON.stringify({ resultado }));
-                    return;
+                    
                 }
                 try {
                     await salvarCalculo(dados.usuario_id, dados.valor1, dados.valor2, dados.operacao, resultado);
