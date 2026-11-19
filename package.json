@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/brunotrigoa-agente01/calculadora-#readme",
   "dependencies": {
+    "dotenv": "^18.0.10",
     "mysql2": "^3.24.6"
   }
 }
