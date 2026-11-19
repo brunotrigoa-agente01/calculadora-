@@ -2,8 +2,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
-const { salvarCalculo } = require('./calculos.js');
-function criaServidor(salvarHistorico){
+
+function criaServidor(salvarHistorico, salvarCalculo) {
     
     const producao = process.env.NODE_ENV === 'production';
     let arquivosPublicos = {
