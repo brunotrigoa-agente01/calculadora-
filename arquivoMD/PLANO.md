@@ -33,7 +33,7 @@ Este projeto também integra uma trilha de formação profissional progressiva. 
 4. Implementar e testar a lógica e a validação da API antes de conectar o navegador.
 5. Integrar o front-end progressivamente e tratar explicitamente falhas de requisição.
 6. Organizar e testar o código antes de avançar para persistência.
-7. Começar e permanecer com o servidor HTTP nativo enquanto não houver necessidade concreta de framework. O MySQL foi definido como próxima ferramenta de estudo na Etapa 7; Express continua futuro e não exige migração imediata.
+7. Começar e permanecer com o servidor HTTP nativo enquanto não houver necessidade concreta de framework. O MySQL é a ferramenta de estudo atual da Etapa 7; Express continua futuro e não exige migração imediata.
 8. Não avançar para etapas futuras sem concluir e testar a etapa atual, salvo adiamento explicitamente aprovado pelo usuário; um adiamento mantém a etapa incompleta e suas pendências registradas.
 
 ## Como acompanhar as duas trilhas
@@ -73,7 +73,7 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 7 — Evolução do projeto. Status: **Em andamento**; próximo foco: Fase 1 — Introdução a banco de dados.
+Trilha A: Etapa 7 — Evolução do projeto. Status: **Em andamento**; fundamentos relacionais e SQL já foram praticados em parte no MySQL local. O próximo foco é **estabelecer e testar a conexão entre Node.js e MySQL**, sem iniciar cadastro, autenticação ou migração do histórico JSON.
 
 Etapa 6 — Persistência do histórico em arquivo JSON. Status: **Adiada temporariamente**; permanece incompleta e suas tarefas continuam pendentes para possível retomada.
 
@@ -144,11 +144,11 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 ### 7. Evolução do projeto
 
 - **Objetivo:** avançar progressivamente em banco de dados, integração com Node.js e, depois de validar a aplicação localmente, hospedagem e publicação.
-- **Plano detalhado:** [PLANO_BANCO_DE_DADOS.md](../PLANO_BANCO_DE_DADOS.md) é o planejamento oficial das aulas de banco de dados, MySQL e integração com Node.js. Atualizar o resumo desta etapa neste plano principal quando o andamento geral mudar.
+- **Plano detalhado:** [PLANO_BANCO_DE_DADOS.md](./PLANO_BANCO_DE_DADOS.md) é o planejamento oficial das aulas de banco de dados, MySQL e integração com Node.js. Atualizar o resumo desta etapa neste plano principal quando o andamento geral mudar.
 - **Sequência aprovada:** estudar fundamentos relacionais; adotar MySQL como primeiro banco de dados do projeto; integrar MySQL ao Node.js e avaliar a substituição gradual da persistência JSON; preparar a estrutura de dados para uma evolução futura; somente então estudar hospedagem e publicação.
 - **Tecnologias:** manter o servidor HTTP nativo por enquanto. Express permanece uma atividade futura e não é requisito para esta etapa. PostgreSQL poderá ser estudado depois de adquirir uma boa base com MySQL.
 - **Critério geral:** dividir cada fase em tarefas menores e exigir prática, testes e compreensão demonstrada para registrá-la como concluída. Estudo teórico, isoladamente, não conclui uma atividade.
-- **Status da etapa:** Em andamento. Nenhuma fase de banco de dados foi confirmada como concluída ou implementada. O próximo foco é a Fase 1; não iniciar agora a instalação ou integração do MySQL nem a publicação.
+- **Status da etapa:** Em andamento. MySQL Server 8.0 e MySQL Workbench foram instalados e configurados, o serviço local MySQL80 está ativo na porta 3306 e o banco `calculadora` já foi criado com estruturas e consultas práticas. Ainda não foi confirmada uma conexão funcional entre Node.js e MySQL. O próximo foco é a integração; não iniciar cadastro, login, autenticação, histórico individual ou publicação.
 
 #### Fase 1 — Introdução a banco de dados
 
@@ -156,7 +156,9 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - Compreender chaves primárias e estrangeiras, relacionamentos entre tabelas e normalização de dados.
 - Produzir exercícios ou modelos simples e explicar as relações com as próprias palavras; a leitura teórica, sozinha, não basta para concluir esta fase.
 - **Dependência:** nenhuma fase anterior da Etapa 7.
-- **Status:** Não iniciada.
+- **Evidências já praticadas:** o estudante criou o banco `calculadora`, as tabelas `usuarios` e `calculos`, chaves primárias e estrangeiras e o relacionamento entre usuários e cálculos. Também praticou inserções e consultas.
+- **Pendências:** explicar a modelagem e os conceitos com suas próprias palavras, revisar normalização e confirmar o domínio completo dos fundamentos antes de concluir a fase.
+- **Status:** Em andamento; os conceitos foram praticados em parte, mas a fase não está concluída.
 
 #### Fase 2 — MySQL e SQL
 
@@ -166,7 +168,9 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - Praticar `JOIN`, relacionamentos, chaves primárias e estrangeiras, índices e transações.
 - Validar os exercícios com consultas executadas e explicar o resultado e o papel de cada comando.
 - **Dependência:** fundamentos da Fase 1 praticados e compreendidos.
-- **Status:** Não iniciada; nenhuma instalação ou configuração de MySQL foi realizada nesta atualização do plano.
+- **Evidências já praticadas:** MySQL Server 8.0 e MySQL Workbench estão instalados e configurados; o serviço local MySQL80 usa a porta 3306; `calculadora` foi criado; `usuarios` e `calculos` foram definidos; o usuário João foi inserido com ID 1; um cálculo foi associado a João; consultas com `SELECT`, `WHERE`, `INNER JOIN` e outras operações SQL foram executadas.
+- **Pendências:** continuar e verificar conteúdos intermediários como índices, `GROUP BY`, `HAVING`, transações e a explicação das consultas realizadas.
+- **Status:** Em andamento; há prática confirmada de SQL básico e relacionamentos, mas esta fase não está concluída.
 
 #### Fase 3 — Integração com Node.js
 
@@ -177,7 +181,10 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - Preservar `historico.js` e `historico.json`; não remover a implementação nem os dados existentes. Definir e testar a migração de dados antes de mudar a persistência utilizada pela aplicação.
 - A eventual migração para MySQL não conclui retroativamente a Etapa 6 nem altera suas pendências ou seu status adiado.
 - **Dependência:** Fases 1 e 2 praticadas, com consultas SQL executadas e compreendidas.
-- **Status:** Não iniciada.
+- **Prática local já realizada:** instalação/configuração do MySQL, criação do banco e das tabelas e manipulação de dados foram concluídas como exercícios SQL. Também foram gerados/atualizados `package.json` e `package-lock.json`; o projeto usa CommonJS (`"type": "commonjs"`); o driver `mysql2` 3.24.6 foi instalado com `npm.cmd init -y`.
+- **Limite da evidência:** instalar o driver não prova que Node.js consegue abrir uma conexão ou executar consultas no MySQL.
+- **Próxima atividade prática:** configurar credenciais fora do código-fonte, estabelecer a conexão pelo `mysql2`, executar uma consulta simples pelo Node.js e testar sucesso e falhas antes de avançar.
+- **Status:** Em andamento. A preparação prática foi iniciada, mas a integração Node.js + MySQL ainda não está concluída ou validada.
 
 #### Fase 4 — Preparação para a futura evolução
 
@@ -431,8 +438,9 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 
 ## Dúvidas e decisões pendentes
 
-- MySQL foi definido como o primeiro banco de dados do projeto; ainda é necessário estudar e testar sua modelagem e integração nas Fases 1 a 3 da Etapa 7.
-- Definir durante a Fase 3 da Etapa 7 a biblioteca de conexão Node.js/MySQL e a configuração de testes, sem migrar a persistência antes de compreender e validar a integração.
+- MySQL foi definido como o primeiro banco de dados do projeto e já foi instalado/configurado localmente; ainda é necessário estabelecer e testar a conexão Node.js/MySQL nas Fases 1 a 3 da Etapa 7.
+- Definir durante a Fase 3 da Etapa 7 a configuração segura de credenciais e a configuração de testes, sem migrar a persistência antes de compreender e validar a integração.
+- Confirmar como o estudante protegerá as credenciais localmente e evitará que senhas sejam incluídas no código-fonte ou no GitHub.
 - Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: verificar o comportamento quando a leitura ou gravação do arquivo falha.
 - Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
 - Express continua como atividade futura; não é necessário migrar imediatamente do servidor HTTP nativo.
@@ -465,6 +473,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-15** — Acrescentada como planejamento futuro, sem implementação, uma fase para evoluir a calculadora com persistência relacional a avaliar, cadastro e autenticação, histórico individual, área privada, painel administrativo e validação AppSec. Foram descritas etapas pequenas, dependências e critérios de conclusão; a fase depende da conclusão das Etapas 6 e 7 e não altera seus escopos ou status.
 - **2026-11-15** — Acrescentada, sem implementação, uma melhoria futura do front-end para consultar e gerenciar no LocalStorage um histórico local de cálculos. Foram registrados os dados, etapas, dependências e testes previstos, com separação explícita do histórico do servidor e prioridade sugerida após estabilizar a Etapa 6; os escopos e status das Etapas 6 e 7 foram preservados.
 - **2026-11-15** — Por decisão do estudante, a Etapa 6 permanece adiada temporariamente, incompleta e preservada para possível retomada, sem excluir `historico.js` ou `historico.json`. A Etapa 7 foi reorganizada para estudar fundamentos relacionais, MySQL/SQL e integração Node.js/MySQL antes da preparação de hospedagem; PostgreSQL fica como estudo posterior e Express continua futuro. Os estudos de validação/AppSec foram pausados temporariamente, sem serem considerados concluídos ou abandonados. Nenhum código foi alterado nesta atualização.
+- **2026-11-19** — Registrado o progresso confirmado do ambiente e do MySQL: `npm.cmd init -y` foi executado, `mysql2` 3.24.6 foi instalado em projeto CommonJS e os arquivos de dependências foram gerados/atualizados. MySQL Server 8.0 e MySQL Workbench foram configurados localmente, o serviço MySQL80 usa a porta 3306 e o banco `calculadora` contém `usuarios` e `calculos`, chave estrangeira, João com ID 1 e um cálculo associado. Consultas SQL com `SELECT`, `WHERE`, `INNER JOIN` e outras operações foram praticadas. Estas evidências não confirmam a integração Node.js/MySQL nem concluem fases de banco de dados; cadastro, login, autenticação e histórico individual permanecem futuros. A próxima atividade prática será proteger credenciais, conectar Node.js ao MySQL com `mysql2` e testar a conexão e consultas com tratamento de erros.
 
 ## Conceitos
 
@@ -474,6 +483,10 @@ O registro abaixo diferencia conceitos presentes no código daqueles cuja compre
 
 - JavaScript no navegador: DOM, eventos, funções, estado e lógica de operações.
 - Node.js: servidor HTTP básico com `node:http`, `createServer()`, `response.end()` e `listen()` (etapa 1 testada pelo usuário).
+- Ambiente Node.js atual: projeto CommonJS (`"type": "commonjs"`); `package.json` e `package-lock.json` incluem o driver `mysql2` versão 3.24.6.
+- MySQL local: banco `calculadora`, tabelas `usuarios` e `calculos`, chave estrangeira e registros de exercício praticados.
+- SQL praticado: `CREATE`, `INSERT`, `SELECT`, `WHERE`, `INNER JOIN` e outras operações presentes no material de estudos.
+- Limite do registro atual: esses conhecimentos são confirmados no ambiente SQL; não há evidência de conexão funcional entre o código Node.js e o banco.
 - Configuração do servidor presente em `server.js`: porta por `process.env.PORT || 3000`, escuta em `0.0.0.0` e seleção da mensagem de erro de produção com `process.env.NODE_ENV === 'production'`.
 - HTTP: diferença entre caminho (`req.url`) e método (`req.method`), cabeçalho `Content-Type`, serialização JSON e status HTTP 200, 404 e 405 (etapa 2 testada pelo usuário).
 - O arquivo `node.js.js` não faz parte da estrutura atual; não é uma dependência das etapas presentes.

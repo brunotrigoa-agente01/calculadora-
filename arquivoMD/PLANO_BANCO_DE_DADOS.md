@@ -4,7 +4,7 @@
 
 Aprender banco de dados progressivamente, começando pelos fundamentos relacionais, avançando para SQL e MySQL e, depois, aplicando os conhecimentos à calculadora com backend em Node.js. O foco é compreender e praticar cada conceito, não apenas copiar comandos ou código.
 
-Este é o planejamento oficial dos estudos de banco de dados do projeto. O resumo do andamento geral da calculadora deve permanecer alinhado ao [PLANO.md](./arquivoMD/PLANO.md), que continua sendo o plano principal do projeto.
+Este é o planejamento oficial dos estudos de banco de dados do projeto. O resumo do andamento geral da calculadora deve permanecer alinhado ao [PLANO.md](./PLANO.md), que continua sendo o plano principal do projeto.
 
 ## Regras de aprendizagem
 
@@ -52,11 +52,12 @@ O status “estudada” registra a informação do estudante; não substitui exe
 
 **Critério de conclusão:** revisar ou praticar os conceitos necessários, confirmar os exercícios pendentes e demonstrar compreensão por explicação e aplicação simples. A etapa não será considerada concluída só porque as aulas foram estudadas.
 
-**Status da etapa:** Aulas 1 a 9 marcadas como estudadas por relato do estudante; validação prática ainda não documentada. Exercício da Aula 9 pendente de confirmação.
+**Prática confirmada no ambiente local:** o banco `calculadora`, as tabelas `usuarios` e `calculos`, as chaves primárias/estrangeiras e o relacionamento foram criados. João foi inserido com ID 1 e um cálculo foi associado a ele.
+**Status da etapa:** Em andamento. Aulas 1 a 9 foram estudadas por relato e parte dos fundamentos foi praticada no MySQL, mas ainda faltam exercícios/evidências de compreensão para concluir a etapa.
 
 ## Etapa 2 — SQL intermediário
 
-**Dependência:** fundamentos da Etapa 1 praticados e compreendidos. Continuar com exercícios conceituais e SQL sem instalar MySQL antes de concluir a parte teórica, salvo necessidade didática acordada.
+**Dependência:** fundamentos da Etapa 1 praticados e compreendidos. MySQL já foi instalado por necessidade didática; a Etapa 2 continua exigindo prática dos conteúdos intermediários previstos.
 
 ### Conteúdos
 
@@ -72,11 +73,13 @@ O status “estudada” registra a informação do estudante; não substitui exe
 
 **Critério de conclusão:** realizar exercícios curtos dos temas, explicar o resultado das consultas e justificar uma modelagem simples. Registrar dúvidas e tópicos a revisar.
 
-**Status:** Não iniciada.
+**Prática confirmada:** consultas básicas, filtros, relacionamentos e `INNER JOIN` já foram praticados no MySQL local.
+**Pendências:** confirmar exercícios de índices, agregações, `HAVING`, aliases, modelagem/normalização e transações.
+**Status:** Em andamento.
 
 ## Etapa 3 — Prática com MySQL
 
-**Dependência:** Etapas 1 e 2 estudadas e validadas conforme seus critérios. A instalação e configuração só começam quando a base teórica estiver concluída ou quando uma necessidade didática for explicada e acordada.
+**Dependência:** Etapas 1 e 2 praticadas e validadas conforme seus critérios. A instalação já foi realizada e agora serve como ambiente de estudo local.
 
 ### Atividades
 
@@ -91,7 +94,8 @@ No começo, usar dados fictícios e um ambiente de aprendizagem separado. Antes 
 
 **Critério de conclusão:** executar operações e consultas em MySQL, conferir os resultados, explicar as chaves e relacionamentos usados e registrar os testes práticos.
 
-**Status:** Não iniciada. Nenhuma instalação de MySQL é autorizada ou solicitada nesta etapa de planejamento.
+**Prática confirmada:** MySQL Server 8.0 e MySQL Workbench foram instalados e configurados; o serviço local MySQL80 está na porta 3306; o banco `calculadora` e as tabelas `usuarios`/`calculos` foram criados; João foi inserido com ID 1; um cálculo foi associado; consultas com `SELECT`, `WHERE`, `INNER JOIN` e outros comandos foram praticadas.
+**Status:** Em andamento; há prática local confirmada, mas a etapa ainda não está concluída.
 
 ## Etapa 4 — Integração com Node.js
 
@@ -109,11 +113,14 @@ No começo, usar dados fictícios e um ambiente de aprendizagem separado. Antes 
 8. Criar testes de persistência em ambiente de teste isolado.
 9. Só depois de compreender e testar a integração, planejar uma substituição gradual da persistência em arquivo JSON.
 
-A migração não é automática: definir como os dados serão preservados e verificados antes de trocar a persistência usada pela aplicação. Manter `historico.js` e `historico.json` preservados até haver decisão e plano de migração aprovados. A migração futura não marca retroativamente a Etapa 6 do [PLANO.md](./arquivoMD/PLANO.md) como concluída nem apaga suas pendências.
+A migração não é automática: definir como os dados serão preservados e verificados antes de trocar a persistência usada pela aplicação. Manter `historico.js` e `historico.json` preservados até haver decisão e plano de migração aprovados. A migração futura não marca retroativamente a Etapa 6 do [PLANO.md](./PLANO.md) como concluída nem apaga suas pendências.
 
 **Critério de conclusão:** conseguir explicar e testar a conexão, as consultas, o tratamento de erros e a persistência; validar a migração antes de adotá-la na aplicação.
 
-**Status:** Não iniciada.
+**Prática preparatória confirmada:** `npm.cmd init -y` foi executado; `mysql2` versão 3.24.6 foi instalado; `package.json` e `package-lock.json` foram gerados/atualizados; o projeto usa CommonJS (`"type": "commonjs"`).
+**Próxima atividade prática:** configurar credenciais fora do código-fonte, estabelecer e testar uma conexão simples com `mysql2`, executar uma consulta pelo Node.js e testar tratamento de sucesso e falha.
+**Limite da evidência:** a instalação do driver não comprova conexão funcional. Nenhum cadastro, login, autenticação, histórico individual ou migração foi implementado.
+**Status:** Em andamento, sem integração funcional confirmada.
 
 ## Etapa 5 — Evolução do projeto
 
@@ -132,15 +139,17 @@ A migração não é automática: definir como os dados serão preservados e ver
 9. Testes e tratamento de erros.
 10. Preparação para hospedagem, depois de validar a aplicação local e revisar os requisitos de segurança.
 
-**Critério de conclusão:** cada funcionalidade terá planejamento próprio e só poderá ser considerada concluída com implementação, testes, avaliação de segurança e compreensão demonstrada. Consultar o guia AppSec e retomar os estudos de segurança antes de implementar autenticação ou publicar definitivamente, conforme o andamento registrado no [PLANO.md](./arquivoMD/PLANO.md).
+**Critério de conclusão:** cada funcionalidade terá planejamento próprio e só poderá ser considerada concluída com implementação, testes, avaliação de segurança e compreensão demonstrada. Consultar o guia AppSec e retomar os estudos de segurança antes de implementar autenticação ou publicar definitivamente, conforme o andamento registrado no [PLANO.md](./PLANO.md).
 
 **Status:** Não iniciada; planejamento futuro, sem autorização para implementação.
 
 ## Registro de progresso e sincronização com o plano principal
 
-- **Andamento inicial informado:** as Aulas 1 a 9 da Etapa 1 foram estudadas. O exercício da Aula 9 está pendente de confirmação. Não há evidência registrada aqui sobre exercícios das demais aulas nem dificuldades específicas; registrar quando forem confirmados.
-- **Etapas 2 a 5:** não iniciadas.
-- **Calculadora:** a Etapa 7 do [PLANO.md](./arquivoMD/PLANO.md) permanece em andamento, com estudo de banco de dados priorizado antes da hospedagem. A Etapa 6 — persistência em JSON — permanece adiada temporariamente, incompleta e disponível para possível retomada.
+- **Andamento confirmado em 2026-11-19:** as Aulas 1 a 9 da Etapa 1 foram estudadas por relato e parte da modelagem/SQL foi praticada no MySQL local. Exercícios específicos e a explicação dos conceitos ainda precisam de evidências completas.
+- **Prática confirmada:** banco `calculadora`, tabelas `usuarios` e `calculos`, chave estrangeira, João com ID 1, cálculo associado e consultas `SELECT`, `WHERE`, `INNER JOIN` e outras operações.
+- **Ambiente confirmado:** MySQL Server 8.0, MySQL Workbench e serviço MySQL80 na porta 3306; `mysql2` 3.24.6 instalado no projeto CommonJS.
+- **Etapas 2 a 5:** a Etapa 2 está em andamento; a Etapa 3 está em andamento por prática SQL parcial; a Etapa 4 está em andamento apenas quanto à preparação, sem conexão Node.js/MySQL comprovada; a Etapa 5 permanece não iniciada.
+- **Calculadora:** a Etapa 7 do [PLANO.md](./PLANO.md) permanece em andamento, com integração Node.js/MySQL como próximo foco antes da migração ou da hospedagem. A Etapa 6 — persistência em JSON — permanece adiada temporariamente, incompleta e disponível para possível retomada.
 - **AppSec:** acompanhar a pausa temporária e as pendências conforme o plano principal; este plano de estudos não as marca como concluídas nem abandonadas.
 - Ao concluir ou atualizar uma aula ou etapa, registrar aqui o que foi estudado, o exercício proposto e realizado, o resultado, as dúvidas/dificuldades relatadas e a evidência de compreensão. Atualizar o resumo correspondente no `PLANO.md` quando o andamento geral da Etapa 7 mudar, mantendo ambos alinhados.
 - Não modificar código ou configuração da calculadora durante as aulas de planejamento; qualquer implementação exigirá decisão e autorização próprias.
