@@ -117,10 +117,11 @@ A migração não é automática: definir como os dados serão preservados e ver
 
 **Critério de conclusão:** conseguir explicar e testar a conexão, as consultas, o tratamento de erros e a persistência; validar a migração antes de adotá-la na aplicação.
 
-**Prática preparatória confirmada:** `npm.cmd init -y` foi executado; `mysql2` versão 3.24.6 foi instalado; `package.json` e `package-lock.json` foram gerados/atualizados; o projeto usa CommonJS (`"type": "commonjs"`).
-**Próxima atividade prática:** configurar credenciais fora do código-fonte, estabelecer e testar uma conexão simples com `mysql2`, executar uma consulta pelo Node.js e testar tratamento de sucesso e falha.
-**Limite da evidência:** a instalação do driver não comprova conexão funcional. Nenhum cadastro, login, autenticação, histórico individual ou migração foi implementado.
-**Status:** Em andamento, sem integração funcional confirmada.
+**Implementado no código:** `banco.js` carrega as variáveis de ambiente com `dotenv` e cria um pool por `mysql2/promise`; o `.env` está excluído do Git. `calculos.js` usa `banco.execute()` com parâmetros para inserir cálculos, listar por `usuario_id` e verificar a existência do usuário. `inicializarServer.js` injeta essas funções em `server.js`, que encaminha as operações às rotas. `package.json` tem scripts `start` e `test` configurados e versionados.
+**Teste anterior:** a integração Node.js + MySQL foi testada em situações anteriores, conforme progresso relatado pelo usuário. Esta atualização documental não repetiu os testes. Os testes existentes em `testes/` não constituem uma suíte isolada que verifique diretamente gravação e recuperação no MySQL ou comportamento com o banco indisponível.
+**Próximas atividades:** ampliar os testes de integração; testar falhas quando o MySQL estiver indisponível; confirmar gravação e recuperação de cálculos no banco; revisar a listagem para retornar os cinco cálculos mais recentes com ordenação e limite na consulta SQL; e demonstrar o fluxo entre frontend, servidor, módulo de cálculos e banco. Executar posteriormente testes adicionais do histórico JSON relacionados à integração, em ambiente isolado e sem apagar ou sobrescrever dados reais.
+**Limite do escopo atual:** não migrar nem remover `historico.js` ou `historico.json`. Cadastro completo pela interface, login, autenticação, sessões, histórico individual autenticado, painel administrativo e hospedagem/publicação permanecem em etapas futuras.
+**Status:** Em andamento. A conexão e as operações básicas estão implementadas, e há relato de testes anteriores; as validações adicionais e a compreensão demonstrada continuam pendentes.
 
 ## Etapa 5 — Evolução do projeto
 
@@ -146,10 +147,11 @@ A migração não é automática: definir como os dados serão preservados e ver
 ## Registro de progresso e sincronização com o plano principal
 
 - **Andamento confirmado em 2026-11-19:** as Aulas 1 a 9 da Etapa 1 foram estudadas por relato e parte da modelagem/SQL foi praticada no MySQL local. Exercícios específicos e a explicação dos conceitos ainda precisam de evidências completas.
+- **Integração confirmada em 2026-11-20:** o código configura `mysql2/promise` com pool e variáveis de ambiente em `.env`, e conecta as operações parametrizadas de `calculos.js` às rotas por `inicializarServer.js`. O usuário relata testes anteriores da integração; eles não foram repetidos nesta atualização e não significam que todas as atividades da Fase 4 foram concluídas.
 - **Prática confirmada:** banco `calculadora`, tabelas `usuarios` e `calculos`, chave estrangeira, João com ID 1, cálculo associado e consultas `SELECT`, `WHERE`, `INNER JOIN` e outras operações.
 - **Ambiente confirmado:** MySQL Server 8.0, MySQL Workbench e serviço MySQL80 na porta 3306; `mysql2` 3.24.6 instalado no projeto CommonJS.
-- **Etapas 2 a 5:** a Etapa 2 está em andamento; a Etapa 3 está em andamento por prática SQL parcial; a Etapa 4 está em andamento apenas quanto à preparação, sem conexão Node.js/MySQL comprovada; a Etapa 5 permanece não iniciada.
-- **Calculadora:** a Etapa 7 do [PLANO.md](./PLANO.md) permanece em andamento, com integração Node.js/MySQL como próximo foco antes da migração ou da hospedagem. A Etapa 6 — persistência em JSON — permanece adiada temporariamente, incompleta e disponível para possível retomada.
+- **Etapas 2 a 5:** a Etapa 2 está em andamento; a Etapa 3 está em andamento por prática SQL parcial; a Etapa 4 está em andamento, com conexão, pool e operações de banco implementados e testes anteriores relatados, mas com ampliação dos testes, falhas de conexão e recuperação ainda pendentes; a Etapa 5 permanece não iniciada.
+- **Calculadora:** a Etapa 7 do [PLANO.md](./PLANO.md) permanece em andamento. A integração Node.js/MySQL já está implementada e foi testada em situações anteriores, conforme relato; ampliar e tornar reproduzíveis os testes é o próximo foco. A Etapa 6 — persistência em JSON — permanece adiada temporariamente, incompleta e disponível para possível retomada.
 - **AppSec:** acompanhar a pausa temporária e as pendências conforme o plano principal; este plano de estudos não as marca como concluídas nem abandonadas.
 - Ao concluir ou atualizar uma aula ou etapa, registrar aqui o que foi estudado, o exercício proposto e realizado, o resultado, as dúvidas/dificuldades relatadas e a evidência de compreensão. Atualizar o resumo correspondente no `PLANO.md` quando o andamento geral da Etapa 7 mudar, mantendo ambos alinhados.
 - Não modificar código ou configuração da calculadora durante as aulas de planejamento; qualquer implementação exigirá decisão e autorização próprias.
