@@ -201,7 +201,7 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos) {
 
         
 
-        }else if (method === 'GET' && url.pathname === '/api/calculos'){
+        }else if (req.method === 'GET' && url.pathname === '/api/calculos'){
             
             const usuario_id = url.searchParams.get('usuario_id');
             const resultado = await listarCalculos(usuario_id);
