@@ -30,8 +30,14 @@ botaoHistorico.addEventListener("click", async () => {
         const resultado = await fetch('/api/calculos?usuario_id=1', {
             method: 'GET',    
         });
-        const dadosResposta = await resultado.json();
-        mostrarHistorico(dadosResposta);
+        if (resultado.ok) {
+            const dadosResposta = await resultado.json();
+            mostrarHistorico(dadosResposta);
+        }else{
+            console.error('Erro ao buscar histórico:', resultado.statusText);
+            popoverHistorico.innerText = 'Erro ao buscar histórico';
+        }
+       
     }
     
 });
@@ -98,6 +104,7 @@ async function solicitarCalculo(valor1, valor2, operacao) {
         }
 
     const dados = {
+        usuario_id: 1,
         valor1: Number(String(valor1).replace(',','.')),
         valor2: Number(String(valor2).replace(',','.')),
         operacao: operacoes[operacao]
