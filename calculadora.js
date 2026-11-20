@@ -28,10 +28,10 @@ botaoHistorico.addEventListener("click", async () => {
     if(!aberto){
         //mostrarHistorico()
         const resultado = await fetch('/api/calculos?usuario_id=1', {
-            method: 'GET',
-            
-            
+            method: 'GET',    
         });
+        const dadosResposta = await resultado.json();
+        mostrarHistorico(dadosResposta);
     }
     
 });
@@ -180,9 +180,9 @@ botoesOperacoes.forEach((botao)=>{
         
 })
 
-function mostrarHistorico() {
-    const registro = localStorage.getItem('historico');
-    const historico = registro ? JSON.parse(registro): [];
+function mostrarHistorico(dadosHistorico) {
+    //const registro = localStorage.getItem('historico');
+    const historico = dadosHistorico || [];
     console.log(historico)
         if(historico.length === 0 )  {
             popoverHistorico.innerText = 'nenhum calculo realizado ainda'
@@ -190,7 +190,7 @@ function mostrarHistorico() {
             popoverHistorico.innerText = ''
             historico.forEach((calculo) =>{
                 popoverHistorico.innerText += 
-                `${calculo.valorAnterior} ${operador[calculo.operacaoAtual]} ${calculo.valorAtual} = ${calculo.resultado}\n`
+                `${calculo.valorAnterior} ${operador[calculo.operacao]} ${calculo.valorAtual} = ${calculo.resultado}\n`
             })
         }
 }
