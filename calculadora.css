@@ -51,12 +51,21 @@ button {
     margin-bottom: 27px;
 }
 #mensagem-aviso {
-    min-width: 200px;
-    height: 200px;
-    display: fixed;
-    color: #ff4d4f;
-    font-size: 12px;
-    margin-top: 4px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: min(350px, calc(100vw - 40px));
+    margin: 0;
+    padding: 12px 16px;
+    border: 1px solid #8c6b27;
+    border-radius: 12px;
+    background-color: #332b1b;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+    color: #f7dfa1;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 .marca {
     display: grid;
