@@ -178,7 +178,14 @@ botoesOperacoes.forEach((botao)=>{
         };
         
 
-        await escolherOperacao(estado, botao.dataset.operation, solicitarCalculo);
+        await escolherOperacao(
+            estado,
+            botao.dataset.operation,
+            async (...argumentos) => {
+                const { resultado } = await solicitarCalculo(...argumentos);
+                return resultado;
+            }
+        );
         
         if (estado.valorAnterior !== null && estado.operacaoAtual !== null) {
             const simbolo = operador[estado.operacaoAtual]
@@ -202,19 +209,27 @@ function mostrarHistorico(dadosHistorico) {
         'subtrair': '-',
         'multiplicar': '*',
         'dividir': '/'
-    }
-    //const registro = localStorage.getItem('historico');
+    };
+
     const historico = dadosHistorico || [];
-    console.log(historico)
-        if(historico.length === 0 )  {
-            popoverHistorico.innerText = 'nenhum calculo realizado ainda'
-        } else{
-            popoverHistorico.innerText = ''
-            historico.forEach((calculo) =>{
-                popoverHistorico.innerText += 
-                `${calculo.valor1} ${simbolo[calculo.operacao]} ${calculo.valor2} = ${calculo.resultado}\n`
-            })
-        }
+
+    if (historico.length === 0) {
+        popoverHistorico.innerText = 'Nenhum cálculo realizado ainda';
+        return;
+    }
+
+    // Mantém somente os cinco cálculos mais recentes.
+    const ultimosCalculos = historico.slice(-5);
+
+    // Limpa o conteúdo anterior do popover.
+    popoverHistorico.innerText = '';
+
+    // Exibe os cálculos mais recentes primeiro.
+    ultimosCalculos.reverse().forEach((calculo) => {
+        const linha = `${calculo.valor1} ${simbolo[calculo.operacao]} ${calculo.valor2} = ${calculo.resultado}`;
+
+        popoverHistorico.innerText += linha + '\n';
+    });
 }
 
 
@@ -227,7 +242,8 @@ async function calcularNoServidor() {
 
 
     try {
-        const {resultado, avisos} = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
+        const {resultado, avisos: avisosResposta} = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
+        const avisos = avisosResposta || {};
         try {
             const resultadojson = {
             valorAtual:valorAtual,
@@ -251,13 +267,24 @@ async function calcularNoServidor() {
 
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual);
-        mensagemAviso.textContent = '';
+
         if(avisos.mysql) {
             console.error('Erro ao salvar cálculo:', avisos.mysql);
+            setTimeout(() => {
+                mensagemAviso.textContent = '';
+                mensagemAviso.style.display = 'none';
+            }, 5000);
+            mensagemAviso.style.display = 'block';
             mensagemAviso.textContent = 'Calculo realizado mas impossível salvar no banco de dados';
         }
         if(avisos.historico) {
             console.error('calculo realizado mas não salvo no histórico', avisos.historico);
+
+            setTimeout(() => {
+                mensagemAviso.textContent = '';
+                mensagemAviso.style.display = 'none';
+            }, 5000);
+            mensagemAviso.style.display = 'block';
             mensagemAviso.textContent = 'calculo realizado mas não salvo no histórico';
         }
         

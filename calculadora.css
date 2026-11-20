@@ -51,6 +51,7 @@ button {
     margin-bottom: 27px;
 }
 #mensagem-aviso {
+    display: none;
     position: fixed;
     top: 20px;
     right: 20px;

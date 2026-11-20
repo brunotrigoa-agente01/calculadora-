@@ -54,5 +54,68 @@
     "operacao": "subtrair",
     "resultado": 65,
     "dataHora": "2026-11-20T14:19:38.103Z"
+  },
+  {
+    "valor1": 8,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 16,
+    "dataHora": "2026-11-20T17:33:08.414Z"
+  },
+  {
+    "valor1": 5,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 10,
+    "dataHora": "2026-11-20T17:37:34.524Z"
+  },
+  {
+    "valor1": 6,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 12,
+    "dataHora": "2026-11-20T17:38:05.350Z"
+  },
+  {
+    "valor1": 5,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 10,
+    "dataHora": "2026-11-20T17:40:11.973Z"
+  },
+  {
+    "valor1": 9,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 18,
+    "dataHora": "2026-11-20T17:41:28.517Z"
+  },
+  {
+    "valor1": 8,
+    "valor2": 5,
+    "operacao": "subtrair",
+    "resultado": 3,
+    "dataHora": "2026-11-20T17:41:55.025Z"
+  },
+  {
+    "valor1": 7,
+    "valor2": 4,
+    "operacao": "multiplicar",
+    "resultado": 28,
+    "dataHora": "2026-11-20T17:42:17.945Z"
+  },
+  {
+    "valor1": 8,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 16,
+    "dataHora": "2026-11-20T18:01:46.046Z"
+  },
+  {
+    "valor1": 8,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 16,
+    "dataHora": "2026-11-20T18:10:37.550Z"
   }
 ]
