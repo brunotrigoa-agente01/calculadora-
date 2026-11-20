@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "valor1": 7,
+    "valor2": 6,
+    "operacao": "multiplicar",
+    "resultado": 42,
+    "dataHora": "2026-11-20T09:25:30.290Z"
+  }
+]

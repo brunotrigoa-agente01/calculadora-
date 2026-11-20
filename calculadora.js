@@ -20,14 +20,20 @@ let valorAnterior = null; // Armazena o valor anterior para operações
 let operacaoAtual = null; // Armazena a operação atual (+, -, *, /)
 let precisaLimparDisplay = false; // Indica se o display precisa ser limpo antes de digitar um novo número
 
-botaoHistorico.addEventListener("click", () => {
+botaoHistorico.addEventListener("click", async () => {
     const aberto = !popoverHistorico.hidden;
     popoverHistorico.hidden = aberto;
     botaoHistorico.setAttribute("aria-expanded", String(!aberto));
 
     if(!aberto){
-        mostrarHistorico()
+        //mostrarHistorico()
+        const resultado = await fetch('/calculos?usuario_id=1', {
+            method: 'GET',
+            
+            
+        });
     }
+    
 });
 
 function atualizarDisplay(valor) {

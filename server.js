@@ -29,8 +29,8 @@ function criaServidor(salvarHistorico, salvarCalculo) {
     const limite_corpo = 10 * 1024; // 10 KB
 
     const servidor = http.createServer(
-        {maxHeaderSize: 16 *1024},
-        (req, res) => {
+        {maxHeaderSize: 16 *1024}, 
+        async (req, res) => {
 
     const arquivoPublico = arquivosPublicos[req.url];
     
@@ -87,7 +87,7 @@ function criaServidor(salvarHistorico, salvarCalculo) {
                     }
                     if(tamanho > limite_corpo){
                         res.statusCode = 413
-                        res.setHeader('content-Type', 'application/json; charset=utf-8')
+                    res.setHeader('content-Type', 'application/json; charset=utf-8')
                         res.end(JSON.stringify({erro: 'Limite de tamanho do corpo excedido'}))
                         return;
                     }
@@ -174,11 +174,9 @@ function criaServidor(salvarHistorico, salvarCalculo) {
                     
                 } catch (erro) {
                     erroHistorico = erro;
-                    console.error('Erro ao salvar histórico:', erroHistorico);
-
-                    
+                    console.error('Erro ao salvar histórico:', erroHistorico);     
                 }
-                
+
                 try {
                     await salvarCalculo(dados.usuario_id, dados.valor1, dados.valor2, dados.operacao, resultado);
                 } catch (erro) {
@@ -200,6 +198,20 @@ function criaServidor(salvarHistorico, salvarCalculo) {
                 res.end(JSON.stringify({resultado:resultado}))
         });
 
+        
+
+        }else if (method === 'GET' && url.pathname === '/api/calculos'){
+            
+            const usuario_id = url.searchParams.get('usuario_id');
+            const resultado = await listarCalculos(usuario_id);
+            res.statusCode = 200;
+            res.setHeader('content-Type', 'application/json; charset=utf-8')
+            res.end(JSON.stringify(resultado));
+                
+           
+            
+
+
         }else if(req.url !='/calcular') {
             res.statusCode = 404;
             res.setHeader('content-Type', 'application/json; charset=utf-8');
@@ -217,3 +229,5 @@ function criaServidor(salvarHistorico, salvarCalculo) {
     
 }
 module.exports = {criaServidor}
+
+

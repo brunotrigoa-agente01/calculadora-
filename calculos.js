@@ -12,6 +12,12 @@ async function salvarCalculo(usuario_id, valor1, valor2, operacao, resultado) {
     return enviar.insertId;
 }
 
+async function listarCalculos(usuario_id) {
+    const [calculos] = await banco.execute('select * from calculos where usuario_id = ?', [usuario_id]);
+    return calculos;
+}
+
 module.exports = {
-    salvarCalculo
+    salvarCalculo,
+    listarCalculos
 };
