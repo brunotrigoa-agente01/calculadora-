@@ -192,7 +192,7 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarU
                     
                 }
                 if (erroCalculo) {
-                    avisos.msql = 'Erro ao salvar cálculo';
+                    avisos.mysql = 'Erro ao salvar no banco de dados';
                     
                 }
 

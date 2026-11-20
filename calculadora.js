@@ -251,6 +251,7 @@ async function calcularNoServidor() {
 
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual);
+        mensagemAviso.textContent = '';
         if(avisos.mysql) {
             console.error('Erro ao salvar cálculo:', avisos.mysql);
             mensagemAviso.textContent = 'Calculo realizado mas impossível salvar no banco de dados';
@@ -259,7 +260,7 @@ async function calcularNoServidor() {
             console.error('calculo realizado mas não salvo no histórico', avisos.historico);
             mensagemAviso.textContent = 'calculo realizado mas não salvo no histórico';
         }
-        mensagemAviso.textContent = '';
+        
         valorAnterior = null;
         operacaoAtual = null;
         precisaLimparDisplay = true;
