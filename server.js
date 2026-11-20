@@ -167,27 +167,27 @@ function criaServidor(salvarHistorico, salvarCalculo) {
                     return;
 
                 }
-
+                let erroHistorico = null;
+                let erroCalculo = null;
                 try {
                     await salvarHistorico(dados.operacao, dados.valor1, dados.valor2, resultado, new Date().toISOString());
                     
-                } catch (erro) {
-                    console.error('Erro ao salvar histórico:', erro);
+                } catch (erroHistorico) {
+                    console.error('Erro ao salvar histórico:', erroHistorico);
 
-                    res.statusCode = 200;
-                    res.setHeader('content-Type', 'application/json; charset=utf-8')
-                    res.end(JSON.stringify({ resultado }));
                     
                 }
                 try {
                     await salvarCalculo(dados.usuario_id, dados.valor1, dados.valor2, dados.operacao, resultado);
-                } catch (erro) {
-                    console.error('Erro ao salvar cálculo:', erro);
+                } catch (erroCalculo) {
+                    console.error('Erro ao salvar cálculo:', erroCalculo);
 
-                    res.statusCode = 500;
+                    
+                }
+                if (erroHistorico || erroCalculo) {
+                    res.statusCode = 200;
                     res.setHeader('content-Type', 'application/json; charset=utf-8')
-                    res.end(JSON.stringify({ resultado, erro: 'Erro ao salvar cálculo no banco de dados' }));
-                    return;
+                    res.end(JSON.stringify({ resultado }));
                 }
                 res.statusCode = 200
                 res.setHeader('content-Type', 'application/json; charset=utf-8')
