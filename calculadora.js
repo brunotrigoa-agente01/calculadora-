@@ -181,6 +181,12 @@ botoesOperacoes.forEach((botao)=>{
 })
 
 function mostrarHistorico(dadosHistorico) {
+    const simbolo = {
+        'somar': '+',
+        'subtrair': '-',
+        'multiplicar': '*',
+        'dividir': '/'
+    }
     //const registro = localStorage.getItem('historico');
     const historico = dadosHistorico || [];
     console.log(historico)
@@ -190,7 +196,7 @@ function mostrarHistorico(dadosHistorico) {
             popoverHistorico.innerText = ''
             historico.forEach((calculo) =>{
                 popoverHistorico.innerText += 
-                `${calculo.valorAnterior} ${operador[calculo.operacao]} ${calculo.valorAtual} = ${calculo.resultado}\n`
+                `${calculo.valor1} ${simbolo[calculo.operacao]} ${calculo.valor2} = ${calculo.resultado}\n`
             })
         }
 }
