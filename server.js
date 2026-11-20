@@ -186,17 +186,20 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarU
 
                     
                 }
-
-                if (erroHistorico || erroCalculo) {
-                    res.statusCode = 200;
-                    res.setHeader('content-Type', 'application/json; charset=utf-8')
-                    res.end(JSON.stringify({ resultado }));
-                    return;
+                const avisos = {}
+                if (erroHistorico ) {
+                    avisos.historico = 'Erro ao salvar histórico';
+                    
                 }
+                if (erroCalculo) {
+                    avisos.msql = 'Erro ao salvar cálculo';
+                    
+                }
+
                 res.statusCode = 200
                 res.setHeader('content-Type', 'application/json; charset=utf-8')
                 console.log(`${dados.valor1} ${dados.operacao} ${dados.valor2} = ${resultado}`)
-                res.end(JSON.stringify({resultado:resultado}))
+                res.end(JSON.stringify({resultado:resultado, avisos: avisos}))
         });
 
         

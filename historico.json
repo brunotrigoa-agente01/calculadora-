@@ -26,5 +26,33 @@
     "operacao": "dividir",
     "resultado": 250,
     "dataHora": "2026-11-20T12:34:55.516Z"
+  },
+  {
+    "valor1": 10,
+    "valor2": 5,
+    "operacao": "somar",
+    "resultado": 15,
+    "dataHora": "2026-11-20T14:11:22.353Z"
+  },
+  {
+    "valor1": 7,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 14,
+    "dataHora": "2026-11-20T14:14:45.135Z"
+  },
+  {
+    "valor1": 8,
+    "valor2": 5,
+    "operacao": "multiplicar",
+    "resultado": 40,
+    "dataHora": "2026-11-20T14:17:44.249Z"
+  },
+  {
+    "valor1": 70,
+    "valor2": 5,
+    "operacao": "subtrair",
+    "resultado": 65,
+    "dataHora": "2026-11-20T14:19:38.103Z"
   }
 ]

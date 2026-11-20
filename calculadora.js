@@ -7,6 +7,7 @@ const botoesOperacoes = document.querySelectorAll(".tecla-operacao");
 const botoesFuncoes = document.querySelectorAll("[data-action]");
 const botaoHistorico = document.getElementById("botao-historico");
 const popoverHistorico = document.getElementById("historico-popover");
+const mensagemAviso = document.getElementById("mensagem-aviso");
 
 // Estado guardado pelo JavaScript, separado do texto que aparece no visor.
 const operador  = {
@@ -47,7 +48,7 @@ botaoHistorico.addEventListener("click", async () => {
         };
         
 }
-    
+            
 });
 
 function atualizarDisplay(valor) {
@@ -127,12 +128,12 @@ async function solicitarCalculo(valor1, valor2, operacao) {
         },
         body: JSON.stringify(dados) 
     });
-    const dadosResposta = await resposta.json();
+    const {resultado, avisos} = await resposta.json();
 
     if (!resposta.ok) {
-        throw new Error(dadosResposta.erro || 'Erro na requisição: ' + resposta.statusText);
+        throw new Error('Erro na requisição: ' + resposta.statusText);
     }
-    return dadosResposta.resultado;
+    return {resultado, avisos}; 
 };
     
 function digitarNumero(numero) {
@@ -226,14 +227,15 @@ async function calcularNoServidor() {
 
 
     try {
-        const resultado = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
+        const {resultado, avisos} = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
         try {
             const resultadojson = {
             valorAtual:valorAtual,
             valorAnterior:valorAnterior,
             operacaoAtual:operacaoAtual,
             resultado:resultado,
-            dataHora: new Date().toISOString()
+            avisos: avisos || null,
+            data: new Date().toISOString()
         }
             const conteudo = localStorage.getItem('historico')
             const registro = conteudo ? JSON.parse(conteudo): []
@@ -249,7 +251,15 @@ async function calcularNoServidor() {
 
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual);
-
+        if(avisos.mysql) {
+            console.error('Erro ao salvar cálculo:', avisos.mysql);
+            mensagemAviso.textContent = 'Calculo realizado mas impossível salvar no banco de dados';
+        }
+        if(avisos.historico) {
+            console.error('calculo realizado mas não salvo no histórico', avisos.historico);
+            mensagemAviso.textContent = 'calculo realizado mas não salvo no histórico';
+        }
+        mensagemAviso.textContent = '';
         valorAnterior = null;
         operacaoAtual = null;
         precisaLimparDisplay = true;
@@ -257,6 +267,7 @@ async function calcularNoServidor() {
     } catch (erro) {
         console.error('Erro ao calcular:', erro);
         valorAtual = "Error";
+        
         atualizarDisplay(valorAtual);
         valorAnterior = null;
         operacaoAtual = null;

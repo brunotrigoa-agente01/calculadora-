@@ -50,7 +50,14 @@ button {
     gap: 12px;
     margin-bottom: 27px;
 }
-
+#mensagem-aviso {
+    min-width: 200px;
+    height: 200px;
+    display: fixed;
+    color: #ff4d4f;
+    font-size: 12px;
+    margin-top: 4px;
+}
 .marca {
     display: grid;
     width: 42px;
