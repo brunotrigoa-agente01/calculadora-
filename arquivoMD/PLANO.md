@@ -439,16 +439,34 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 
 ## Dúvidas e decisões pendentes
 
-- MySQL foi definido como o primeiro banco de dados do projeto e já foi instalado/configurado localmente; ainda é necessário estabelecer e testar a conexão Node.js/MySQL nas Fases 1 a 3 da Etapa 7.
-- Definir durante a Fase 3 da Etapa 7 a configuração segura de credenciais e a configuração de testes, sem migrar a persistência antes de compreender e validar a integração.
-- Confirmar como o estudante protegerá as credenciais localmente e evitará que senhas sejam incluídas no código-fonte ou no GitHub.
-- Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: verificar o comportamento quando a leitura ou gravação do arquivo falha.
-- Retomar a Etapa 6, atualmente adiada temporariamente e incompleta, se necessário: avaliar caminho de arquivo independente da pasta de inicialização e segurança contra gravações simultâneas.
-- Express continua como atividade futura; não é necessário migrar imediatamente do servidor HTTP nativo.
-- Documentar ou automatizar a inicialização do servidor necessária para os testes de API.
-- Planejar cada projeto futuro separadamente quando a calculadora e os conhecimentos necessários justificarem avançar para ele.
-- Comparar hospedagem do portfólio e das aplicações somente depois de validar a integração local com MySQL e conhecer os requisitos de publicação; não contratar agora.
-- Definir como registrar evidências de conhecimentos consolidados e tópicos a revisar conforme forem demonstrados durante os projetos.
+Na revisão do repositório em 2026-11-20, foram conferidos os arquivos de configuração, servidor, persistência, interface e testes citados abaixo. Os itens organizam trabalho futuro; não autorizam implementar tudo em sequência sem validar cada etapa. A Etapa 7 continua em andamento, com conexão Node.js/MySQL como foco atual. Nenhuma suíte de testes foi executada nesta revisão.
+
+### Problemas atuais e próximos passos
+
+1. **Validar os scripts do projeto.** Na cópia de trabalho, `package.json` agora define `npm test` como `node --test testes/calcular_logica.js testes/calcular_api.js testes/encadeamento.mjs` e `npm start` como `node inicializarServer.js`, que é o arquivo existente. Essas configurações estão em alterações locais ainda não commitadas. A configuração está confirmada por inspeção, mas os comandos não foram executados; portanto, seu funcionamento não está validado. Antes de executar `npm test`, planejar o isolamento: os testes de lógica gravam em `historico.json` e os testes da API usam `localhost:3000`.
+2. **Ordenar e limitar o histórico MySQL.** `calculos.js` consulta por `usuario_id`, sem `ORDER BY` nem `LIMIT`. O guia de comandos SQL do projeto usa `ORDER BY id DESC` como critério de registros mais recentes; confirmar esse critério na tabela e então limitar a consulta aos cinco mais recentes. A ordem retornada pelo banco e a ordem de exibição devem concordar. A conexão Node.js/MySQL continua sendo pré-requisito da Etapa 7.
+3. **Testar `GET /api/calculos`.** A rota já existe em `server.js`, inclusive com validação de `usuario_id` e verificação do usuário, mas `testes/calcular_api.js` não cobre essa rota. Criar testes para sucesso e respostas de erro relevantes sem presumir que o endpoint já foi testado.
+4. **Fortalecer os testes dos avisos de persistência.** `server.js` devolve `avisos.historico` e/ou `avisos.mysql` quando as persistências falham. O teste com funções falsas em `testes/calcular_logica.js` provoca falhas, mas só verifica o resultado e o status HTTP; acrescentar verificações dos avisos, inclusive quando ambas as persistências falham.
+5. **Isolar e tornar reproduzíveis os testes.** `testes/calcular_logica.js` lê e grava `historico.json` no diretório de execução. `testes/calcular_api.js` aponta para `localhost:3000` e pressupõe um servidor iniciado à parte. Planejar isolamento dos dados e inicialização/encerramento do servidor pela própria rotina de teste. Não declarar essa pendência resolvida apenas porque os testes passaram em uma cópia temporária.
+
+### Melhorias a avaliar
+
+6. **Definir a responsabilidade de cada armazenamento.** Atualmente, o fluxo tenta persistir no JSON e no MySQL no servidor, enquanto `calculadora.js` também mantém registros no LocalStorage. Documentar o propósito e o comportamento esperado de cada um. Não remover armazenamento nem migrar dados antes de planejar e testar a migração, preservando a decisão já aprovada para as Etapas 6 e 7.
+7. **Avaliar um limite para `historico.json`.** `historico.js` acrescenta registros sem política de retenção ou limite. Definir se é necessário limitar, arquivar ou manter os dados e como testar a decisão. Esta avaliação não retoma automaticamente a Etapa 6, que continua adiada e incompleta.
+8. **Exibir avisos simultâneos no frontend.** Em `calculadora.js`, o aviso de falha do MySQL pode ser imediatamente sobrescrito pelo aviso do histórico; os temporizadores de ocultação também podem competir. Planejar uma apresentação que não perca avisos quando as duas persistências falharem, sem alterar agora o funcionamento da interface.
+
+### Segurança futura
+
+9. **Planejar autenticação e autorização em uma etapa futura.** `calculadora.js` envia `usuario_id` fixo, e `server.js` recebe esse identificador do cliente; `verificarUsuario()` confirma apenas a existência do usuário, não a identidade autenticada. Planejar sessões/autenticação e autorização para garantir que cada pessoa acesse somente os próprios cálculos. Não implementar cadastro, login, painel administrativo ou autenticação antecipadamente; preservar as dependências e o escopo da fase futura já aprovada.
+
+### Outras pendências já registradas
+
+- Na Etapa 7, estabelecer e testar a conexão Node.js/MySQL com credenciais protegidas fora do código-fonte; não migrar ainda o histórico JSON.
+- Definir como proteger as credenciais localmente e impedir que senhas sejam incluídas no código-fonte ou enviadas ao GitHub.
+- Se a Etapa 6 for retomada, testar falhas de leitura/gravação em arquivo, avaliar o caminho relativo a `historico.json` e gravações simultâneas. A etapa permanece adiada e incompleta.
+- Express continua futuro; manter `node:http`, sem substituir a arquitetura aprovada.
+- Planejar cada projeto futuro separadamente; avaliar hospedagem somente após validar a integração local com MySQL, sem contratar agora.
+- Registrar evidências de aprendizagem e compreensão somente quando forem demonstradas.
 
 ## Histórico de mudanças
 
@@ -476,6 +494,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **2026-11-15** — Por decisão do estudante, a Etapa 6 permanece adiada temporariamente, incompleta e preservada para possível retomada, sem excluir `historico.js` ou `historico.json`. A Etapa 7 foi reorganizada para estudar fundamentos relacionais, MySQL/SQL e integração Node.js/MySQL antes da preparação de hospedagem; PostgreSQL fica como estudo posterior e Express continua futuro. Os estudos de validação/AppSec foram pausados temporariamente, sem serem considerados concluídos ou abandonados. Nenhum código foi alterado nesta atualização.
 - **2026-11-19** — Registrado o progresso confirmado do ambiente e do MySQL: `npm.cmd init -y` foi executado, `mysql2` 3.24.6 foi instalado em projeto CommonJS e os arquivos de dependências foram gerados/atualizados. MySQL Server 8.0 e MySQL Workbench foram configurados localmente, o serviço MySQL80 usa a porta 3306 e o banco `calculadora` contém `usuarios` e `calculos`, chave estrangeira, João com ID 1 e um cálculo associado. Consultas SQL com `SELECT`, `WHERE`, `INNER JOIN` e outras operações foram praticadas. Estas evidências não confirmam a integração Node.js/MySQL nem concluem fases de banco de dados; cadastro, login, autenticação e histórico individual permanecem futuros. A próxima atividade prática será proteger credenciais, conectar Node.js ao MySQL com `mysql2` e testar a conexão e consultas com tratamento de erros.
 - **2026-11-20** — Executado `node --test testes/calcular_logica.js`: **13 testes executados, 13 aprovados e 0 falhas**. O teste com funções falsas de persistência que rejeitam foi aprovado; o servidor registrou no console os erros simulados de `salvarHistorico` e `salvarCalculo` e retornou o resultado do cálculo sem falha no teste. A execução validou a correção do fluxo de resposta do servidor para esse cenário. Os testes adicionais de independência entre os salvamentos foram adiados e continuam pendentes. A Etapa 6 permanece adiada e incompleta; o histórico JSON e a arquitetura atual foram preservados.
+- **2026-11-20** — Revisado o estado de configuração, persistência, rotas, frontend e testes, sem executar a suíte. A cópia local de `package.json` contém scripts `test` e `start` configurados, mas as alterações ainda não estão commitadas nem foram executadas. Registradas, na ordem, as pendências de scripts, ordenação/limite MySQL, testes de `GET /api/calculos`, avisos de falha de persistência e isolamento dos testes; melhorias de responsabilidade dos armazenamentos, limite do histórico JSON e avisos simultâneos; e o planejamento futuro de autenticação/autorização. Preservados o foco atual da Etapa 7, o adiamento incompleto da Etapa 6, `node:http`, os armazenamentos existentes e a fase futura de usuários. Nenhuma funcionalidade foi marcada como concluída por esta revisão.
 
 ## Conceitos
 
