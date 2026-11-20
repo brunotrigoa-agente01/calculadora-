@@ -27,7 +27,7 @@ botaoHistorico.addEventListener("click", async () => {
 
     if(!aberto){
         //mostrarHistorico()
-        const resultado = await fetch('/calculos?usuario_id=1', {
+        const resultado = await fetch('api/calculos?usuario_id=1', {
             method: 'GET',
             
             

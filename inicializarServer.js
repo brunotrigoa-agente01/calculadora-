@@ -1,9 +1,10 @@
 const {criaServidor} = require('./server.js')
 const { salvarHistorico } = require('./historico.js');
-const { salvarCalculo } = require('./calculos.js');
+const { salvarCalculo,listarCalculos } = require('./calculos.js');
 
 
-const servidor = criaServidor(salvarHistorico, salvarCalculo);
+
+const servidor = criaServidor(salvarHistorico, salvarCalculo, listarCalculos);
 
 const porta = process.env.PORT || 3000;
 

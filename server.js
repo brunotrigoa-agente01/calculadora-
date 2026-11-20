@@ -3,7 +3,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
 
-function criaServidor(salvarHistorico, salvarCalculo) {
+function criaServidor(salvarHistorico, salvarCalculo, listarCalculos) {
     
     const producao = process.env.NODE_ENV === 'production';
     let arquivosPublicos = {
@@ -31,8 +31,9 @@ function criaServidor(salvarHistorico, salvarCalculo) {
     const servidor = http.createServer(
         {maxHeaderSize: 16 *1024}, 
         async (req, res) => {
+     const url = new URL(req.url, `http://localhost`);
 
-    const arquivoPublico = arquivosPublicos[req.url];
+    const arquivoPublico = arquivosPublicos[url.pathname];
     
 
         if (req.method === 'GET' && arquivoPublico) {
@@ -59,19 +60,19 @@ function criaServidor(salvarHistorico, salvarCalculo) {
 
             return;
 
-        }else if (req.method === 'GET' && req.url === '/api') {
+        }else if (req.method === 'GET' && url.pathname === '/api') {
             res.statusCode = 200;
             res.setHeader('content-Type', 'application/json; charset=utf-8')
             const resposta = {mensagem: 'API da calculadora funcionando'};
             res.end(JSON.stringify(resposta))
 
-        }else if (req.url === '/api') {
+        }else if (url.pathname === '/api') {
             res.statusCode = 405;
             res.setHeader('content-Type', 'application/json; charset=utf-8')
             const resposta = {erro: 'Método não reconhecido'};
             res.end(JSON.stringify(resposta))
 
-        }else if(req.method === 'POST' && req.url === '/calcular') {
+        }else if(req.method === 'POST' && url.pathname === '/calcular') {
             let corpo = '';
             let limiteExcedido = false;
             let tamanhoRecebido = 0;
