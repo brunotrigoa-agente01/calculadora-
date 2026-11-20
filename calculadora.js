@@ -36,6 +36,7 @@ botaoHistorico.addEventListener("click", async () => {
         }else{
             console.error('Erro ao buscar histórico:', resultado.statusText);
             popoverHistorico.innerText = 'Erro ao buscar histórico';
+            throw new Error('Erro ao buscar histórico: ' + resultado.statusText);
         }
        
     }
