@@ -3,7 +3,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { calcular} = require('./calcular.js');
 
-function criaServidor(salvarHistorico, salvarCalculo, listarCalculos) {
+function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarUsuario) {
     
     const producao = process.env.NODE_ENV === 'production';
     let arquivosPublicos = {
@@ -202,12 +202,35 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos) {
         
 
         }else if (req.method === 'GET' && url.pathname === '/api/calculos'){
-            
-            const usuario_id = url.searchParams.get('usuario_id');
-            const resultado = await listarCalculos(usuario_id);
-            res.statusCode = 200;
-            res.setHeader('content-Type', 'application/json; charset=utf-8')
-            res.end(JSON.stringify(resultado));
+
+
+
+            try {
+                const usuario_id = url.searchParams.get('usuario_id');
+                
+                if (!usuario_id || !Number.isFinite(Number(usuario_id)) || Number(usuario_id) <= 0) {
+                    res.statusCode = 400;
+                    res.setHeader('content-Type', 'application/json; charset=utf-8');
+                    res.end(JSON.stringify({ erro: 'Parâmetro usuario_id é obrigatório e deve ser um número válido' }));
+                    return;
+                }else if (!await verificarUsuario(usuario_id)) {
+                    res.statusCode = 404;
+                    res.setHeader('content-Type', 'application/json; charset=utf-8');
+                    res.end(JSON.stringify({ erro: 'Usuário não encontrado' }));
+                    return;
+                }
+
+                const resultado = await listarCalculos(usuario_id);
+                res.statusCode = 200;
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify(resultado));
+
+            }catch (erro) {
+                console.error('Erro ao listar cálculos:', erro);
+                res.statusCode = 500;
+                res.setHeader('content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({erro: 'Erro ao listar cálculos'}));
+            }
                 
            
             

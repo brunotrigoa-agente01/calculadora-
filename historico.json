@@ -12,5 +12,19 @@
     "operacao": "dividir",
     "resultado": 37.5,
     "dataHora": "2026-11-20T12:03:22.894Z"
+  },
+  {
+    "valor1": 150,
+    "valor2": 2,
+    "operacao": "multiplicar",
+    "resultado": 300,
+    "dataHora": "2026-11-20T12:25:51.146Z"
+  },
+  {
+    "valor1": 500,
+    "valor2": 2,
+    "operacao": "dividir",
+    "resultado": 250,
+    "dataHora": "2026-11-20T12:34:55.516Z"
   }
 ]

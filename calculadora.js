@@ -27,19 +27,26 @@ botaoHistorico.addEventListener("click", async () => {
 
     if(!aberto){
         //mostrarHistorico()
-        const resultado = await fetch('/api/calculos?usuario_id=1', {
-            method: 'GET',    
-        });
-        if (resultado.ok) {
-            const dadosResposta = await resultado.json();
-            mostrarHistorico(dadosResposta);
-        }else{
-            console.error('Erro ao buscar histórico:', resultado.statusText);
+        try {
+            const resultado = await fetch('/api/calculos?usuario_id=1', {
+                method: 'GET',    
+            });
+
+            if (resultado.ok) {
+                const dadosResposta = await resultado.json();
+                mostrarHistorico(dadosResposta);
+            }else {
+                throw new Error('Erro na requisição: ' + resultado.statusText);
+            }
+
+
+        }catch (erro) {
+            console.error('Erro ao buscar histórico:', erro);
             popoverHistorico.innerText = 'Erro ao buscar histórico';
-            throw new Error('Erro ao buscar histórico: ' + resultado.statusText);
-        }
-       
-    }
+            
+        };
+        
+}
     
 });
 

@@ -170,7 +170,13 @@ test('testar criação de função falsa do salvarHistorico',async (t)  => {
     const calculoFalso = async () => {
         throw new Error('erro ao salvar arquivo');
     }
-    const servidor  = criaServidor(funcaoFalsa, calculoFalso);
+    const listarCalculosFalso = async () => {
+        throw new Error('erro ao listar cálculos');
+    }
+    const verificarUsuarioFalso = async () => {
+        throw new Error('erro ao verificar usuário');
+    }
+    const servidor  = criaServidor(funcaoFalsa, calculoFalso, listarCalculosFalso, verificarUsuarioFalso);
     t.after(() =>{
         servidor.close();
     })
