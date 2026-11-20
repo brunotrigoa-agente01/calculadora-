@@ -1,121 +1,51 @@
 [
   {
-    "valor1": 7,
-    "valor2": 6,
+    "valor1": 10,
+    "valor2": 5,
+    "operacao": "somar",
+    "resultado": 15,
+    "dataHora": "2026-11-20T21:04:37.533Z"
+  },
+  {
+    "valor1": 10,
+    "valor2": 5,
+    "operacao": "subtrair",
+    "resultado": 5,
+    "dataHora": "2026-11-20T21:04:37.598Z"
+  },
+  {
+    "valor1": 10,
+    "valor2": 5,
     "operacao": "multiplicar",
-    "resultado": 42,
-    "dataHora": "2026-11-20T09:25:30.290Z"
+    "resultado": 50,
+    "dataHora": "2026-11-20T21:04:37.612Z"
   },
   {
-    "valor1": 75,
-    "valor2": 2,
+    "valor1": 10,
+    "valor2": 5,
     "operacao": "dividir",
-    "resultado": 37.5,
-    "dataHora": "2026-11-20T12:03:22.894Z"
-  },
-  {
-    "valor1": 150,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 300,
-    "dataHora": "2026-11-20T12:25:51.146Z"
-  },
-  {
-    "valor1": 500,
-    "valor2": 2,
-    "operacao": "dividir",
-    "resultado": 250,
-    "dataHora": "2026-11-20T12:34:55.516Z"
+    "resultado": 2,
+    "dataHora": "2026-11-20T21:04:37.624Z"
   },
   {
     "valor1": 10,
     "valor2": 5,
     "operacao": "somar",
     "resultado": 15,
-    "dataHora": "2026-11-20T14:11:22.353Z"
+    "dataHora": "2026-11-20T21:04:37.695Z"
   },
   {
-    "valor1": 7,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 14,
-    "dataHora": "2026-11-20T14:14:45.135Z"
-  },
-  {
-    "valor1": 8,
+    "valor1": 10,
     "valor2": 5,
-    "operacao": "multiplicar",
-    "resultado": 40,
-    "dataHora": "2026-11-20T14:17:44.249Z"
+    "operacao": "somar",
+    "resultado": 15,
+    "dataHora": "2026-11-20T21:04:37.704Z"
   },
   {
-    "valor1": 70,
+    "valor1": 10,
     "valor2": 5,
-    "operacao": "subtrair",
-    "resultado": 65,
-    "dataHora": "2026-11-20T14:19:38.103Z"
-  },
-  {
-    "valor1": 8,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 16,
-    "dataHora": "2026-11-20T17:33:08.414Z"
-  },
-  {
-    "valor1": 5,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 10,
-    "dataHora": "2026-11-20T17:37:34.524Z"
-  },
-  {
-    "valor1": 6,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 12,
-    "dataHora": "2026-11-20T17:38:05.350Z"
-  },
-  {
-    "valor1": 5,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 10,
-    "dataHora": "2026-11-20T17:40:11.973Z"
-  },
-  {
-    "valor1": 9,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 18,
-    "dataHora": "2026-11-20T17:41:28.517Z"
-  },
-  {
-    "valor1": 8,
-    "valor2": 5,
-    "operacao": "subtrair",
-    "resultado": 3,
-    "dataHora": "2026-11-20T17:41:55.025Z"
-  },
-  {
-    "valor1": 7,
-    "valor2": 4,
-    "operacao": "multiplicar",
-    "resultado": 28,
-    "dataHora": "2026-11-20T17:42:17.945Z"
-  },
-  {
-    "valor1": 8,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 16,
-    "dataHora": "2026-11-20T18:01:46.046Z"
-  },
-  {
-    "valor1": 8,
-    "valor2": 2,
-    "operacao": "multiplicar",
-    "resultado": 16,
-    "dataHora": "2026-11-20T18:10:37.550Z"
+    "operacao": "somar",
+    "resultado": 15,
+    "dataHora": "2026-11-20T21:04:37.723Z"
   }
 ]

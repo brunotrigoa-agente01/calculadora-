@@ -4,8 +4,8 @@
   "description": "",
   "main": "calculadora.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "node --test testes/calcular_logica.js testes/calcular_api.js testes/encadeamento.mjs",
+    "start": "node inicializarServer.js"
   },
   "repository": {
     "type": "git",
