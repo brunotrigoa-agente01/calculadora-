@@ -208,7 +208,7 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarU
             try {
                 const usuario_id = url.searchParams.get('usuario_id');
                 
-                if (!usuario_id || !Number.isFinite(Number(usuario_id)) || Number(usuario_id) <= 0) {
+                if (!usuario_id || !Number.isInteger(Number(usuario_id)) || Number(usuario_id) <= 0) {
                     res.statusCode = 400;
                     res.setHeader('content-Type', 'application/json; charset=utf-8');
                     res.end(JSON.stringify({ erro: 'Parâmetro usuario_id é obrigatório e deve ser um número válido' }));

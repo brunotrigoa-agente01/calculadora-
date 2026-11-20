@@ -20,11 +20,7 @@ async function listarCalculos(usuario_id) {
 async function verificarUsuario(usuario_id) {
      try{
         const [usuarios] = await banco.execute('SELECT * FROM usuarios WHERE id = ?', [usuario_id]);
-        let resultado = usuarios.length;
-
         return  usuarios.length > 0? true : false;
-
-        
 
     }catch (erro) {
         console.error('Erro ao verificar usuário:', erro);
