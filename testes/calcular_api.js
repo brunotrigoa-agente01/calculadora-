@@ -1,30 +1,25 @@
-const { test } = require('node:test');
+const { after, before, test } = require('node:test');
 const assert = require('node:assert/strict');
+const http = require('node:http');
+const { criaServidor } = require('../server.js');
 
+let servidor;
+let baseUrl;
 
-const URL = 'http://localhost:3000';
-
-// Envia uma requisição sem Content-Length, usando transferência chunked.
-function postCalcularSemContentLength(dados) {
+function requisicaoSemContentLength(caminho, dados) {
     return new Promise((resolve, reject) => {
-        const requisicao = require('node:http').request({
-            hostname: 'localhost',
-            port: 3000,
-            path: '/calcular',
+        const requisicao = http.request({
+            hostname: '127.0.0.1',
+            port: new URL(baseUrl).port,
+            path: caminho,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Transfer-Encoding': 'chunked'
             }
-        }, 
-        
-        (resposta) => {
+        }, (resposta) => {
             let corpo = '';
-
-            resposta.on('data', (pedaco) => {
-                corpo += pedaco;
-            });
-
+            resposta.on('data', pedaco => { corpo += pedaco; });
             resposta.on('end', () => {
                 resolve({
                     status: resposta.statusCode,
@@ -38,260 +33,227 @@ function postCalcularSemContentLength(dados) {
         requisicao.end();
     });
 }
-       
-// Função auxiliar para enviar requisições POST para a API
+
+async function abrirServidor(t, dependencias = {}) {
+    const servidorTeste = criaServidor(
+        dependencias.salvarHistorico || (async () => {}),
+        dependencias.salvarCalculo || (async () => {}),
+        dependencias.listarCalculos || (async () => []),
+        dependencias.verificarUsuario || (async usuarioId => String(usuarioId) === '7')
+    );
+
+    await new Promise((resolve, reject) => {
+        servidorTeste.once('error', reject);
+        servidorTeste.listen(0, '127.0.0.1', resolve);
+    });
+
+    t.after(() => new Promise((resolve, reject) => {
+        servidorTeste.close(erro => erro ? reject(erro) : resolve());
+    }));
+
+    return `http://127.0.0.1:${servidorTeste.address().port}`;
+}
+
+before(async () => {
+    const historico = [
+        { id: 5, operacao: 'somar', valor1: 2, valor2: 3, resultado: 5 },
+        { id: 4, operacao: 'subtrair', valor1: 8, valor2: 2, resultado: 6 },
+        { id: 3, operacao: 'multiplicar', valor1: 3, valor2: 4, resultado: 12 },
+        { id: 2, operacao: 'dividir', valor1: 10, valor2: 2, resultado: 5 },
+        { id: 1, operacao: 'somar', valor1: 1, valor2: 1, resultado: 2 }
+    ];
+    servidor = criaServidor(
+        async () => {},
+        async () => {},
+        async () => historico,
+        async usuarioId => String(usuarioId) === '7'
+    );
+
+    await new Promise((resolve, reject) => {
+        servidor.once('error', reject);
+        servidor.listen(0, '127.0.0.1', resolve);
+    });
+    baseUrl = `http://127.0.0.1:${servidor.address().port}`;
+});
+
+after(async () => {
+    await new Promise((resolve, reject) => {
+        servidor.close(erro => erro ? reject(erro) : resolve());
+    });
+});
+
 async function postCalcular(dados) {
-    return fetch(`${URL}/calcular`, {
+    return fetch(`${baseUrl}/calcular`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
     });
 }
 
-// 1. Testar a soma
-test('POST /calcular deve somar 10 e 5', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'somar'
-    });
+test('POST /calcular executa soma, subtração, multiplicação e divisão', async () => {
+    const casos = [
+        ['somar', 15],
+        ['subtrair', 5],
+        ['multiplicar', 50],
+        ['dividir', 2]
+    ];
 
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.resultado, 15);
+    for (const [operacao, resultadoEsperado] of casos) {
+        const resposta = await postCalcular({
+            valor1: 10,
+            valor2: 5,
+            operacao
+        });
+        const dados = await resposta.json();
+        assert.equal(resposta.status, 200);
+        assert.equal(dados.resultado, resultadoEsperado);
+    }
 });
 
-// 2. Testar a subtração
-test('POST /calcular deve subtrair 10 e 5', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'subtrair'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.resultado, 5);
-});
-
-// 3. Testar a multiplicação
-test('POST /calcular deve multiplicar 10 e 5', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'multiplicar'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.resultado, 50);
-});
-
-// 4. Testar a divisão correta
-test('POST /calcular deve dividir 10 por 5', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'dividir'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.resultado, 2);
-});
-
-// 5. Testar divisão por zero
-test('POST /calcular deve rejeitar divisão por zero', async () => {
+test('POST /calcular rejeita divisão por zero', async () => {
     const resposta = await postCalcular({
         valor1: 10,
         valor2: 0,
         operacao: 'dividir'
     });
-
     const dados = await resposta.json();
 
     assert.equal(resposta.status, 400);
     assert.equal(dados.erro, 'Divisão por zero não é permitida');
 });
 
-// 6. Testar uma operação inválida
-test('POST /calcular deve rejeitar operação inválida', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'potencial'
-    });
+test('POST /calcular rejeita operação inválida, campos ausentes e tipos inválidos', async () => {
+    const casosInvalidos = [
+        { valor1: 10, valor2: 5, operacao: 'potencial' },
+        { valor1: 10, operacao: 'somar' },
+        { valor1: 'dez', valor2: 5, operacao: 'somar' },
+        [10, 5, 'somar'],
+        null
+    ];
 
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 400);
-    assert.equal(dados.erro, 'digite dados validos e dois numeros');
+    for (const dados of casosInvalidos) {
+        const resposta = await postCalcular(dados);
+        const corpo = await resposta.json();
+        assert.equal(resposta.status, 400);
+        assert.equal(corpo.erro, 'digite dados validos e dois numeros');
+    }
 });
 
-// 7. Testar valor que não é numérico
-test('POST /calcular deve rejeitar valores que não são números', async () => {
-    const resposta = await postCalcular({
-        valor1: 'dez',
-        valor2: 5,
-        operacao: 'somar'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 400);
-    assert.equal(dados.erro, 'digite dados validos e dois numeros');
+test('POST /calcular rejeita JSON malformado e corpo em formato não JSON', async () => {
+    for (const corpo of ['{"valor1": 10,', 'valor1=10&valor2=5']) {
+        const resposta = await fetch(`${baseUrl}/calcular`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: corpo
+        });
+        const dados = await resposta.json();
+        assert.equal(resposta.status, 400);
+        assert.equal(dados.erro, 'JSON mal formado');
+    }
 });
 
-// 8. Testar campo obrigatório ausente
-test('POST /calcular deve rejeitar dados incompletos', async () => {
-    const resposta = await postCalcular({
-        valor1: 10,
-        operacao: 'somar'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 400);
-    assert.equal(dados.erro, 'digite dados validos e dois numeros');
-});
-
-// 9. Testar corpo JSON que não é um objeto válido
-test('POST /calcular deve rejeitar um array como entrada', async () => {
-    const resposta = await postCalcular([10, 5, 'somar']); // array é com [] em vez de {} para objeto
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 400);
-    assert.equal(dados.erro, 'digite dados validos e dois numeros');
-});
-
-// 10. Testar JSON malformado
-test('POST /calcular deve rejeitar JSON inválido', async () => {
-    const resposta = await fetch(`${URL}/calcular`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: '{"valor1": 10,'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 400);
-    assert.equal(dados.erro, 'JSON mal formado');
-});
-
-// 11. Testar resultado matemático não finito
-test('POST /calcular deve rejeitar resultado não finito', async () => {
+test('POST /calcular rejeita resultado matemático não finito', async () => {
     const resposta = await postCalcular({
         valor1: Number.MAX_VALUE,
         valor2: 2,
         operacao: 'multiplicar'
     });
-
     const dados = await resposta.json();
 
     assert.equal(resposta.status, 400);
     assert.equal(dados.erro, 'Resultado não é um número finito');
 });
 
-// 12. Testar a rota GET /api
-test('GET /api deve retornar uma resposta de sucesso', async () => {
-    const resposta = await fetch(`${URL}/api`);
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.mensagem, 'API da calculadora funcionando');
-});
-
-// 13. Testar método não permitido na rota /api
-test('POST /api deve retornar método não permitido', async () => {
-    const resposta = await fetch(`${URL}/api`, {
-        method: 'POST'
-    });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 405);
-    assert.equal(dados.erro, 'Método não reconhecido');
-});
-
-// 14. Testar uma rota inexistente
-test('rota inexistente deve retornar 404', async () => {
-    const resposta = await fetch(`${URL}/rota-inexistente`);
-
-    assert.equal(resposta.status, 404);
-});
-
-test('POST /calcular deve rejeitar corpos grandes e continuar funcionando ', async () => {
-
+test('POST /calcular rejeita corpos maiores que o limite e continua atendendo', async () => {
     const respostaGrande = await postCalcular({
         valor1: 10,
         valor2: 5,
         operacao: 'somar',
-        textoExtra: 'a'.repeat(11 * 1024) // 11 KB de texto extra para exceder o limite
+        textoExtra: 'a'.repeat(11 * 1024)
     });
-    const dadosCorpoGrande = await respostaGrande.json();
+    const erro = await respostaGrande.json();
     assert.equal(respostaGrande.status, 413);
-    assert.equal(dadosCorpoGrande.erro, 'Limite de tamanho do corpo excedido');
+    assert.equal(erro.erro, 'Limite de tamanho do corpo excedido');
 
-
-    const resultado = await postCalcular({
-        valor1: 10,
-        valor2: 5,
-        operacao: 'somar',
-        
-    });
-    
-
-    const dados = await resultado.json();
-
-    assert.equal(resultado.status, 200);
-    assert.equal(dados.resultado, 15);
-});
-
-test('POST /calcular deve somar 10 e 5', async () => {
-    const resposta = await postCalcular({
+    const respostaValida = await postCalcular({
         valor1: 10,
         valor2: 5,
         operacao: 'somar'
     });
-
-    const dados = await resposta.json();
-
-    assert.equal(resposta.status, 200);
-    assert.equal(dados.resultado, 15);
+    assert.equal(respostaValida.status, 200);
+    assert.equal((await respostaValida.json()).resultado, 15);
 });
 
-
-
-// 16. Testar requisição sem o cabeçalho Content-Length
-test('POST /calcular deve funcionar sem Content-Length', async () => {
-    const resposta = await postCalcularSemContentLength({
+test('POST /calcular funciona e aplica o limite sem Content-Length', async () => {
+    const resposta = await requisicaoSemContentLength('/calcular', {
         valor1: 10,
         valor2: 5,
         operacao: 'somar'
     });
-
     assert.equal(resposta.status, 200);
     assert.equal(resposta.dados.resultado, 15);
-});
 
-test('POST /calcular deve rejeitar corpos grandes sem Content-Length', async () => {
-    const resposta = await postCalcularSemContentLength({
+    const respostaGrande = await requisicaoSemContentLength('/calcular', {
         valor1: 10,
         valor2: 5,
         operacao: 'somar',
-        textoExtra: 'a'.repeat(12 * 1024) // 12 KB de texto extra para exceder o limite
+        textoExtra: 'a'.repeat(12 * 1024)
+    });
+    assert.equal(respostaGrande.status, 413);
+    assert.equal(respostaGrande.dados.erro, 'Limite de tamanho do corpo excedido');
+});
+
+test('GET /api e métodos e rotas inválidos retornam os status esperados', async () => {
+    const api = await fetch(`${baseUrl}/api`);
+    assert.equal(api.status, 200);
+    assert.equal((await api.json()).mensagem, 'API da calculadora funcionando');
+
+    const metodoInvalido = await fetch(`${baseUrl}/api`, { method: 'POST' });
+    assert.equal(metodoInvalido.status, 405);
+    assert.equal((await metodoInvalido.json()).erro, 'Método não reconhecido');
+
+    const rotaInexistente = await fetch(`${baseUrl}/rota-inexistente`);
+    assert.equal(rotaInexistente.status, 404);
+});
+
+test('GET /api/calculos valida usuario_id e retorna os cálculos listados', async () => {
+    for (const usuarioId of ['', 'abc', '0', '-1', '1.5']) {
+        const resposta = await fetch(`${baseUrl}/api/calculos?usuario_id=${usuarioId}`);
+        assert.equal(resposta.status, 400);
+    }
+
+    const usuarioInexistente = await fetch(`${baseUrl}/api/calculos?usuario_id=8`);
+    assert.equal(usuarioInexistente.status, 404);
+    assert.equal((await usuarioInexistente.json()).erro, 'Usuário não encontrado');
+
+    const resposta = await fetch(`${baseUrl}/api/calculos?usuario_id=7`);
+    assert.equal(resposta.status, 200);
+    assert.deepEqual(await resposta.json(), [
+        { id: 5, operacao: 'somar', valor1: 2, valor2: 3, resultado: 5 },
+        { id: 4, operacao: 'subtrair', valor1: 8, valor2: 2, resultado: 6 },
+        { id: 3, operacao: 'multiplicar', valor1: 3, valor2: 4, resultado: 12 },
+        { id: 2, operacao: 'dividir', valor1: 10, valor2: 2, resultado: 5 },
+        { id: 1, operacao: 'somar', valor1: 1, valor2: 1, resultado: 2 }
+    ]);
+});
+
+test('GET /api/calculos retorna erro e recupera em uma requisição seguinte', async t => {
+    let chamadas = 0;
+    const base = await abrirServidor(t, {
+        listarCalculos: async () => {
+            chamadas++;
+            if (chamadas === 1) {
+                throw new Error('MySQL indisponível');
+            }
+            return [{ id: 9, resultado: 12 }];
+        }
     });
 
-    assert.equal(resposta.status, 413);
-    assert.equal(resposta.dados.erro, 'Limite de tamanho do corpo excedido');
+    const primeiraResposta = await fetch(`${base}/api/calculos?usuario_id=7`);
+    assert.equal(primeiraResposta.status, 500);
+    assert.equal((await primeiraResposta.json()).erro, 'Erro ao listar cálculos');
+
+    const segundaResposta = await fetch(`${base}/api/calculos?usuario_id=7`);
+    assert.equal(segundaResposta.status, 200);
+    assert.deepEqual(await segundaResposta.json(), [{ id: 9, resultado: 12 }]);
 });

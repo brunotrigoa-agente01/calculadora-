@@ -21,32 +21,32 @@ let valorAnterior = null; // Armazena o valor anterior para operações
 let operacaoAtual = null; // Armazena a operação atual (+, -, *, /)
 let precisaLimparDisplay = false; // Indica se o display precisa ser limpo antes de digitar um novo número
 
+
+async function atualizarHistorico() {
+    try {
+        const resultado = await fetch('/api/calculos?usuario_id=1');
+
+        if (!resultado.ok) {
+            throw new Error('Erro na requisição: ' + resultado.statusText);
+        }
+
+        const dadosResposta = await resultado.json();
+        mostrarHistorico(dadosResposta);
+
+    } catch (erro) {
+        console.error('Erro ao buscar histórico:', erro);
+        popoverHistorico.innerText = 'Erro ao buscar histórico';
+    }
+}
+
 botaoHistorico.addEventListener("click", async () => {
     const aberto = !popoverHistorico.hidden;
     popoverHistorico.hidden = aberto;
     botaoHistorico.setAttribute("aria-expanded", String(!aberto));
 
     if(!aberto){
-        try {
-            const resultado = await fetch('/api/calculos?usuario_id=1', {
-                method: 'GET',    
-            });
-
-            if (resultado.ok) {
-                const dadosResposta = await resultado.json();
-                mostrarHistorico(dadosResposta);
-            }else {
-                throw new Error('Erro na requisição: ' + resultado.statusText);
-            }
-
-
-        }catch (erro) {
-            console.error('Erro ao buscar histórico:', erro);
-            popoverHistorico.innerText = 'Erro ao buscar histórico';
-            
-        };
-        
-}
+        atualizarHistorico();
+        }   
             
 });
 
@@ -217,9 +217,6 @@ function mostrarHistorico(dadosHistorico) {
         return;
     }
 
-    // Mantém somente os cinco cálculos mais recentes.
-    
-
     // Limpa o conteúdo anterior do popover.
     popoverHistorico.innerText = '';
 
@@ -243,6 +240,7 @@ async function calcularNoServidor() {
     try {
         const {resultado, avisos: avisosResposta} = await solicitarCalculo(valorAnterior, valorAtual, operacaoAtual);
         const avisos = avisosResposta || {};
+
         try {
             const resultadojson = {
             valorAtual:valorAtual,
@@ -257,7 +255,7 @@ async function calcularNoServidor() {
             registro.push(resultadojson)
             const historico = JSON.stringify(registro)
             localStorage.setItem('historico', historico)
-            
+            atualizarHistorico()
         }catch(erro){
             console.log('erro ao salvar no local storage:', erro)
             
@@ -329,6 +327,7 @@ botoesFuncoes.forEach((botao) =>{
             case 'equals':
                 if(!precisaLimparDisplay) {
                     calcularNoServidor()
+                    
                 };
             break;
 

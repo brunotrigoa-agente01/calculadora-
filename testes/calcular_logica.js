@@ -1,205 +1,206 @@
-const {test} = require('node:test');
+const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
+const path = require('node:path');
 const { calcular } = require('../calcular.js');
 const { salvarHistorico, gravarHistorico } = require('../historico.js');
-const {criaServidor} = require('../server')
-const path = require('node:path');
+const { criaServidor } = require('../server.js');
+
 const caminhoEsperado = path.join(__dirname, '..', 'historico.json');
 
-test( 'teste da soma de 10 e 5', () => {
+test('calcular executa soma, subtração, multiplicação e divisão', () => {
     assert.equal(calcular(10, 5, 'somar'), 15);
-});
-
-test( 'teste da divisão com erro', () => {
-    assert.throws(() => {
-        calcular(10, 0, 'dividir');
-    }, /Divisão por zero não é permitida/);
-});
-test( 'teste da divisão sem erro', () => {
+    assert.equal(calcular(10, 5, 'subtrair'), 5);
+    assert.equal(calcular(10, 5, 'multiplicar'), 50);
     assert.equal(calcular(10, 5, 'dividir'), 2);
 });
 
-test( 'teste da subtração de 10 e 5', () => {
-    assert.equal(calcular(10, 5, 'subtrair'), 5);
+test('calcular rejeita divisão por zero e operação inválida', () => {
+    assert.throws(() => calcular(10, 0, 'dividir'), /Divisão por zero não é permitida/);
+    assert.throws(() => calcular(10, 5, 'potencial'), /Operação inválida/);
 });
 
-test( 'teste da multiplicação de 10 e 5', () => {
-    assert.equal(calcular(10, 5, 'multiplicar'), 50);
-});
-
-test( 'teste de potencial invalida', () => {
-    assert.throws(() => {
-        calcular(10, 5, 'potencial');
-    }, /Operação inválida/);
-});
-
-test('erro quando o resultado não é finito', () => {
+test('calcular rejeita resultados não finitos', () => {
     assert.throws(
         () => calcular(Number.MAX_VALUE, 2, 'multiplicar'),
         /Resultado não é um número finito/
     );
 });
-test('teste de duas chamadas simultâneas', async () => {
-    const data1 = new Date().toISOString();
-    const data2 = new Date(Date.now() + 1000).toISOString();
 
-    const promise1 = salvarHistorico(
-        'somar', 10, 5, 15, data1
-    );
+test('gravarHistorico lê e persiste o cálculo sem acessar o arquivo real', async t => {
+    const dataHora = new Date().toISOString();
+    let conteudoGravado;
 
-    const promise2 = salvarHistorico(
-        'subtrair', 10, 5, 5, data2
-    );
+    t.mock.method(fs, 'readFile', async (caminho, codificacao) => {
+        assert.equal(caminho, caminhoEsperado);
+        assert.equal(codificacao, 'utf-8');
+        return JSON.stringify([{ operacao: 'somar', resultado: 3 }]);
+    });
+    t.mock.method(fs, 'writeFile', async (caminho, conteudo, codificacao) => {
+        assert.equal(caminho, caminhoEsperado);
+        assert.equal(codificacao, 'utf-8');
+        conteudoGravado = conteudo;
+    });
 
-    assert.ok(promise1 instanceof Promise);
-    assert.ok(promise2 instanceof Promise);
+    await gravarHistorico('subtrair', 10, 5, 5, dataHora);
+    const historico = JSON.parse(conteudoGravado);
 
-    await Promise.all([promise1, promise2]);
-
-    const conteudo = await fs.readFile('historico.json', 'utf-8');
-    const historico = JSON.parse(conteudo);
-
-    const registro1 = historico.find(
-        item => item.dataHora === data1
-    );
-
-    const registro2 = historico.find(
-        item => item.dataHora === data2
-    );
-
-    assert.ok(registro1);
-    assert.ok(registro2);
-
-    assert.equal(registro1.operacao, 'somar');
-    assert.equal(registro1.resultado, 15);
-
-    assert.equal(registro2.operacao, 'subtrair');
-    assert.equal(registro2.resultado, 5);
+    assert.equal(historico.length, 2);
+    assert.deepEqual(historico[1], {
+        valor1: 10,
+        valor2: 5,
+        operacao: 'subtrair',
+        resultado: 5,
+        dataHora
+    });
 });
 
+test('gravarHistorico inicializa conteúdo vazio e arquivo inexistente', async t => {
+    let chamadasDeEscrita = 0;
+    let conteudoFinal;
 
+    t.mock.method(fs, 'readFile', async () => '');
+    t.mock.method(fs, 'writeFile', async (caminho, conteudo) => {
+        assert.equal(caminho, caminhoEsperado);
+        chamadasDeEscrita++;
+        conteudoFinal = conteudo;
+    });
 
-test('gravarHistorico persiste o cálculo no JSON', async () => {
-    const dataHora = new Date().toISOString();
+    await gravarHistorico('dividir', 10, 2, 5, new Date().toISOString());
+    assert.equal(chamadasDeEscrita, 1);
+    assert.equal(JSON.parse(conteudoFinal).length, 1);
 
-    await gravarHistorico('somar', 10, 5, 15, dataHora);
+    const erroArquivoAusente = Object.assign(new Error('arquivo ausente'), { code: 'ENOENT' });
+    const escritasAusente = [];
+    t.mock.restoreAll();
+    t.mock.method(fs, 'readFile', async () => { throw erroArquivoAusente; });
+    t.mock.method(fs, 'writeFile', async (caminho, conteudo) => {
+        assert.equal(caminho, caminhoEsperado);
+        escritasAusente.push(conteudo);
+    });
 
-    // A leitura só começa depois que a gravação termina.
-    const conteudo = await fs.readFile('historico.json', 'utf-8');
-    assert.ok(conteudo);
-
-    const historico = JSON.parse(conteudo);
-
-    const registro = historico.find(
-        item => item.dataHora === dataHora
-    );
-
-    assert.ok(registro);
-    assert.equal(registro.operacao, 'somar');
-    assert.equal(registro.resultado, 15);
+    await gravarHistorico('somar', 1, 2, 3, new Date().toISOString());
+    assert.equal(escritasAusente.length, 2);
+    assert.equal(escritasAusente[0], '[]');
+    assert.equal(JSON.parse(escritasAusente[1]).length, 1);
 });
 
-test('cria o histórico quando o arquivo não existe', async (t) => {
-    const dataHora = new Date().toISOString();
-    const escritas = [];
-
+test('gravarHistorico propaga erros de leitura, JSON inválido e gravação', async t => {
     t.mock.method(fs, 'readFile', async () => {
-        const erro = new Error('Arquivo não encontrado');
-        erro.code = 'ENOENT';
-        throw erro;
+        throw new Error('falha na leitura');
     });
+    await assert.rejects(
+        gravarHistorico('somar', 1, 2, 3, new Date().toISOString()),
+        /falha na leitura/
+    );
 
-    t.mock.method(fs, 'writeFile', async (...argumentos) => {
-        escritas.push(argumentos);
+    t.mock.restoreAll();
+    t.mock.method(fs, 'readFile', async () => '{');
+    await assert.rejects(
+        gravarHistorico('somar', 1, 2, 3, new Date().toISOString()),
+        SyntaxError
+    );
+
+    t.mock.restoreAll();
+    t.mock.method(fs, 'readFile', async () => '[]');
+    t.mock.method(fs, 'writeFile', async () => {
+        throw new Error('falha na gravação');
     });
-
-    await gravarHistorico('dividir', 10, 2, 5, dataHora);
-
-    assert.equal(escritas.length, 2);
-    assert.equal(escritas[0][0], caminhoEsperado);
-    assert.equal(escritas[0][1], '[]');
-
-    const historicoGravado = JSON.parse(escritas[1][1]);
-    assert.equal(historicoGravado.length, 1);
-    assert.equal(historicoGravado[0].operacao, 'dividir');
-    assert.equal(historicoGravado[0].resultado, 5);
-    assert.equal(historicoGravado[0].dataHora, dataHora);
+    await assert.rejects(
+        gravarHistorico('somar', 1, 2, 3, new Date().toISOString()),
+        /falha na gravação/
+    );
 });
 
+test('salvarHistorico serializa gravações concorrentes e mantém a fila após erro', async t => {
+    let conteudo = '[]';
+    let falharUmaVez = true;
 
-test('teste de falha na leitura do historico.json', async(t)=>{
-    const dataHora = new Date().toISOString();
+    t.mock.method(fs, 'readFile', async () => conteudo);
+    t.mock.method(fs, 'writeFile', async (caminho, proximoConteudo) => {
+        assert.equal(caminho, caminhoEsperado);
+        if (falharUmaVez) {
+            falharUmaVez = false;
+            throw new Error('falha temporária');
+        }
+        conteudo = proximoConteudo;
+    });
+    t.mock.method(console, 'error', () => {});
 
-    await fs.readFile('historico.json' , 'utf-8');
+    const primeiraData = new Date().toISOString();
+    const segundaData = new Date(Date.now() + 1).toISOString();
+    const primeira = salvarHistorico('somar', 1, 2, 3, primeiraData);
+    const segunda = salvarHistorico('subtrair', 5, 2, 3, segundaData);
 
-    t.mock.method(fs,'readFile', async()=>{
-        throw new Error('falha na leitura!')
-    })
+    await assert.rejects(primeira, /falha temporária/);
+    await segunda;
 
-    await assert.rejects(
-        gravarHistorico('dividir', 10, 2, 5, dataHora),
-        /falha na leitura!/
-    ) 
+    const historico = JSON.parse(conteudo);
+    assert.equal(historico.length, 1);
+    assert.equal(historico[0].dataHora, segundaData);
+});
 
-    
+test('salvarHistorico preserva ambas as gravações concorrentes', async t => {
+    let conteudo = '[]';
 
-})
-
-test('teste de falha na gravação do historico.json', async(t)=>{
-    const dataHora = new Date().toISOString();
-
-    await fs.writeFile('historico.json' ,'[]', 'utf-8');
-
-    t.mock.method(fs,'writeFile', async()=>{
-        throw new Error('falha na gravação!')
-    })
-
-    await assert.rejects(
-         gravarHistorico('dividir', 10, 2, 5, dataHora),
-         /falha na gravação!/
-    )
-   
-})
-
-
-test('testar criação de função falsa do salvarHistorico',async (t)  => {
-    const funcaoFalsa = async () => {
-        throw new Error('erro ao salvar arquivo');
-    };
-    const calculoFalso = async () => {
-        throw new Error('erro ao salvar arquivo');
-    }
-    const listarCalculosFalso = async () => {
-        throw new Error('erro ao listar cálculos');
-    }
-    const verificarUsuarioFalso = async () => {
-        throw new Error('erro ao verificar usuário');
-    }
-    const servidor  = criaServidor(funcaoFalsa, calculoFalso, listarCalculosFalso, verificarUsuarioFalso);
-    t.after(() =>{
-        servidor.close();
-    })
-    await new Promise((resolve)=>{
-        servidor.listen(0, '127.0.0.1',resolve);
-    })
-    
-    const porta = servidor.address().port
-    const resposta = await fetch(`http://127.0.0.1:${porta}/calcular`,{
-        method: 'POST',
-        headers:{'Content-Type': 'application/json'},
-        body: JSON.stringify( 
-            {operacao: 'somar',
-            valor1: 8,
-            valor2: 2}
-        )
-    
+    t.mock.method(fs, 'readFile', async () => conteudo);
+    t.mock.method(fs, 'writeFile', async (caminho, proximoConteudo) => {
+        assert.equal(caminho, caminhoEsperado);
+        conteudo = proximoConteudo;
     });
 
-    const dadosRespostas = await resposta.json();
-    assert.equal(dadosRespostas.resultado, 10)
-    assert.equal(resposta.status, 200)
-})
-//node --test testes/calcular_logica.js - codigo para o teste
+    const primeiraData = new Date().toISOString();
+    const segundaData = new Date(Date.now() + 1).toISOString();
+    await Promise.all([
+        salvarHistorico('somar', 1, 2, 3, primeiraData),
+        salvarHistorico('subtrair', 5, 2, 3, segundaData)
+    ]);
 
-// node --test testes/calcular_logica.js testes/calcular_api.js - esse comando vai rodar todos os testes que estiverem na pasta testes
+    const historico = JSON.parse(conteudo);
+    assert.deepEqual(historico.map(registro => registro.dataHora), [
+        primeiraData,
+        segundaData
+    ]);
+});
+
+test('POST /calcular informa falhas de persistência e ainda retorna o resultado', async t => {
+    let chamadasHistorico = 0;
+    let chamadasCalculo = 0;
+    const servidor = criaServidor(
+        async () => {
+            chamadasHistorico++;
+            throw new Error('erro ao salvar histórico');
+        },
+        async () => {
+            chamadasCalculo++;
+            throw new Error('MySQL indisponível');
+        },
+        async () => [],
+        async () => true
+    );
+    t.mock.method(console, 'error', () => {});
+
+    await new Promise((resolve, reject) => {
+        servidor.once('error', reject);
+        servidor.listen(0, '127.0.0.1', resolve);
+    });
+    t.after(() => new Promise((resolve, reject) => {
+        servidor.close(erro => erro ? reject(erro) : resolve());
+    }));
+
+    const resposta = await fetch(`http://127.0.0.1:${servidor.address().port}/calcular`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valor1: 8, valor2: 2, operacao: 'somar' })
+    });
+    const dados = await resposta.json();
+
+    assert.equal(chamadasHistorico, 1);
+    assert.equal(chamadasCalculo, 1);
+    assert.equal(resposta.status, 200);
+    assert.equal(dados.resultado, 10);
+    assert.deepEqual(dados.avisos, {
+        historico: 'Erro ao salvar histórico',
+        mysql: 'Erro ao salvar no banco de dados'
+    });
+});
