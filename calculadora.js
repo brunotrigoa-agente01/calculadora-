@@ -288,6 +288,10 @@ async function calcularNoServidor() {
         valorAnterior = null;
         operacaoAtual = null;
         precisaLimparDisplay = true;
+        
+        if(!popoverHistorico.hidden){
+            atualizarHistorico()
+        }
 
     } catch (erro) {
         console.error('Erro ao calcular:', erro);
