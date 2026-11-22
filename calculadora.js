@@ -27,7 +27,6 @@ botaoHistorico.addEventListener("click", async () => {
     botaoHistorico.setAttribute("aria-expanded", String(!aberto));
 
     if(!aberto){
-        //mostrarHistorico()
         try {
             const resultado = await fetch('/api/calculos?usuario_id=1', {
                 method: 'GET',    
@@ -219,14 +218,14 @@ function mostrarHistorico(dadosHistorico) {
     }
 
     // Mantém somente os cinco cálculos mais recentes.
-    const ultimosCalculos = historico.slice(-5);
+    
 
     // Limpa o conteúdo anterior do popover.
     popoverHistorico.innerText = '';
 
     // Exibe os cálculos mais recentes primeiro.
-    ultimosCalculos.reverse().forEach((calculo) => {
-        const linha = `${calculo.valor1} ${simbolo[calculo.operacao]} ${calculo.valor2} = ${calculo.resultado}`;
+    historico.forEach((calculo) => {
+        const linha = `${Number(calculo.valor1)} ${simbolo[calculo.operacao]} ${Number(calculo.valor2)} = ${Number(calculo.resultado)}`;
 
         popoverHistorico.innerText += linha + '\n';
     });

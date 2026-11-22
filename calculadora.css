@@ -147,6 +147,11 @@ button {
     outline-offset: 3px;
 }
 
+#Historico-popover {
+    white-space: pre-line;
+    font-family: monospace;
+    line-height: 1.8;
+}
 .historico-popover {
     width: min(100%, 240px);
     min-height: 64px;

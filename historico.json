@@ -47,5 +47,19 @@
     "operacao": "somar",
     "resultado": 15,
     "dataHora": "2026-11-20T21:04:37.723Z"
+  },
+  {
+    "valor1": 78,
+    "valor2": 8,
+    "operacao": "subtrair",
+    "resultado": 70,
+    "dataHora": "2026-11-22T15:51:16.206Z"
+  },
+  {
+    "valor1": 84.5,
+    "valor2": 9,
+    "operacao": "somar",
+    "resultado": 93.5,
+    "dataHora": "2026-11-22T20:49:58.096Z"
   }
 ]

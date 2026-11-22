@@ -13,7 +13,7 @@ async function salvarCalculo(usuario_id, valor1, valor2, operacao, resultado) {
 }
 
 async function listarCalculos(usuario_id) {
-     const [calculos] = await banco.execute('select * from calculos where usuario_id = ?', [usuario_id]);
+     const [calculos] = await banco.execute('select * from calculos where usuario_id = ? order by id desc limit 5', [usuario_id]);
     return calculos;
 }
 
