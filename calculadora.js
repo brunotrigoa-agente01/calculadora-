@@ -255,7 +255,7 @@ async function calcularNoServidor() {
             registro.push(resultadojson)
             const historico = JSON.stringify(registro)
             localStorage.setItem('historico', historico)
-            atualizarHistorico()
+            
         }catch(erro){
             console.log('erro ao salvar no local storage:', erro)
             
@@ -288,7 +288,7 @@ async function calcularNoServidor() {
         valorAnterior = null;
         operacaoAtual = null;
         precisaLimparDisplay = true;
-        
+
         if(!popoverHistorico.hidden){
             atualizarHistorico()
         }
