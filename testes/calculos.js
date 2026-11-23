@@ -1,5 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 const banco = require('../banco.js');
 const { salvarCalculo, listarCalculos, verificarUsuario } = require('../calculos.js');
 
@@ -59,4 +60,49 @@ test('falha de conexão é propagada e uma execução posterior pode recuperar',
     );
     assert.equal(await salvarCalculo(7, 2, 3, 'somar', 5), 99);
     assert.equal(chamadas, 2);
+});
+
+test('banco.js informa as variáveis MySQL ausentes sem exibir valores', () => {
+    const resultado = spawnSync(
+        process.execPath,
+        ['-e', "require('./banco.js')"],
+        {
+            cwd: require('node:path').join(__dirname, '..'),
+            encoding: 'utf8',
+            env: {
+                ...process.env,
+                DB_HOST: '',
+                DB_USER: '',
+                DB_PASSWORD: '',
+                DB_NAME: '',
+                DB_PORT: '3306'
+            }
+        }
+    );
+
+    assert.notEqual(resultado.status, 0);
+    assert.match(resultado.stderr, /Configuração do MySQL incompleta/);
+    assert.match(resultado.stderr, /DB_HOST, DB_USER, DB_NAME/);
+});
+
+test('banco.js rejeita uma porta MySQL fora do formato válido', () => {
+    const resultado = spawnSync(
+        process.execPath,
+        ['-e', "require('./banco.js')"],
+        {
+            cwd: require('node:path').join(__dirname, '..'),
+            encoding: 'utf8',
+            env: {
+                ...process.env,
+                DB_HOST: 'localhost',
+                DB_USER: 'usuario_local',
+                DB_PASSWORD: '',
+                DB_NAME: 'calculadora',
+                DB_PORT: 'porta-invalida'
+            }
+        }
+    );
+
+    assert.notEqual(resultado.status, 0);
+    assert.match(resultado.stderr, /DB_PORT deve ser um inteiro entre 1 e 65535/);
 });

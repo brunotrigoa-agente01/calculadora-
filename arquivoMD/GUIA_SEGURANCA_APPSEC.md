@@ -136,6 +136,12 @@ req.on('end', () => {
 
 No front-end, mostre texto com `textContent`, não com `innerHTML`. O `calculadora.js` atual já usa `display.textContent`, que é a escolha adequada para o visor.
 
+### Limite de acesso na versão local
+
+O servidor atual escuta em `0.0.0.0` para permitir testes por dispositivos da mesma rede. Isso torna a aplicação acessível a outros dispositivos alcançáveis nessa rede; a versão atual não implementa autenticação e usa temporariamente `usuario_id = 1`, recebido pelo fluxo do navegador. Use esse modo somente em rede local confiável e não publique a aplicação na Internet neste estado. Acesso à rede local não equivale a isolamento de usuários.
+
+Se a publicação for considerada futuramente, autenticação/autorização, identidade determinada pelo servidor, isolamento de dados, HTTPS, regras de rede, credenciais, tratamento de erros de produção, testes e backup deverão ser avaliados antes da exposição pública. A lista de planejamento está em [PLANO.md](./PLANO.md), em “Requisitos para uma eventual hospedagem pública”. Esses requisitos futuros não ampliam o escopo da calculadora local.
+
 ### Laboratório PortSwigger
 
 - [OS command injection, simple case](https://portswigger.net/web-security/os-command-injection/lab-simple) — prática de injeção de comandos em uma aplicação de laboratório. É um caso relacionado à execução no servidor, mas não é um laboratório de `eval()` em JavaScript.

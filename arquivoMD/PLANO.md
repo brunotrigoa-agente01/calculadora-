@@ -73,11 +73,46 @@ As etapas 1 a 4 foram registradas anteriormente como concluídas com base em tes
 
 ## Etapa atual
 
-Trilha A: Etapa 7 — Evolução do projeto. Status: **Em andamento**; fundamentos relacionais e SQL foram praticados em parte, e a integração Node.js/MySQL está implementada. `listarCalculos()` filtra por `usuario_id` e consulta os cinco IDs mais altos em ordem decrescente; a API fornece esses registros à interface, que os apresenta do mais recente para o mais antigo. O limite afeta apenas consulta e exibição, sem apagar registros do MySQL. Conforme relato manual do desenvolvedor, cálculos são persistidos e recuperados após atualizar a página, o histórico aberto se atualiza após novo cálculo, e a calculadora continua operando durante a indisponibilidade do MySQL, com aviso temporário e gravações retomadas quando o serviço volta. A suíte automatizada atual tem 26 testes, executados com sucesso em duas execuções anteriores de `npm.cmd test`, mas os testes de banco usam mocks e não substituem uma integração automatizada com MySQL real. A etapa continua pendente de validação automatizada em banco isolado, compreensão demonstrada do fluxo e estudos de banco de dados. Não iniciar cadastro, autenticação ou migração do histórico JSON.
+Trilha A: Etapa 7 — Evolução do projeto. Status: **Em andamento**; fundamentos relacionais e SQL foram praticados em parte, e a integração Node.js/MySQL está implementada. `listarCalculos()` filtra por `usuario_id` e consulta os cinco IDs mais altos em ordem decrescente; a API fornece esses registros à interface, que os apresenta do mais recente para o mais antigo. O limite afeta apenas consulta e exibição, sem apagar registros do MySQL. Conforme relato manual do desenvolvedor, cálculos são persistidos e recuperados após atualizar a página, o histórico aberto se atualiza após novo cálculo, e a calculadora continua operando durante a indisponibilidade do MySQL, com aviso temporário e gravações retomadas quando o serviço volta. Em 2026-11-23, a suíte teve 31 testes aprovados; os seis testes relacionados a banco usam mocks ou validam a configuração e não substituem uma integração automatizada com MySQL real. A etapa continua pendente de validação automatizada em banco isolado, compreensão demonstrada do fluxo e estudos de banco de dados. Não iniciar cadastro, autenticação ou migração do histórico JSON.
 
 Etapa 6 — Persistência do histórico em arquivo JSON. Status: **Adiada temporariamente**; permanece incompleta e suas tarefas continuam pendentes para possível retomada.
 
 Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamento**.
+
+## Revisão da versão local e requisitos de hospedagem futura
+
+### Correções para a versão local
+
+Na revisão de 2026-11-23, foram implementadas e testadas as seguintes correções e preparações:
+
+- A interface bloqueia os botões de cálculo enquanto uma requisição de cálculo ou encadeamento está pendente e os reabilita ao terminar, evitando cliques duplicados e alterações concorrentes do estado.
+- Os avisos simultâneos do MySQL e do histórico JSON são exibidos juntos. Um temporizador compartilhado é reiniciado quando chega um novo aviso, evitando que o temporizador anterior o oculte prematuramente.
+- O servidor classifica as rotas usando `URL.pathname`, preservando corretamente os status para rotas com query strings.
+- `banco.js` falha no início com mensagem clara quando faltam configurações obrigatórias ou quando `DB_PORT` não é válida, sem imprimir valores de configuração.
+- [`.env.example`](../.env.example) lista as variáveis usadas; `.env` continua ignorado e não versionado.
+- [`sql/esquema.sql`](../sql/esquema.sql) prepara o esquema atual de `usuarios` e `calculos` sem apagar dados ou tabelas; inclui o registro local de ID 1 somente se ainda não existir, pois a interface atual usa temporariamente esse ID.
+- [`README.md`](../README.md) documenta instalação, banco, ambiente, testes, inicialização e uso local/rede local.
+- A variável `NODE_ENV` não controlava o tratamento de erros; a declaração sem efeito foi removida. As respostas e o tratamento existentes foram mantidos, sem introduzir um modo de produção.
+- O servidor continua escutando em `0.0.0.0` para permitir o acesso intencional pela rede local. Essa configuração é documentada como acessível a outros dispositivos; a aplicação não tem autenticação.
+
+Os 31 testes executados em 2026-11-23 passaram: 11 de API, 9 de lógica/histórico, 6 de acesso ao banco (mocks e validação de configuração), 3 de encadeamento e 2 da interface com DOM simulado. A conexão MySQL real foi usada apenas para consultar metadados do esquema; o script SQL não foi aplicado ao banco e a suíte não faz integração com MySQL real. A configuração, o esquema e os testes não concluem a Etapa 7, a Etapa 6 ou a trilha AppSec.
+
+### Requisitos para uma eventual hospedagem pública
+
+Hospedagem e publicação **não foram iniciadas**. Antes de disponibilizar publicamente a aplicação, será necessário avaliar e resolver:
+
+1. Implementação de autenticação e autorização.
+2. Identificação do usuário autenticado no servidor, sem confiar no `usuario_id` recebido do navegador.
+3. Isolamento do histórico entre usuários.
+4. Proteção das rotas e dos dados.
+5. Configuração segura das variáveis de ambiente e credenciais.
+6. Configuração de HTTPS.
+7. Configuração de rede, firewall e exposição das portas.
+8. Tratamento de erros adequado ao ambiente de produção.
+9. Testes de segurança e validação da integração com banco de dados em ambiente isolado.
+10. Avaliação de backup e recuperação dos dados.
+
+Esses itens permanecem requisitos futuros e não autorizam implementar agora cadastro, login, autenticação, histórico individual, painel administrativo ou hospedagem.
 
 ## Etapas
 
@@ -121,12 +156,12 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Comportamento definido:** as operações são executadas sequencialmente. Assim, `8 + 2 × 3` deve resultar em `30`, pois `8 + 2` é resolvido ao selecionar a multiplicação.
 - **Segundo operando:** o botão `=` só chama o cálculo quando `precisaLimparDisplay` é falso, pela condição em `calculadora.js` (linha 215). Assim, `8 + =` sem digitar um segundo operando não calcula; o comportamento foi testado manualmente.
 - **Testado manualmente:** na interface, `8 + =` sem segundo operando não iniciou o cálculo; `8 + 2 × 3 =` exibiu o subtotal `10` ao selecionar `×` e o resultado final `30` após `=`.
-- **Testes automatizados atuais:** `testes/calcular_api.js` contém 10 testes, `testes/calcular_logica.js` 9, `testes/calculos.js` 4 e `testes/encadeamento.mjs` 3, totalizando **26 testes**. Conforme o relatório anterior de 2026-11-22, os 26 passaram em duas execuções de `npm.cmd test`; não foram executados novamente nesta atualização documental. Os testes de `calculos.js` usam mocks: verificam a inserção, listagem limitada, consultas parametrizadas, verificação de usuário e simulação de falha/recuperação, mas não conectam a um servidor MySQL real. O registro de 30 testes de 2026-11-13 refere-se à composição anterior da suíte.
+- **Testes automatizados atuais:** em 2026-11-23, `npm.cmd test` executou 31 testes e todos passaram: 11 de API, 9 de lógica/histórico, 6 relacionados a banco e configuração, 3 de encadeamento e 2 da interface simulada. Quatro testes de banco usam mocks e dois verificam a configuração; não há conexão automatizada com MySQL real. Os registros de 26 testes em 2026-11-22 e 30 testes em 2026-11-13 referem-se a composições anteriores da suíte.
 - **Análise do módulo de encadeamento:** o arquivo `encadeamento.mjs` implementa uma regra separada para `escolherOperacao(estado, novaOperacao, solicitarCalculo)`: quando existe operação anterior pendente, ele resolve a conta anterior antes de registrar a nova operação, atualiza `valorAtual` e mantém `valorAnterior` e `operacaoAtual` no estado; se o estado estiver em erro ou sem operação anterior, ele não dispara cálculo. Esse comportamento corresponde à regra atual da interface: contas encadeadas são resolvidas em sequência e o visor passa a usar a operação nova após o cálculo pendente.
 - **Cobertura de falhas do encadeamento:** `testes/encadeamento.mjs` verifica que, após a rejeição do cálculo, o estado fica com `valorAtual` igual a `Error`, `valorAnterior` e `operacaoAtual` nulos e `precisaLimparDisplay` verdadeiro. A recuperação pela interface ainda não tem teste automatizado.
 - **Possíveis melhorias futuras (não bloqueiam a etapa atual):** adicionar um teste automatizado para `=` sem segundo operando; testar a recuperação do encadeamento pela interface e avaliar testes automatizados da integração visual/E2E.
 - **Teste:** executar os testes automatizados e confirmar operações normais, entradas inválidas, divisão por zero e o resultado sequencial de contas encadeadas.
-- **Status:** Testado e validado pelos testes automatizados e fluxos manuais registrados. A contagem de 30 testes em 2026-11-13 refere-se à composição anterior; a suíte atual tem 26 testes e, conforme relatório anterior de 2026-11-22, passou duas vezes em `npm.cmd test`. Essa suíte não foi executada novamente nesta atualização documental. A integração automatizada com MySQL real e a compreensão do estudante permanecem pendentes na Etapa 7.
+- **Status:** Testado e validado pelos testes automatizados e fluxos manuais registrados. A suíte atual passou com 31 testes em 2026-11-23; os registros de 26 testes em 2026-11-22 e 30 em 2026-11-13 são históricos. A integração automatizada com MySQL real e a compreensão do estudante permanecem pendentes na Etapa 7.
 
 ### 6. Persistência do histórico
 
@@ -134,7 +169,7 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Implementado:** `historico.js` lê `historico.json`, acrescenta o cálculo e grava o arquivo usando `node:fs/promises`. A rota `POST /calcular` aguarda as tentativas de persistência; se uma delas falha, registra o erro no console e ainda retorna o resultado do cálculo com HTTP 200.
 - **Testado manualmente pelo usuário:** após reiniciar o servidor, o histórico permaneceu disponível; um novo cálculo acrescentou outro registro. Isso valida a persistência entre reinícios e a inclusão de novos cálculos.
 - **Tratamento de erros:** foi aprovado o teste da rota com funções falsas de persistência que rejeitam: o servidor registrou no console os erros simulados de `salvarHistorico` e `salvarCalculo` e ainda retornou o resultado do cálculo sem falha no teste. Essa execução valida a correção do fluxo de resposta do servidor para essas falhas simuladas; não conclui a etapa nem substitui as demais verificações pendentes.
-- **Testes automatizados atuais do histórico JSON:** `testes/calcular_logica.js` substitui as operações de arquivo por mocks e verifica leitura, gravação, conteúdo vazio, arquivo inexistente, erros e gravações concorrentes, sem ler ou alterar `historico.json`. Conforme o relatório anterior de 2026-11-22, esses testes fizeram parte das duas execuções da suíte com 26 aprovações; não foram repetidos nesta atualização documental.
+- **Testes automatizados atuais do histórico JSON:** `testes/calcular_logica.js` substitui as operações de arquivo por mocks e verifica leitura, gravação, conteúdo vazio, arquivo inexistente, erros e gravações concorrentes, sem ler ou alterar `historico.json`. Esses testes passaram na execução de 31 testes de `npm.cmd test` em 2026-11-23.
 - **Testes adicionais adiados:** ainda não foram realizados os testes de independência entre os salvamentos do histórico e do cálculo; não registrar essa atividade como concluída.
 - **Consulta do histórico JSON:** não há rota ou interface para exibir os registros desse arquivo, o que não é requisito da Etapa 6. O painel atual consulta os registros do MySQL pela rota `GET /api/calculos`; ele não lê nem substitui o histórico JSON.
 - **Caminho e concorrência:** `historico.js` ancora o caminho do arquivo em `__dirname` e serializa as gravações por uma fila dentro do processo. Os testes atuais exercitam esses comportamentos com mocks; não alegam validação do sistema de arquivos real nesta suíte.
@@ -189,10 +224,10 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - **Dependência:** Fases 1 e 2 praticadas, com consultas SQL executadas e compreendidas.
 - **Prática local já realizada:** instalação/configuração do MySQL, criação do banco e das tabelas e manipulação de dados foram concluídas como exercícios SQL. Também foram gerados/atualizados `package.json` e `package-lock.json`; o projeto usa CommonJS (`"type": "commonjs"`); o driver `mysql2` 3.24.6 foi instalado com `npm.cmd init -y`.
 - **Implementado no código:** `banco.js` carrega variáveis do `.env` com `dotenv` e cria um pool com `mysql2/promise`; `calculos.js` insere cálculos, lista por usuário e verifica a existência do usuário usando consultas parametrizadas; `inicializarServer.js` conecta essas funções às rotas de `server.js`. O `.env` está excluído do Git.
-- **Testes e validações relatados:** o desenvolvedor relatou testes manuais de gravação e recuperação com MySQL ligado, atualização do histórico aberto, continuidade das operações com o banco desligado, aviso temporário de falha e retomada das gravações após religar o serviço. O relatório anterior registra 26 testes automatizados aprovados em duas execuções de `npm.cmd test`; os testes de banco usam mocks e não comprovam integração com MySQL real. Esta atualização documental não repetiu essas verificações.
+- **Testes e validações relatados:** o desenvolvedor relatou testes manuais de gravação e recuperação com MySQL ligado, atualização do histórico aberto, continuidade das operações com o banco desligado, aviso temporário de falha e retomada das gravações após religar o serviço. Esses cenários manuais não foram repetidos nesta revisão; a suíte automatizada atual passou com 31 testes, e os testes de banco usam mocks/configuração, sem comprovar integração com MySQL real. Os 26 testes registrados anteriormente são históricos.
 - **Próximas atividades:** automatizar gravação, recuperação e indisponibilidade/retomada contra um banco de teste MySQL isolado; demonstrar o fluxo frontend → servidor → módulo de cálculos → banco; concluir exercícios e compreensão de fundamentos relacionais e SQL intermediário; e avaliar posteriormente a migração JSON em planejamento próprio, sem afetar os dados atuais.
 - **Limite do escopo atual:** manter `historico.js` e `historico.json`; não migrar ou remover essa implementação nesta etapa. Cadastro completo pela interface, login, autenticação, sessões, histórico individual autenticado, painel administrativo e hospedagem/publicação permanecem futuros.
-- **Status:** Em andamento. A integração, a consulta dos cinco cálculos e a atualização do painel estão implementadas; há testes manuais relatados e 26 testes automatizados anteriores com mocks. Integração automatizada com MySQL real, estudos e exercícios pendentes e compreensão demonstrada continuam pendentes.
+- **Status:** Em andamento. A integração, a consulta dos cinco cálculos e a atualização do painel estão implementadas; há testes manuais relatados e 31 testes automatizados aprovados, sem integração com MySQL real. Integração automatizada com MySQL real, estudos e exercícios pendentes e compreensão demonstrada continuam pendentes.
 
 #### Fase 4 — Preparação para a futura evolução
 
@@ -207,11 +242,11 @@ Trilha B: Projeto 1 — Segurança da calculadora e da API. Status: **Em andamen
 - Começar a avaliar hospedagem somente depois de validar localmente a integração Node.js/MySQL e os testes pertinentes.
 - Escolher uma hospedagem com base nos requisitos observados, configurar variáveis de ambiente e a conexão ao banco em produção e publicar a aplicação.
 - Testar frontend, backend e banco de dados online; revisar segurança e configuração antes da publicação definitiva.
-- **Preparação já implementada no servidor:** a porta usa `process.env.PORT || 3000`; `servidor.listen()` escuta em `0.0.0.0`; e a comparação `process.env.NODE_ENV === 'production'` seleciona mensagem genérica para erros HTTP 500 em produção e mensagem detalhada nos demais ambientes. O código não define `NODE_ENV` nem possui tratamento separado para `development` e `test`: ambos seguem o ramo diferente de produção.
+- **Preparação local implementada no servidor:** a porta usa `process.env.PORT || 3000` e `servidor.listen()` escuta em `0.0.0.0` para acesso intencional na rede local. A variável `NODE_ENV` não tem efeito no tratamento atual de erros e sua declaração sem uso foi removida; não há respostas diferentes por ambiente. A aplicação não tem autenticação e não deve ser exposta publicamente neste estado.
 - **Aprendizados relatados pelo usuário:** `process.env`, variáveis de ambiente, `NODE_ENV`, os ambientes `development`, `production` e `test`, comparação estrita com `===`, mensagens genéricas em produção e o fato de `node --test` não definir automaticamente `NODE_ENV=test`. São conhecimentos estudados, não novas implementações.
 - **Testes manuais relatados pelo usuário:** configuração de `PORT` e escuta em `0.0.0.0` foram testadas; a calculadora abriu com sucesso no celular usando o IPv4 do computador na mesma rede Wi-Fi.
-- **Testes automatizados pendentes:** não foi confirmado teste automatizado específico para `PORT`, `NODE_ENV` ou respostas de erro conforme o ambiente. Os 30 testes registrados em 2026-11-13 antecedem as mudanças de ambiente no servidor; não há contagem ou resultado de nova execução após essas mudanças.
-- **Próximos passos sugeridos (não executados):** criar testes reproduzíveis para a porta configurada e para as respostas de erro em produção e nos demais ambientes; verificar explicitamente como o processo recebe cada valor de `NODE_ENV`; avaliar a publicação somente após a validação local de MySQL.
+- **Verificação atual:** em 2026-11-23, além dos 31 testes automatizados, a aplicação foi iniciada em uma porta efêmera e respondeu `200` a `GET /` e `GET /api?smoke=1`. A suíte não tem teste dedicado para inicialização/porta. Como `NODE_ENV` não é utilizado, não há comportamento por ambiente a testar nem mensagens de erro diferentes por ambiente.
+- **Próximos passos sugeridos (não executados):** se a configuração de inicialização evoluir, considerar um teste automatizado dedicado à porta; avaliar hospedagem somente após a validação local de MySQL e o atendimento dos requisitos futuros listados acima.
 - **Dependência:** Fases 1 a 3 concluídas com implementação e testes locais; a Fase 4 deve estar planejada antes de publicar uma estrutura que pretenda suportar usuários no futuro.
 - **Status:** Não iniciada quanto à contratação/configuração de hospedagem e publicação. A preparação de variáveis de ambiente e o teste de acesso pela rede local são evidências parciais, mas não concluem esta fase.
 
@@ -422,7 +457,7 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 - **Implementado no código:** `server.js` define limite de 10 KB, rejeita `Content-Length` declarado acima do limite e verifica o tamanho recebido durante a leitura, respondendo `413` quando excedido. `testes/calcular_api.js` inclui um teste de corpo acima do limite e verifica uma requisição válida em seguida.
 - **Cabeçalhos:** o servidor define `maxHeaderSize` em 16 KB. Não encontrei teste específico que verifique a rejeição de cabeçalhos acima desse limite.
 - **Leitura do corpo:** o tamanho dos pedaços recebidos é contado, mas o corpo é acumulado em uma string (`corpo = corpo + pedaco`), não em `Buffer`. Compreender e avaliar a leitura em bytes com `Buffer` permanece um tópico de estudo/possível melhoria, não uma pendência da Etapa 6.
-- **Testes:** a suíte atual tem 26 testes (10 API, 9 lógica/histórico, 4 banco com mocks e 3 encadeamento). Conforme relatório anterior de 2026-11-22, passou duas vezes por `npm.cmd test`; não foi reexecutada nesta atualização. A contagem anterior de 30, em 2026-11-13, refere-se à versão precedente da suíte.
+- **Testes:** em 2026-11-23, a suíte passou com 31 testes (11 API, 9 lógica/histórico, 6 de banco/configuração, 3 encadeamento e 2 de interface simulada). Os testes de banco usam mocks ou verificam configuração; a suíte não integra com MySQL real.
 - **Isolamento:** a API é exercitada em servidor iniciado pelo próprio teste, em porta efêmera, e as dependências de persistência são simuladas. Os testes de histórico interceptam operações de arquivo, e os de banco substituem `banco.execute`; não usam `historico.json` real nem MySQL real.
 - **Status:** Em andamento. Os testes atuais já não dependem de um servidor externo em `localhost:3000`; permanecem pendentes testes automatizados com MySQL real isolado e comprovação da compreensão do estudante sobre a integração.
 
@@ -446,11 +481,11 @@ Como referência de sequência, os módulos sobre formulários e XSS podem ser r
 
 ## Dúvidas e decisões pendentes
 
-Na revisão documental de 2026-11-22, foram conferidos os arquivos de configuração, servidor, persistência, interface e testes citados abaixo. O relatório anterior registra duas execuções bem-sucedidas da suíte atual com 26 testes; nenhuma suíte foi executada nesta atualização documental. Os itens abaixo distinguem implementações existentes de validações ainda pendentes.
+Na revisão documental de 2026-11-22, foram conferidos os arquivos de configuração, servidor, persistência, interface e testes citados abaixo. A atualização de 2026-11-23 registra as correções locais, os testes executados e as pendências futuras sem alterar o status das etapas.
 
 ### Problemas atuais e próximos passos
 
-1. **Scripts e suíte automatizada.** O `package.json` inclui `testes/calcular_logica.js`, `testes/calcular_api.js`, `testes/calculos.js` e `testes/encadeamento.mjs`: 9, 10, 4 e 3 testes, respectivamente. O relatório anterior registra duas execuções de `npm.cmd test` com 26 aprovações; não houve nova execução nesta atualização documental.
+1. **Scripts e suíte automatizada.** A suíte atual inclui 11 testes de API, 9 de lógica/histórico, 6 de banco (4 com mocks e 2 de validação de configuração), 3 de encadeamento e 2 de interface simulada. Em 2026-11-23, `npm.cmd test` passou com 31 aprovações e nenhuma falha.
 2. **Consulta dos cinco cálculos recentes — implementada.** `calculos.js` filtra por `usuario_id`, usa `ORDER BY id DESC LIMIT 5`, e `GET /api/calculos` fornece os resultados à interface. O painel os mostra na ordem recebida; limite de consulta/exibição não exclui registros do banco. A listagem e a rota têm testes com mocks, e o comportamento foi relatado como testado manualmente.
 3. **Falhas e persistência — testes simulados presentes.** Os testes cobrem avisos de falha na gravação, erro de listagem da API, consultas parametrizadas e uma sequência simulada de falha seguida de sucesso. Isso não comprova gravação, indisponibilidade ou recuperação contra MySQL real.
 4. **Isolamento — implementado nos testes atuais.** A API usa servidor em porta efêmera e persistências simuladas; os testes JSON interceptam operações de arquivo; os testes de banco substituem `banco.execute`. Não usam o histórico real nem conectam ao MySQL.
@@ -460,7 +495,7 @@ Na revisão documental de 2026-11-22, foram conferidos os arquivos de configura�
 
 6. **Definir a responsabilidade de cada armazenamento.** O servidor tenta persistir no JSON e no MySQL, enquanto `calculadora.js` também mantém registros no `localStorage` do navegador. O painel exibido consulta a API/MySQL; não confundir esse histórico com o armazenamento local. Documentar futuramente o propósito de cada um. Não remover armazenamento nem migrar dados antes de planejar e testar a migração, preservando a decisão aprovada para as Etapas 6 e 7.
 7. **Avaliar um limite para `historico.json`.** `historico.js` acrescenta registros sem política de retenção ou limite. Definir se é necessário limitar, arquivar ou manter os dados e como testar a decisão. Esta avaliação não retoma automaticamente a Etapa 6, que continua adiada e incompleta.
-8. **Exibir avisos simultâneos no frontend.** Em `calculadora.js`, o aviso de falha do MySQL pode ser imediatamente sobrescrito pelo aviso do histórico; os temporizadores de ocultação também podem competir. Planejar uma apresentação que não perca avisos quando as duas persistências falharem, sem alterar agora o funcionamento da interface.
+8. **Avisos simultâneos no frontend — corrigido em 2026-11-23.** A interface combina os avisos do MySQL e do histórico em uma mensagem e usa um temporizador compartilhado, reiniciado quando um novo aviso chega. O teste de interface verifica a preservação de ambos e o cancelamento do temporizador anterior.
 
 ### Segurança futura
 
@@ -476,6 +511,7 @@ Na revisão documental de 2026-11-22, foram conferidos os arquivos de configura�
 - Express continua futuro; manter `node:http`, sem substituir a arquitetura aprovada.
 - Planejar cada projeto futuro separadamente; avaliar hospedagem somente após validar a integração local com MySQL, sem contratar agora.
 - Registrar evidências de aprendizagem e compreensão somente quando forem demonstradas.
+- Hospedagem pública continua não iniciada; os requisitos a avaliar antes de eventual publicação estão listados na seção “Requisitos para uma eventual hospedagem pública”.
 
 ## Histórico de mudanças
 
@@ -508,6 +544,8 @@ Na revisão documental de 2026-11-22, foram conferidos os arquivos de configura�
 - **2026-11-20** — Registrado, conforme relato do desenvolvedor, o teste manual de indisponibilidade do MySQL: com o serviço desligado, a calculadora continuou realizando operações pela página, apresentou o aviso de falha ao salvar no banco e o removeu após cinco segundos. O teste demonstra que a operação matemática não depende do MySQL, mas não substitui testes automatizados nem valida gravação/recuperação de cálculos ou recuperação da conexão. O usuário confirmou que o npm está funcionando e os scripts `start` e `test` estão versionados. A próxima atividade é implementar e validar a consulta dos cinco cálculos mais recentes com ordenação SQL adequada, sem apagar registros antigos. A Etapa 7 permanece em andamento; nenhuma suíte foi executada nesta atualização.
 - **2026-11-22** — Atualização documental baseada na implementação atual e nos relatos do desenvolvedor: `listarCalculos()` filtra por usuário, ordena por `id DESC` e limita a cinco linhas; `GET /api/calculos` alimenta o painel, que busca ao abrir e atualiza se permanecer aberto após novo cálculo. O limite não apaga dados MySQL; `localStorage` permanece separado. O desenvolvedor relatou manualmente gravação e recuperação com MySQL ligado, atualização do histórico aberto, continuidade dos cálculos durante indisponibilidade, aviso temporário e retomada de gravações após religar o serviço. O relatório anterior registra 26 testes (10 API, 9 lógica/histórico, 4 banco com mocks e 3 encadeamento) aprovados em duas execuções de `npm.cmd test`; não foram repetidos nesta atualização documental. A cobertura de banco é simulada, não integração automatizada com MySQL real. A Etapa 7 permanece em andamento; a Etapa 6 continua adiada, com `historico.js` e `historico.json` preservados. A conferência do histórico registrada na revisão anterior encontrou 13 registros, contagem não refeita nesta atualização.
 
+- **2026-11-23** — Correções da versão local: os botões de cálculo ficam bloqueados durante requisições assíncronas; avisos MySQL/JSON são combinados e usam um temporizador reiniciável; rotas passam a ser classificadas por `URL.pathname`; configurações MySQL ausentes e porta inválida falham com mensagem sem valores secretos; `NODE_ENV` sem uso foi removido sem alterar o tratamento de erros. Criados `.env.example`, `sql/esquema.sql` não destrutivo e `README.md`; `.env` permanece ignorado. O esquema foi comparado com metadados lidos do MySQL local, sem aplicar o script ou executar integração da aplicação contra o banco. `npm.cmd test`: 31 aprovados, 0 falhas (11 API, 9 lógica/histórico, 6 banco com mocks/validação, 3 encadeamento e 2 interface com DOM simulado). Etapa 7 e AppSec permanecem em andamento; Etapa 6 permanece adiada; hospedagem não foi iniciada. Os requisitos para eventual publicação pública estão separados na seção própria; nenhuma funcionalidade futura foi iniciada.
+
 ## Conceitos
 
 O registro abaixo diferencia conceitos presentes no código daqueles cuja compreensão já foi demonstrada. Atualizar essa distinção somente com evidência de prática, explicação ou revisão; não inferir consolidação a partir da conclusão de uma funcionalidade.
@@ -520,7 +558,7 @@ O registro abaixo diferencia conceitos presentes no código daqueles cuja compre
 - MySQL local: banco `calculadora`, tabelas `usuarios` e `calculos`, chave estrangeira e registros de exercício praticados.
 - SQL praticado: `CREATE`, `INSERT`, `SELECT`, `WHERE`, `INNER JOIN` e outras operações presentes no material de estudos.
 - Integração Node.js/MySQL presente no código: pool configurado por variáveis de ambiente em `.env`; consultas parametrizadas para gravar e verificar usuário; listagem por usuário ordenada por `id DESC` e limitada a cinco. A API entrega esses registros à interface, que os apresenta do mais recente para o mais antigo. O desenvolvedor relatou testes manuais de gravação, recuperação, atualização visual e indisponibilidade/retomada do MySQL. Permanecem pendentes integração automatizada com MySQL real e compreensão demonstrada do fluxo completo.
-- Configuração do servidor presente em `server.js`: porta por `process.env.PORT || 3000`, escuta em `0.0.0.0` e seleção da mensagem de erro de produção com `process.env.NODE_ENV === 'production'`.
+- Configuração do servidor presente em `server.js`: porta por `process.env.PORT || 3000` e escuta em `0.0.0.0`. `NODE_ENV` não é utilizado; sua declaração sem efeito foi removida em 2026-11-23, sem alterar o tratamento de erros.
 - HTTP: diferença entre caminho (`req.url`) e método (`req.method`), cabeçalho `Content-Type`, serialização JSON e status HTTP 200, 404 e 405 (etapa 2 testada pelo usuário).
 - O arquivo `node.js.js` não faz parte da estrutura atual; não é uma dependência das etapas presentes.
 - A presença desses conceitos no código não significa que todos estejam consolidados; serão retomados quando necessários.

@@ -4,7 +4,7 @@
   "description": "",
   "main": "calculadora.js",
   "scripts": {
-    "test": "node --test testes/calcular_logica.js testes/calcular_api.js testes/calculos.js testes/encadeamento.mjs",
+    "test": "node --test testes/calcular_logica.js testes/calcular_api.js testes/calculos.js testes/encadeamento.mjs testes/calculadora_ui.js",
     "start": "node inicializarServer.js"
   },
   "repository": {

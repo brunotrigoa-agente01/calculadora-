@@ -20,6 +20,29 @@ let valorAtual = "0";
 let valorAnterior = null; // Armazena o valor anterior para operações
 let operacaoAtual = null; // Armazena a operação atual (+, -, *, /)
 let precisaLimparDisplay = false; // Indica se o display precisa ser limpo antes de digitar um novo número
+let calculoEmAndamento = false;
+let temporizadorAviso = null;
+const botoesCalculadora = [...botoesNumeros, ...botoesOperacoes, ...botoesFuncoes];
+
+async function executarComBloqueio(callback) {
+    if (calculoEmAndamento) {
+        return;
+    }
+
+    calculoEmAndamento = true;
+    botoesCalculadora.forEach((botao) => {
+        botao.disabled = true;
+    });
+
+    try {
+        await callback();
+    } finally {
+        calculoEmAndamento = false;
+        botoesCalculadora.forEach((botao) => {
+            botao.disabled = false;
+        });
+    }
+}
 
 
 async function atualizarHistorico() {
@@ -169,34 +192,35 @@ botoesNumeros.forEach((botao) => {
 // Cada botao informa sua operacao pelo atributo data-operation.
 botoesOperacoes.forEach((botao)=>{
     botao.addEventListener('click', async () =>{
-        const estado = {
-            valorAtual,
-            valorAnterior,
-            operacaoAtual,
-            precisaLimparDisplay
-        };
-        
+        await executarComBloqueio(async () => {
+            const estado = {
+                valorAtual,
+                valorAnterior,
+                operacaoAtual,
+                precisaLimparDisplay
+            };
 
-        await escolherOperacao(
-            estado,
-            botao.dataset.operation,
-            async (...argumentos) => {
-                const { resultado } = await solicitarCalculo(...argumentos);
-                return resultado;
+            await escolherOperacao(
+                estado,
+                botao.dataset.operation,
+                async (...argumentos) => {
+                    const { resultado } = await solicitarCalculo(...argumentos);
+                    return resultado;
+                }
+            );
+
+            if (estado.valorAnterior !== null && estado.operacaoAtual !== null) {
+                const simbolo = operador[estado.operacaoAtual]
+                atualizarDisplay(estado.valorAnterior + simbolo);
             }
-        );
-        
-        if (estado.valorAnterior !== null && estado.operacaoAtual !== null) {
-            const simbolo = operador[estado.operacaoAtual]
-            atualizarDisplay(estado.valorAnterior + simbolo);
-        }
-        
-        valorAtual = estado.valorAtual;
-        valorAnterior = estado.valorAnterior;
-        operacaoAtual = estado.operacaoAtual;
-        precisaLimparDisplay = estado.precisaLimparDisplay;
 
-        atualizarVisor();
+            valorAtual = estado.valorAtual;
+            valorAnterior = estado.valorAnterior;
+            operacaoAtual = estado.operacaoAtual;
+            precisaLimparDisplay = estado.precisaLimparDisplay;
+
+            atualizarVisor();
+        });
 
     })
         
@@ -226,6 +250,35 @@ function mostrarHistorico(dadosHistorico) {
 
         popoverHistorico.innerText += linha + '\n';
     });
+}
+
+function mostrarAvisos(avisos) {
+    const mensagens = [];
+
+    if (avisos.mysql) {
+        console.error('Erro ao salvar cálculo:', avisos.mysql);
+        mensagens.push('Calculo realizado mas impossível salvar no banco de dados');
+    }
+    if (avisos.historico) {
+        console.error('calculo realizado mas não salvo no histórico', avisos.historico);
+        mensagens.push('calculo realizado mas não salvo no histórico');
+    }
+
+    if (mensagens.length === 0) {
+        return;
+    }
+
+    if (temporizadorAviso !== null) {
+        clearTimeout(temporizadorAviso);
+    }
+
+    mensagemAviso.style.display = 'block';
+    mensagemAviso.textContent = mensagens.join(' | ');
+    temporizadorAviso = setTimeout(() => {
+        mensagemAviso.textContent = '';
+        mensagemAviso.style.display = 'none';
+        temporizadorAviso = null;
+    }, 5000);
 }
 
 
@@ -265,25 +318,7 @@ async function calcularNoServidor() {
         valorAtual = String(resultado).replace('.',',');
         atualizarDisplay(valorAtual);
 
-        if(avisos.mysql) {
-            console.error('Erro ao salvar cálculo:', avisos.mysql);
-            setTimeout(() => {
-                mensagemAviso.textContent = '';
-                mensagemAviso.style.display = 'none';
-            }, 5000);
-            mensagemAviso.style.display = 'block';
-            mensagemAviso.textContent = 'Calculo realizado mas impossível salvar no banco de dados';
-        }
-        if(avisos.historico) {
-            console.error('calculo realizado mas não salvo no histórico', avisos.historico);
-
-            setTimeout(() => {
-                mensagemAviso.textContent = '';
-                mensagemAviso.style.display = 'none';
-            }, 5000);
-            mensagemAviso.style.display = 'block';
-            mensagemAviso.textContent = 'calculo realizado mas não salvo no histórico';
-        }
+        mostrarAvisos(avisos);
         
         valorAnterior = null;
         operacaoAtual = null;
@@ -330,7 +365,7 @@ botoesFuncoes.forEach((botao) =>{
 
             case 'equals':
                 if(!precisaLimparDisplay) {
-                    calcularNoServidor()
+                    executarComBloqueio(calcularNoServidor);
                     
                 };
             break;

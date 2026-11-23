@@ -4,8 +4,6 @@ const http = require('node:http');
 const { calcular} = require('./calcular.js');
 
 function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarUsuario) {
-    
-    const producao = process.env.NODE_ENV === 'production';
     let arquivosPublicos = {
 
     '/':{ 
@@ -239,7 +237,7 @@ function criaServidor(salvarHistorico, salvarCalculo, listarCalculos, verificarU
             
 
 
-        }else if(req.url !='/calcular') {
+        }else if(url.pathname !== '/calcular') {
             res.statusCode = 404;
             res.setHeader('content-Type', 'application/json; charset=utf-8');
             res.end(JSON.stringify({ erro: 'Caminho não encontrado' }));

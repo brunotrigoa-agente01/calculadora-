@@ -216,6 +216,30 @@ test('GET /api e métodos e rotas inválidos retornam os status esperados', asyn
     assert.equal(rotaInexistente.status, 404);
 });
 
+test('rotas mantêm a classificação correta quando a URL tem query string', async () => {
+    const api = await fetch(`${baseUrl}/api?origem=teste`);
+    assert.equal(api.status, 200);
+
+    const metodoApiInvalido = await fetch(`${baseUrl}/api?origem=teste`, {
+        method: 'POST'
+    });
+    assert.equal(metodoApiInvalido.status, 405);
+
+    const metodoCalculoInvalido = await fetch(`${baseUrl}/calcular?origem=teste`);
+    assert.equal(metodoCalculoInvalido.status, 405);
+
+    const calculo = await fetch(`${baseUrl}/calcular?origem=teste`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valor1: 2, valor2: 3, operacao: 'somar' })
+    });
+    assert.equal(calculo.status, 200);
+    assert.equal((await calculo.json()).resultado, 5);
+
+    const rotaInexistente = await fetch(`${baseUrl}/rota-inexistente?origem=teste`);
+    assert.equal(rotaInexistente.status, 404);
+});
+
 test('GET /api/calculos valida usuario_id e retorna os cálculos listados', async () => {
     for (const usuarioId of ['', 'abc', '0', '-1', '1.5']) {
         const resposta = await fetch(`${baseUrl}/api/calculos?usuario_id=${usuarioId}`);
