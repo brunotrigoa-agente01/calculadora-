@@ -325,7 +325,7 @@ async function calcularNoServidor() {
         precisaLimparDisplay = true;
 
         if(!popoverHistorico.hidden){
-            atualizarHistorico()
+            await atualizarHistorico()
         }
 
     } catch (erro) {
